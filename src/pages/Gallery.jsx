@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, Trash2, ChevronUp, ChevronDown, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { loadGalleryImages, saveGalleryImages, fileToDataUrl } from "@/lib/galleryStore";
+import { fetchGalleryImages, uploadGalleryImage, deleteGalleryImage, updateGalleryOrder } from "@/lib/galleryApi";
 
 export default function Gallery() {
   const queryClient = useQueryClient();
@@ -16,28 +16,21 @@ export default function Gallery() {
   const { data: images = [], isLoading } = useQuery({
     queryKey: ["galleryImages"],
     queryFn: async () => {
-      const list = loadGalleryImages();
-      return list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    },
+  const list = await fetchGalleryImages();
+  return list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+},
   });
 
   const uploadMutation = useMutation({
     mutationFn: async (file) => {
-      setUploading(true);
-      const dataUrl = await fileToDataUrl(file);
-      const next = [...images];
-      next.push({
-        id: crypto.randomUUID(),
-        image_url: dataUrl,
-        caption: file.name.replace(/\.[^/.]+$/, ""),
-        order: next.length,
-      });
-      saveGalleryImages(next);
-      return true;
+  setUploading(true);
+      const dataUrl = await uploadGalleryImage(file);
+  return true;
+},
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
-      toast.success("Image added (saved in this browser).");
+      toast.success("Image uploaded.");
       setUploading(false);
     },
     onError: () => {
@@ -48,10 +41,11 @@ export default function Gallery() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
-      const next = images.filter((img) => img.id !== id).map((img, idx) => ({ ...img, order: idx }));
-      saveGalleryImages(next);
-      return true;
-    },
+  const img = images.find((i) => i.id === id);
+  if (!img) return false;
+  await deleteGalleryImage(img.id, img.image_path);
+  return true;
+},
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
       toast.success("Image deleted.");
@@ -60,17 +54,19 @@ export default function Gallery() {
 
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, newOrder }) => {
-      const next = [...images];
-      const idx = next.findIndex((i) => i.id === id);
-      if (idx === -1) return false;
-      next[idx] = { ...next[idx], order: newOrder };
-      // Normalize orders
-      const normalized = next
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .map((img, i) => ({ ...img, order: i }));
-      saveGalleryImages(normalized);
-      return true;
-    },
+  const next = [...images];
+  const idx = next.findIndex((i) => i.id === id);
+  if (idx === -1) return false;
+
+  next[idx] = { ...next[idx], order: newOrder };
+
+  const normalized = next
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((img, i) => ({ ...img, order: i }));
+
+  await updateGalleryOrder(normalized);
+  return true;
+},
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
     },
