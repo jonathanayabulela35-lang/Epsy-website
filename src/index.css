@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  /* Epsy brand variables used throughout pages */
+  --epsy-sky-blue: #0CC0DF;
+  --epsy-off-white: #FAFBF9;
+  --epsy-charcoal: #0F1E24;
+  --epsy-slate-blue: #3B5563;
+
+  /* shadcn / tailwind CSS variable palette (light) */
+  --background: 0 0% 100%;
+  --foreground: 205 25% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 205 25% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 205 25% 15%;
+  --primary: 190 90% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 30% 96%;
+  --secondary-foreground: 205 25% 15%;
+  --muted: 210 30% 96%;
+  --muted-foreground: 205 15% 40%;
+  --accent: 210 30% 96%;
+  --accent-foreground: 205 25% 15%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 210 20% 90%;
+  --input: 210 20% 90%;
+  --ring: 190 90% 45%;
+  --radius: 16px;
+}
+
+html, body {
+  height: 100%;
+}
+body {
+  background: var(--epsy-off-white);
+  color: var(--epsy-charcoal);
+}

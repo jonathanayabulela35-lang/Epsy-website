@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://epsy.org.za/sitemap.xml

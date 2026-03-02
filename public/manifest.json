@@ -1,0 +1,15 @@
+{
+  "name": "Epsy",
+  "short_name": "Epsy",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFBF9",
+  "theme_color": "#0CC0DF",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
