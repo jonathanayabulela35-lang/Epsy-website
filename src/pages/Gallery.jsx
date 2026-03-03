@@ -22,55 +22,63 @@ export default function Gallery() {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: async (file) => {
-  setUploading(true);
-      const dataUrl = await uploadGalleryImage(file);
-  return true;
-},
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
-      toast.success("Image uploaded.");
-      setUploading(false);
-    },
-    onError: () => {
-      setUploading(false);
-      toast.error("Upload failed.");
-    },
-  });
+  mutationFn: async (file) => {
+    setUploading(true);
+    await uploadGalleryImage(file);
+    return true;
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
+    toast.success("Image uploaded.");
+    setUploading(false);
+  },
+  onError: (err) => {
+    console.error(err);
+    setUploading(false);
+    toast.error("Upload failed.");
+  },
+});
 
   const deleteMutation = useMutation({
-    mutationFn: async (id) => {
-  const img = images.find((i) => i.id === id);
-  if (!img) return false;
-  await deleteGalleryImage(img.id, img.image_path);
-  return true;
-},
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
-      toast.success("Image deleted.");
-    },
-  });
+  mutationFn: async (id) => {
+    const img = images.find((i) => i.id === id);
+    if (!img) return false;
+    await deleteGalleryImage(img.id, img.image_path);
+    return true;
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
+    toast.success("Image deleted.");
+  },
+  onError: (err) => {
+    console.error(err);
+    toast.error("Delete failed.");
+  },
+});
 
   const updateOrderMutation = useMutation({
-    mutationFn: async ({ id, newOrder }) => {
-  const next = [...images];
-  const idx = next.findIndex((i) => i.id === id);
-  if (idx === -1) return false;
+  mutationFn: async ({ id, newOrder }) => {
+    const next = [...images];
+    const idx = next.findIndex((i) => i.id === id);
+    if (idx === -1) return false;
 
-  next[idx] = { ...next[idx], order: newOrder };
+    next[idx] = { ...next[idx], order: newOrder };
 
-  const normalized = next
-    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    .map((img, i) => ({ ...img, order: i }));
+    const normalized = next
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((img, i) => ({ ...img, order: i }));
 
-  await updateGalleryOrder(normalized);
-  return true;
-},
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
-    },
-  });
+    await updateGalleryOrder(normalized);
+    return true;
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
+  },
+  onError: (err) => {
+    console.error(err);
+    toast.error("Reorder failed.");
+  },
+});
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
