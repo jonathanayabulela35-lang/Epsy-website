@@ -1,29 +1,70 @@
-const STORAGE_KEY = "epsy_gallery_images_v1";
+import { supabase } from "@/lib/supabaseClient";
 
-/**
- * Image shape:
- * { id: string, image_url: string, caption: string, order: number }
- */
-export function loadGalleryImages() {
+const BUCKET = "gallery";
+const TABLE = "gallery_images";
+
+export async function loadGalleryImages() {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("*")
+    .order("order", { ascending: true });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function uploadGalleryImage(file, caption, order) {
+  // 1) upload file to storage
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${crypto.randomUUID()}.${fileExt}`;
+  const filePath = fileName;
+
+  const { error: uploadError } = await supabase.storage
+    .from(BUCKET)
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type,
+    });
+
+  if (uploadError) throw uploadError;
+
+  // 2) get public URL
+  const { data: publicUrlData } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
+  const image_url = publicUrlData.publicUrl;
+
+  // 3) insert row into table
+  const { data, error: insertError } = await supabase
+    .from(TABLE)
+    .insert([{ image_url, caption, order }])
+    .select()
+    .single();
+
+  if (insertError) throw insertError;
+  return data;
+}
+
+export async function deleteGalleryImage(row) {
+  // remove storage object if possible
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const url = row.image_url || "";
+    const idx = url.indexOf(`/storage/v1/object/public/${BUCKET}/`);
+    if (idx !== -1) {
+      const path = url.substring(idx + `/storage/v1/object/public/${BUCKET}/`.length);
+      await supabase.storage.from(BUCKET).remove([path]);
+    }
   } catch {
-    return [];
+    // ignore storage delete failures
   }
+
+  const { error } = await supabase.from(TABLE).delete().eq("id", row.id);
+  if (error) throw error;
 }
 
-export function saveGalleryImages(images) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(images));
-}
+export async function saveGalleryOrder(imagesInOrder) {
+  // imagesInOrder: array of rows in the final order
+  const updates = imagesInOrder.map((img, i) => ({ id: img.id, order: i }));
 
-export async function fileToDataUrl(file) {
-  return await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+  const { error } = await supabase.from(TABLE).upsert(updates, { onConflict: "id" });
+  if (error) throw error;
 }
