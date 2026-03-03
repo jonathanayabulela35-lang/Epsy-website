@@ -80,3 +80,15 @@ export async function updateGalleryOrder(items) {
   if (error) throw error;
   return true;
 }
+
+export async function updateGalleryCaption(id, caption) {
+  const { data, error } = await supabase
+    .from("gallery_images")
+    .update({ caption })
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return data;
+}
