@@ -1,13 +1,116 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import { ArrowRight, Globe, Users, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { siteSettings } from "@/lib/siteSettings";
+import { supabase } from "@/lib/supabaseClient";
+import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
 
 export default function Home() {
   const settings = siteSettings;
+  const queryClient = useQueryClient();
+
+  // Only show admin UI if URL contains ?admin=1
+  const showAdmin = useMemo(() => {
+    return new URLSearchParams(window.location.search).get("admin") === "1";
+  }, []);
+
+  const ADMIN_EMAIL =
+    import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
+
+  const [session, setSession] = useState(null);
+  const [email, setEmail] = useState(ADMIN_EMAIL);
+
+  // Local editor fields (admin only)
+  const [heroTitle, setHeroTitle] = useState("");
+  const [heroSubtitle, setHeroSubtitle] = useState("");
+  const [ctaPrimaryText, setCtaPrimaryText] = useState("");
+  const [ctaSecondaryText, setCtaSecondaryText] = useState("");
+
+  const isAdmin = session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const signIn = async () => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin + "/?admin=1",
+      },
+    });
+
+    if (error) toast.error(error.message);
+    else toast.success("Magic link sent. Check your email.");
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    toast.success("Signed out.");
+  };
+
+  // Load "home" content JSON from Supabase
+  const { data: homeContent = {}, isLoading } = useQuery({
+    queryKey: ["siteContent", "home"],
+    queryFn: async () => {
+      return await getSiteContent("home");
+    },
+  });
+
+  // Defaults (if Supabase row missing fields)
+  const viewHeroTitle =
+    homeContent.hero_title ?? "Building resilience through everyday psychology.";
+  const viewHeroSubtitle =
+    homeContent.hero_subtitle ??
+    "Epsy helps students and communities understand the mind, strengthen coping skills, and grow practical emotional resilience.";
+
+  const viewPrimaryText = homeContent.hero_cta_primary_text ?? "Learn more";
+  const viewSecondaryText = homeContent.hero_cta_secondary_text ?? "Contact us";
+
+  // Keep editor fields in sync when content loads
+  useEffect(() => {
+    if (!homeContent) return;
+    setHeroTitle(homeContent.hero_title ?? "");
+    setHeroSubtitle(homeContent.hero_subtitle ?? "");
+    setCtaPrimaryText(homeContent.hero_cta_primary_text ?? "Learn more");
+    setCtaSecondaryText(homeContent.hero_cta_secondary_text ?? "Contact us");
+  }, [homeContent]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const next = {
+        ...homeContent,
+        hero_title: heroTitle,
+        hero_subtitle: heroSubtitle,
+        hero_cta_primary_text: ctaPrimaryText,
+        hero_cta_secondary_text: ctaSecondaryText,
+      };
+      await updateSiteContent("home", next);
+      return true;
+    },
+    onSuccess: () => {
+      toast.success("Home updated.");
+      queryClient.invalidateQueries({ queryKey: ["siteContent", "home"] });
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error("Save failed.");
+    },
+  });
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -38,6 +141,96 @@ export default function Home() {
 
   return (
     <div>
+      {/* Admin panel (ONLY visible if ?admin=1) */}
+      {showAdmin && (
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
+          {!session ? (
+            <div
+              className="rounded-3xl border p-5 max-w-lg"
+              style={{ borderColor: "rgba(15,30,36,0.12)" }}
+            >
+              <div className="font-semibold mb-3" style={{ color: "var(--epsy-charcoal)" }}>
+                Admin login
+              </div>
+              <Label className="mb-2 block">Email</Label>
+              <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Button className="mt-3 rounded-2xl" onClick={signIn}>
+                Send magic link
+              </Button>
+            </div>
+          ) : isAdmin ? (
+            <div
+              className="rounded-3xl border p-5"
+              style={{ borderColor: "rgba(15,30,36,0.12)" }}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="font-semibold" style={{ color: "var(--epsy-charcoal)" }}>
+                    Home editor
+                  </div>
+                  <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
+                    Signed in as: {session.user.email}
+                  </div>
+                </div>
+                <Button variant="outline" className="rounded-2xl" onClick={signOut}>
+                  Sign out
+                </Button>
+              </div>
+
+              <div className="grid gap-4 mt-5 max-w-2xl">
+                <div>
+                  <Label>Hero title</Label>
+                  <Input value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} />
+                </div>
+
+                <div>
+                  <Label>Hero subtitle</Label>
+                  <Input value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Primary button text</Label>
+                    <Input value={ctaPrimaryText} onChange={(e) => setCtaPrimaryText(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label>Secondary button text</Label>
+                    <Input value={ctaSecondaryText} onChange={(e) => setCtaSecondaryText(e.target.value)} />
+                  </div>
+                </div>
+
+                <Button
+                  className="rounded-2xl"
+                  onClick={() => saveMutation.mutate()}
+                  disabled={saveMutation.isPending}
+                  style={{ backgroundColor: "var(--epsy-charcoal)", color: "white" }}
+                >
+                  {saveMutation.isPending ? "Saving..." : "Save changes"}
+                </Button>
+
+                {isLoading && (
+                  <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
+                    Loading content…
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div
+              className="rounded-3xl border p-5 max-w-lg"
+              style={{ borderColor: "rgba(15,30,36,0.12)" }}
+            >
+              <div className="font-semibold mb-2" style={{ color: "var(--epsy-charcoal)" }}>
+                Logged in, but not admin
+              </div>
+              <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
+                Signed in as: {session.user.email}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {settings?.hero_background_url ? (
@@ -72,7 +265,7 @@ export default function Home() {
                   : "var(--epsy-charcoal)",
               }}
             >
-              Building resilience through everyday psychology.
+              {viewHeroTitle}
             </motion.h1>
 
             <motion.p
@@ -86,8 +279,7 @@ export default function Home() {
                   : "var(--epsy-slate-blue)",
               }}
             >
-              Epsy helps students and communities understand the mind, strengthen
-              coping skills, and grow practical emotional resilience.
+              {viewHeroSubtitle}
             </motion.p>
 
             <motion.div
@@ -104,7 +296,7 @@ export default function Home() {
                     color: "var(--epsy-charcoal)",
                   }}
                 >
-                  Learn more
+                  {viewPrimaryText}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -118,7 +310,7 @@ export default function Home() {
                     color: "var(--epsy-sky-blue)",
                   }}
                 >
-                  Contact us
+                  {viewSecondaryText}
                 </Button>
               </Link>
             </motion.div>
@@ -183,7 +375,11 @@ export default function Home() {
 
                   {item.title === "EpsyApp" && (
                     <div className="pt-5">
-                      <Link to="/epsyapp" className="inline-flex items-center text-sm font-semibold" style={{ color: "var(--epsy-sky-blue)" }}>
+                      <Link
+                        to="/epsyapp"
+                        className="inline-flex items-center text-sm font-semibold"
+                        style={{ color: "var(--epsy-sky-blue)" }}
+                      >
                         Explore EpsyApp <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </div>
