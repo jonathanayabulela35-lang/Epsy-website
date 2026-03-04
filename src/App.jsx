@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route, NavLink } from "react-router-dom";
+
 import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
@@ -8,13 +9,13 @@ import Gallery from "./pages/Gallery.jsx";
 import Partnerships from "./pages/Partnerships.jsx";
 import PageNotFound from "./lib/PageNotFound.jsx";
 
+// ✅ Put your jpeg here: src/assets/logo.jpg
+import logo from "./assets/logo.jpg";
+
 function Header() {
-  const linkBase =
-    "text-sm font-medium px-3 py-2 rounded-xl transition-colors";
-  const active =
-    "bg-white/70 shadow-sm";
-  const inactive =
-    "hover:bg-white/50";
+  const linkBase = "text-sm font-medium px-3 py-2 rounded-xl transition-colors";
+  const active = "bg-white/70 shadow-sm";
+  const inactive = "hover:bg-white/50";
 
   const items = [
     { to: "/", label: "Home", end: true },
@@ -26,15 +27,27 @@ function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur" style={{ backgroundColor: "rgba(250,251,249,0.85)" }}>
+    <header
+      className="sticky top-0 z-50 backdrop-blur"
+      style={{ backgroundColor: "rgba(250,251,249,0.85)" }}
+    >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4 flex items-center justify-between">
+        {/* Brand */}
         <NavLink to="/" className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-2xl flex items-center justify-center" style={{ backgroundColor: "var(--epsy-sky-blue)" }}>
-            <span className="font-bold" style={{ color: "var(--epsy-charcoal)" }}>E</span>
-          </div>
-          <span className="font-semibold tracking-tight" style={{ color: "var(--epsy-charcoal)" }}>Epsy</span>
+          <img
+            src={logo}
+            alt="Everyday Psychology NPO logo"
+            className="h-9 w-9 rounded-2xl object-contain"
+          />
+          <span
+            className="font-semibold tracking-tight"
+            style={{ color: "var(--epsy-charcoal)" }}
+          >
+            Everyday Psychology NPO
+          </span>
         </NavLink>
 
+        {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-1">
           {items.map((it) => (
             <NavLink
@@ -57,13 +70,26 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="border-t" style={{ borderColor: "rgba(15,30,36,0.08)", backgroundColor: "rgba(250,251,249,0.85)" }}>
+    <footer
+      className="border-t"
+      style={{
+        borderColor: "rgba(15,30,36,0.08)",
+        backgroundColor: "rgba(250,251,249,0.85)",
+      }}
+    >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
         <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
-          © {new Date().getFullYear()} Epsy. All rights reserved.
+          © {new Date().getFullYear()} Everyday Psychology NPO. All rights
+          reserved.
         </div>
         <div className="text-sm flex gap-4">
-          <NavLink to="/privacy" className="hover:underline" style={{ color: "var(--epsy-slate-blue)" }}>Privacy</NavLink>
+          <NavLink
+            to="/privacy"
+            className="hover:underline"
+            style={{ color: "var(--epsy-slate-blue)" }}
+          >
+            Privacy
+          </NavLink>
         </div>
       </div>
     </footer>
@@ -73,10 +99,16 @@ function Footer() {
 function Privacy() {
   return (
     <div className="max-w-4xl mx-auto px-6 lg:px-12 py-16">
-      <h1 className="text-3xl font-bold mb-4" style={{ color: "var(--epsy-charcoal)" }}>Privacy</h1>
+      <h1
+        className="text-3xl font-bold mb-4"
+        style={{ color: "var(--epsy-charcoal)" }}
+      >
+        Privacy
+      </h1>
       <p className="leading-relaxed" style={{ color: "var(--epsy-slate-blue)" }}>
-        This website does not require you to log in. If you submit a form (e.g., Contact or Partnerships),
-        your details are used only to respond to your request.
+        This website does not require you to log in. If you submit a form (e.g.,
+        Contact or Partnerships), your details are used only to respond to your
+        request.
       </p>
     </div>
   );
