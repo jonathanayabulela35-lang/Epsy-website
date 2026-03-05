@@ -15,15 +15,17 @@ import {
   updateGalleryCaption,
 } from "@/lib/galleryApi";
 
+import { supabase } from "@/lib/supabaseClient";
+import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
+
 import AdminBar from "@/components/admin/AdminBar";
 import InlineText from "@/components/admin/InlineText";
-import { supabase } from "@/lib/supabaseClient";
 
 export default function Gallery() {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
 
-  // Admin UI only with ?admin=1
+  // admin mode only with ?admin=1
   const showAdmin = useMemo(() => {
     return new URLSearchParams(window.location.search).get("admin") === "1";
   }, []);
@@ -45,6 +47,25 @@ export default function Gallery() {
     showAdmin &&
     session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
+  // ✅ Load page content for Gallery header/subtitle
+  const { data: galleryContent = {} } = useQuery({
+    queryKey: ["siteContent", "gallery"],
+    queryFn: async () => await getSiteContent("gallery"),
+  });
+
+  const view = {
+    header_title: galleryContent.header_title ?? "Gallery",
+    header_subtitle:
+      galleryContent.header_subtitle ?? "A look into our moments and work.",
+  };
+
+  const saveField = async (field, value) => {
+    const next = { ...galleryContent, [field]: value };
+    await updateSiteContent("gallery", next);
+    queryClient.invalidateQueries({ queryKey: ["siteContent", "gallery"] });
+  };
+
+  // ✅ Gallery images (unchanged)
   const { data: images = [], isLoading } = useQuery({
     queryKey: ["galleryImages"],
     queryFn: async () => {
@@ -150,14 +171,14 @@ export default function Gallery() {
 
   return (
     <div>
-      {/* Top login/logout bar (only appears on ?admin=1 pages) */}
+      {/* Admin login/logout bar (only on ?admin=1) */}
       <AdminBar
         show={showAdmin}
         redirectPathWithAdmin="/gallery?admin=1"
         adminEmail={ADMIN_EMAIL}
       />
 
-      {/* Admin-only uploader (small, not a big panel) */}
+      {/* Admin-only uploader */}
       {isAdmin && (
         <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-4">
           <div className="flex items-center gap-3">
@@ -183,32 +204,45 @@ export default function Gallery() {
         </div>
       )}
 
+      {/* Header (✅ now editable) */}
       <section
         className="py-20 lg:py-28"
         style={{ backgroundColor: "var(--epsy-off-white)" }}
       >
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
-          <motion.h1
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl lg:text-5xl font-bold mb-4"
-            style={{ color: "var(--epsy-charcoal)" }}
           >
-            Gallery
-          </motion.h1>
-          <motion.p
+            <InlineText
+              enabled={isAdmin}
+              as="h1"
+              value={view.header_title}
+              onSave={(v) => saveField("header_title", v)}
+              className="text-4xl lg:text-5xl font-bold mb-4"
+              style={{ color: "var(--epsy-charcoal)" }}
+            />
+          </motion.div>
+
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg leading-relaxed"
-            style={{ color: "var(--epsy-slate-blue)" }}
           >
-            A look into our moments and work.
-          </motion.p>
+            <InlineText
+              enabled={isAdmin}
+              as="p"
+              value={view.header_subtitle}
+              onSave={(v) => saveField("header_subtitle", v)}
+              className="text-lg leading-relaxed"
+              style={{ color: "var(--epsy-slate-blue)" }}
+            />
+          </motion.div>
         </div>
       </section>
 
+      {/* Images */}
       <section className="py-12 lg:py-16" style={{ backgroundColor: "white" }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {isLoading ? (
@@ -242,7 +276,7 @@ export default function Gallery() {
                   </div>
 
                   <div className="p-4">
-                    {/* Notion-style caption editing */}
+                    {/* Caption (editable) */}
                     <InlineText
                       enabled={isAdmin}
                       as="div"
