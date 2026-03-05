@@ -9,9 +9,6 @@ import Gallery from "./pages/Gallery.jsx";
 import Partnerships from "./pages/Partnerships.jsx";
 import PageNotFound from "./lib/PageNotFound.jsx";
 
-// ✅ Put your jpeg here: src/assets/logo.jpg
-import logo from "./assets/logo.jpg";
-
 function Header() {
   const linkBase = "text-sm font-medium px-3 py-2 rounded-xl transition-colors";
   const active = "bg-white/70 shadow-sm";
@@ -35,7 +32,7 @@ function Header() {
         {/* Brand */}
         <NavLink to="/" className="flex items-center gap-3">
           <img
-            src={logo}
+            src="/assets/logo.jpg"
             alt="Everyday Psychology NPO logo"
             className="h-9 w-9 rounded-2xl object-contain"
           />
@@ -79,8 +76,7 @@ function Footer() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
         <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
-          © {new Date().getFullYear()} Everyday Psychology NPO. All rights
-          reserved.
+          © {new Date().getFullYear()} Everyday Psychology NPO. All rights reserved.
         </div>
         <div className="text-sm flex gap-4">
           <NavLink
@@ -106,9 +102,8 @@ function Privacy() {
         Privacy
       </h1>
       <p className="leading-relaxed" style={{ color: "var(--epsy-slate-blue)" }}>
-        This website does not require you to log in. If you submit a form (e.g.,
-        Contact or Partnerships), your details are used only to respond to your
-        request.
+        This website does not require you to log in. If you submit a form (e.g., Contact or
+        Partnerships), your details are used only to respond to your request.
       </p>
     </div>
   );
