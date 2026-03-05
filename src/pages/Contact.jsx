@@ -1,19 +1,46 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MapPin, Phone, Send, CheckCircle } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  Phone,
+  Send,
+  CheckCircle,
+  GripVertical,
+  Copy,
+  Trash2,
+  Plus,
+  Minus,
+  Type,
+} from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { toast } from "sonner";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabaseClient";
 import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
 
 import AdminBar from "@/components/admin/AdminBar";
 import InlineText from "@/components/admin/InlineText";
+
+/**
+ * CONTACT SECTIONS MODEL (stored in Supabase under contact.sections):
+ * [
+ *  { id, type: "header", data: { header_title, header_subtitle } },
+ *  { id, type: "contact_layout", data: { form_title, details_title, email, email_link, phone, phone_link, location, location_link } },
+ *  { id, type: "text", data: { title, body } },
+ *  { id, type: "divider", data: {} },
+ *  { id, type: "spacer", data: { height } }
+ * ]
+ *
+ * Backwards compatible:
+ * - If contact.sections doesn't exist yet, we build sections from old fields.
+ */
 
 function encode(data) {
   return new URLSearchParams(data).toString();
@@ -50,11 +77,12 @@ export default function Contact() {
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  // View fallbacks
-  const view = {
+  // Old fields fallback view
+  const oldView = {
     header_title: contactContent.header_title ?? "Contact",
     header_subtitle:
-      contactContent.header_subtitle ?? "Send us a message and we’ll get back to you.",
+      contactContent.header_subtitle ??
+      "Send us a message and we’ll get back to you.",
 
     form_title: contactContent.form_title ?? "Send a message",
     details_title: contactContent.details_title ?? "Contact details",
@@ -63,21 +91,205 @@ export default function Contact() {
     phone: contactContent.phone ?? "+27 00 000 0000",
     location: contactContent.location ?? "South Africa",
 
-    email_link: contactContent.email_link ?? `mailto:${contactContent.email ?? "hello@epsy.org.za"}`,
+    email_link:
+      contactContent.email_link ??
+      `mailto:${contactContent.email ?? "hello@epsy.org.za"}`,
     phone_link:
       contactContent.phone_link ??
-      `tel:${String(contactContent.phone ?? "+27 00 000 0000").replace(/\s+/g, "")}`,
+      `tel:${String(contactContent.phone ?? "+27 00 000 0000").replace(
+        /\s+/g,
+        ""
+      )}`,
     location_link: contactContent.location_link ?? "",
   };
 
-  const saveField = async (field, value) => {
-    const next = { ...contactContent, [field]: value };
+  // Sections (new model; fallback to old model)
+  const sections = useMemo(() => {
+    const s = contactContent.sections;
+    if (Array.isArray(s) && s.length) return s;
+
+    return [
+      {
+        id: "header",
+        type: "header",
+        data: {
+          header_title: oldView.header_title,
+          header_subtitle: oldView.header_subtitle,
+        },
+      },
+      {
+        id: "contact_layout",
+        type: "contact_layout",
+        data: {
+          form_title: oldView.form_title,
+          details_title: oldView.details_title,
+
+          email: oldView.email,
+          email_link: oldView.email_link,
+
+          phone: oldView.phone,
+          phone_link: oldView.phone_link,
+
+          location: oldView.location,
+          location_link: oldView.location_link || "",
+        },
+      },
+    ];
+  }, [contactContent.sections, oldView]);
+
+  // Save helpers
+  const saveSections = async (nextSections) => {
+    const next = { ...contactContent, sections: nextSections };
     await updateSiteContent("contact", next);
     queryClient.invalidateQueries({ queryKey: ["siteContent", "contact"] });
   };
 
-  // Contact form state (Netlify Forms)
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const saveSectionField = async (sectionId, field, value) => {
+    const nextSections = sections.map((s) =>
+      s.id === sectionId ? { ...s, data: { ...s.data, [field]: value } } : s
+    );
+    await saveSections(nextSections);
+  };
+
+  // Drag & drop (HTML5)
+  const dragIdRef = useRef(null);
+
+  const onDragStart = (id) => {
+    dragIdRef.current = id;
+  };
+
+  const onDropOn = async (targetId) => {
+    const draggedId = dragIdRef.current;
+    dragIdRef.current = null;
+
+    if (!draggedId || draggedId === targetId) return;
+
+    const current = [...sections];
+    const fromIndex = current.findIndex((s) => s.id === draggedId);
+    const toIndex = current.findIndex((s) => s.id === targetId);
+    if (fromIndex === -1 || toIndex === -1) return;
+
+    const [moved] = current.splice(fromIndex, 1);
+    current.splice(toIndex, 0, moved);
+
+    try {
+      await saveSections(current);
+      toast.success("Section moved");
+    } catch (e) {
+      console.error(e);
+      toast.error("Move failed");
+    }
+  };
+
+  // Duplicate / Delete
+  const duplicateSection = async (id) => {
+    const current = [...sections];
+    const idx = current.findIndex((s) => s.id === id);
+    if (idx === -1) return;
+
+    const src = current[idx];
+    const cloned = {
+      ...src,
+      id: `${src.type}_${Date.now()}`,
+      data: JSON.parse(JSON.stringify(src.data || {})),
+    };
+
+    current.splice(idx + 1, 0, cloned);
+
+    try {
+      await saveSections(current);
+      toast.success("Section duplicated");
+    } catch (e) {
+      console.error(e);
+      toast.error("Duplicate failed");
+    }
+  };
+
+  const deleteSection = async (id) => {
+    if (sections.length <= 1) {
+      toast.error("You must keep at least one section.");
+      return;
+    }
+
+    const current = sections.filter((s) => s.id !== id);
+
+    try {
+      await saveSections(current);
+      toast.success("Section deleted");
+    } catch (e) {
+      console.error(e);
+      toast.error("Delete failed");
+    }
+  };
+
+  // Add section (admin only)
+  const makeSection = (type) => {
+    const id = `${type}_${Date.now()}`;
+
+    if (type === "header") {
+      return {
+        id,
+        type: "header",
+        data: {
+          header_title: "Contact",
+          header_subtitle: "Send us a message and we’ll get back to you.",
+        },
+      };
+    }
+
+    if (type === "contact_layout") {
+      return {
+        id,
+        type: "contact_layout",
+        data: {
+          form_title: "Send a message",
+          details_title: "Contact details",
+          email: "hello@epsy.org.za",
+          email_link: "mailto:hello@epsy.org.za",
+          phone: "+27 00 000 0000",
+          phone_link: "tel:+27000000000",
+          location: "South Africa",
+          location_link: "",
+        },
+      };
+    }
+
+    if (type === "text") {
+      return {
+        id,
+        type: "text",
+        data: { title: "Section title…", body: "Write your text here…" },
+      };
+    }
+
+    if (type === "divider") {
+      return { id, type: "divider", data: {} };
+    }
+
+    if (type === "spacer") {
+      return { id, type: "spacer", data: { height: 48 } };
+    }
+
+    return { id, type: "text", data: { title: "Section", body: "" } };
+  };
+
+  const addSection = async (type) => {
+    const current = [...sections, makeSection(type)];
+    try {
+      await saveSections(current);
+      toast.success("Section added");
+    } catch (e) {
+      console.error(e);
+      toast.error("Add section failed");
+    }
+  };
+
+  // Contact form state (kept as-is)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -114,40 +326,118 @@ export default function Contact() {
     transition: { duration: 0.6 },
   };
 
-  const contactInfo = [
-    {
-      key: "email",
-      icon: Mail,
-      title: "Email",
-      detail: view.email,
-      link: view.email_link,
-      detailField: "email",
-      linkField: "email_link",
-      defaultLink: (v) => `mailto:${v}`,
-    },
-    {
-      key: "phone",
-      icon: Phone,
-      title: "Phone",
-      detail: view.phone,
-      link: view.phone_link,
-      detailField: "phone",
-      linkField: "phone_link",
-      defaultLink: (v) => `tel:${String(v).replace(/\s+/g, "")}`,
-    },
-    {
-      key: "location",
-      icon: MapPin,
-      title: "Location",
-      detail: view.location,
-      link: view.location_link || "",
-      detailField: "location",
-      linkField: "location_link",
-      defaultLink: () => "", // optional
-    },
-  ];
+  const SectionControls = ({ section }) => {
+    if (!isAdmin) return null;
 
-  const LinkEditor = ({ label, value, onSave, placeholder }) => {
+    return (
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
+        <div className="flex items-center justify-end gap-2">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl border cursor-grab active:cursor-grabbing"
+            draggable
+            onDragStart={() => onDragStart(section.id)}
+            style={{
+              borderColor: "rgba(15,30,36,0.12)",
+              backgroundColor: "rgba(250,251,249,0.85)",
+              color: "var(--epsy-charcoal)",
+            }}
+            title="Drag to move section"
+          >
+            <GripVertical className="h-4 w-4" />
+            <span className="text-xs font-medium">Drag</span>
+          </div>
+
+          <Button
+            variant="outline"
+            className="rounded-2xl"
+            onClick={() => duplicateSection(section.id)}
+            title="Duplicate section"
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            Duplicate
+          </Button>
+
+          <Button
+            variant="destructive"
+            className="rounded-2xl"
+            onClick={() => deleteSection(section.id)}
+            title="Delete section"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const AdminAddBar = () => {
+    if (!isAdmin) return null;
+
+    return (
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
+        <div
+          className="rounded-3xl border p-4 flex flex-wrap gap-2 items-center"
+          style={{
+            borderColor: "rgba(15,30,36,0.12)",
+            backgroundColor: "rgba(250,251,249,0.85)",
+          }}
+        >
+          <div
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl"
+            style={{ color: "var(--epsy-charcoal)" }}
+          >
+            <Plus className="h-4 w-4" />
+            <span className="text-sm font-semibold">Add section</span>
+          </div>
+
+          <Button
+            className="rounded-2xl"
+            variant="outline"
+            onClick={() => addSection("header")}
+          >
+            Add Header
+          </Button>
+
+          <Button
+            className="rounded-2xl"
+            variant="outline"
+            onClick={() => addSection("contact_layout")}
+          >
+            Add Contact Layout
+          </Button>
+
+          <Button
+            className="rounded-2xl"
+            variant="outline"
+            onClick={() => addSection("text")}
+          >
+            <Type className="h-4 w-4 mr-2" />
+            Add Text
+          </Button>
+
+          <Button
+            className="rounded-2xl"
+            variant="outline"
+            onClick={() => addSection("divider")}
+          >
+            <Minus className="h-4 w-4 mr-2" />
+            Add Divider
+          </Button>
+
+          <Button
+            className="rounded-2xl"
+            variant="outline"
+            onClick={() => addSection("spacer")}
+          >
+            Add Spacer
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const LinkEditor = ({ label, value, placeholder, onSave }) => {
     if (!isAdmin) return null;
     return (
       <div className="mt-2">
@@ -166,6 +456,450 @@ export default function Contact() {
     );
   };
 
+  const renderSection = (section) => {
+    if (section.type === "header") {
+      const d = section.data || {};
+      const title = d.header_title ?? "Contact";
+      const subtitle = d.header_subtitle ?? "Send us a message and we’ll get back to you.";
+
+      return (
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
+          <SectionControls section={section} />
+
+          <section
+            className="py-20 lg:py-28"
+            style={{ backgroundColor: "var(--epsy-off-white)" }}
+          >
+            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <InlineText
+                  enabled={isAdmin}
+                  as="h1"
+                  value={title}
+                  onSave={(v) => saveSectionField(section.id, "header_title", v)}
+                  className="text-4xl lg:text-5xl font-bold mb-4"
+                  style={{ color: "var(--epsy-charcoal)" }}
+                />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                <InlineText
+                  enabled={isAdmin}
+                  as="p"
+                  value={subtitle}
+                  onSave={(v) =>
+                    saveSectionField(section.id, "header_subtitle", v)
+                  }
+                  className="text-lg leading-relaxed"
+                  style={{ color: "var(--epsy-slate-blue)" }}
+                />
+              </motion.div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    if (section.type === "contact_layout") {
+      const d = section.data || {};
+
+      const formTitle = d.form_title ?? "Send a message";
+      const detailsTitle = d.details_title ?? "Contact details";
+
+      const email = d.email ?? "hello@epsy.org.za";
+      const emailLink = d.email_link ?? `mailto:${email}`;
+
+      const phone = d.phone ?? "+27 00 000 0000";
+      const phoneLink = d.phone_link ?? `tel:${String(phone).replace(/\s+/g, "")}`;
+
+      const location = d.location ?? "South Africa";
+      const locationLink = d.location_link ?? "";
+
+      const contactInfo = [
+        {
+          key: "email",
+          icon: Mail,
+          title: "Email",
+          detail: email,
+          link: emailLink,
+          detailField: "email",
+          linkField: "email_link",
+          defaultLink: (v) => `mailto:${v}`,
+        },
+        {
+          key: "phone",
+          icon: Phone,
+          title: "Phone",
+          detail: phone,
+          link: phoneLink,
+          detailField: "phone",
+          linkField: "phone_link",
+          defaultLink: (v) => `tel:${String(v).replace(/\s+/g, "")}`,
+        },
+        {
+          key: "location",
+          icon: MapPin,
+          title: "Location",
+          detail: location,
+          link: locationLink || "",
+          detailField: "location",
+          linkField: "location_link",
+          defaultLink: () => "",
+        },
+      ];
+
+      return (
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
+          <SectionControls section={section} />
+
+          {/* Hidden form for Netlify build-time detection */}
+          <form
+            name="contact"
+            data-netlify="true"
+            netlify-honeypot="bot-field"
+            hidden
+          >
+            <input name="bot-field" />
+            <input type="text" name="name" />
+            <input type="email" name="email" />
+            <textarea name="message" />
+          </form>
+
+          <section className="py-16 lg:py-24" style={{ backgroundColor: "white" }}>
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
+              {/* Form */}
+              <motion.div {...fadeInUp}>
+                <Card
+                  className="p-8 rounded-2xl border-0 shadow-sm"
+                  style={{ backgroundColor: "var(--epsy-off-white)" }}
+                >
+                  <InlineText
+                    enabled={isAdmin}
+                    as="h2"
+                    value={formTitle}
+                    onSave={(v) =>
+                      saveSectionField(section.id, "form_title", v)
+                    }
+                    className="text-2xl font-bold mb-6"
+                    style={{ color: "var(--epsy-charcoal)" }}
+                  />
+
+                  {/* Visitor form (NOT inline editable) */}
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <input type="hidden" name="form-name" value="contact" />
+                    <p hidden>
+                      <label>
+                        Don’t fill this out:{" "}
+                        <input name="bot-field" onChange={() => {}} />
+                      </label>
+                    </p>
+
+                    <div>
+                      <Label
+                        htmlFor="name"
+                        className="text-sm font-medium mb-2 block"
+                        style={{ color: "var(--epsy-charcoal)" }}
+                      >
+                        Name
+                      </Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        placeholder="Your name"
+                      />
+                    </div>
+
+                    <div>
+                      <Label
+                        htmlFor="email"
+                        className="text-sm font-medium mb-2 block"
+                        style={{ color: "var(--epsy-charcoal)" }}
+                      >
+                        Email
+                      </Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        placeholder="you@example.com"
+                      />
+                    </div>
+
+                    <div>
+                      <Label
+                        htmlFor="message"
+                        className="text-sm font-medium mb-2 block"
+                        style={{ color: "var(--epsy-charcoal)" }}
+                      >
+                        Message
+                      </Label>
+                      <Textarea
+                        id="message"
+                        name="message"
+                        value={formData.message}
+                        onChange={handleChange}
+                        required
+                        rows={6}
+                        placeholder="Tell us what you need..."
+                      />
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-6 rounded-2xl font-semibold"
+                      style={{
+                        backgroundColor: "var(--epsy-sky-blue)",
+                        color: "var(--epsy-charcoal)",
+                      }}
+                    >
+                      {loading ? "Sending..." : "Send message"}
+                      <Send className="ml-2 h-4 w-4" />
+                    </Button>
+
+                    {submitted && (
+                      <div
+                        className="flex items-center justify-center gap-2 text-sm font-medium mt-2"
+                        style={{ color: "var(--epsy-slate-blue)" }}
+                      >
+                        <CheckCircle className="h-4 w-4" /> Message sent!
+                      </div>
+                    )}
+                  </form>
+                </Card>
+              </motion.div>
+
+              {/* Details */}
+              <motion.div
+                {...fadeInUp}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                <Card
+                  className="p-8 rounded-2xl border-0 shadow-sm"
+                  style={{ backgroundColor: "var(--epsy-off-white)" }}
+                >
+                  <InlineText
+                    enabled={isAdmin}
+                    as="h2"
+                    value={detailsTitle}
+                    onSave={(v) =>
+                      saveSectionField(section.id, "details_title", v)
+                    }
+                    className="text-2xl font-bold mb-6"
+                    style={{ color: "var(--epsy-charcoal)" }}
+                  />
+
+                  <div className="space-y-6">
+                    {contactInfo.map((info) => {
+                      const Icon = info.icon;
+
+                      const onSaveDetail = async (v) => {
+                        await saveSectionField(section.id, info.detailField, v);
+
+                        // auto-update link for email/phone if they kept default format
+                        if (info.key === "email") {
+                          const auto = `mailto:${v}`;
+                          if (!emailLink || String(emailLink).startsWith("mailto:")) {
+                            await saveSectionField(section.id, info.linkField, auto);
+                          }
+                        }
+                        if (info.key === "phone") {
+                          const auto = `tel:${String(v).replace(/\s+/g, "")}`;
+                          if (!phoneLink || String(phoneLink).startsWith("tel:")) {
+                            await saveSectionField(section.id, info.linkField, auto);
+                          }
+                        }
+                      };
+
+                      return (
+                        <div key={info.key} className="flex items-start gap-4">
+                          <div
+                            className="h-10 w-10 rounded-2xl flex items-center justify-center"
+                            style={{
+                              backgroundColor: "rgba(12,192,223,0.20)",
+                            }}
+                          >
+                            <Icon
+                              className="h-5 w-5"
+                              style={{ color: "var(--epsy-sky-blue)" }}
+                            />
+                          </div>
+
+                          <div className="flex-1">
+                            <div
+                              className="font-medium mb-1"
+                              style={{ color: "var(--epsy-charcoal)" }}
+                            >
+                              {info.title}
+                            </div>
+
+                            {info.link ? (
+                              <a
+                                href={info.link}
+                                className="text-sm hover:underline"
+                                style={{ color: "var(--epsy-slate-blue)" }}
+                              >
+                                <InlineText
+                                  enabled={isAdmin}
+                                  as="span"
+                                  value={info.detail}
+                                  onSave={onSaveDetail}
+                                  style={{ display: "inline-block" }}
+                                />
+                              </a>
+                            ) : (
+                              <InlineText
+                                enabled={isAdmin}
+                                as="div"
+                                value={info.detail}
+                                onSave={onSaveDetail}
+                                className="text-sm"
+                                style={{ color: "var(--epsy-slate-blue)" }}
+                              />
+                            )}
+
+                            <LinkEditor
+                              label="Link"
+                              value={info.link}
+                              placeholder={
+                                info.key === "email"
+                                  ? "mailto:hello@epsy.org.za"
+                                  : info.key === "phone"
+                                  ? "tel:+27000000000"
+                                  : "https://maps.google.com/..."
+                              }
+                              onSave={async (v) => {
+                                // allow empty to remove location link
+                                if (info.key === "location") {
+                                  await saveSectionField(section.id, info.linkField, v || "");
+                                } else {
+                                  await saveSectionField(section.id, info.linkField, v);
+                                }
+                                toast.success("Saved");
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              </motion.div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    if (section.type === "text") {
+      const d = section.data || {};
+      const title = d.title ?? "Section title…";
+      const body = d.body ?? "Write your text here…";
+
+      return (
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
+          <SectionControls section={section} />
+
+          <section className="py-16 lg:py-24" style={{ backgroundColor: "white" }}>
+            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+              <InlineText
+                enabled={isAdmin}
+                as="h2"
+                value={title}
+                onSave={(v) => saveSectionField(section.id, "title", v)}
+                className="text-3xl lg:text-4xl font-bold mb-6"
+                style={{ color: "var(--epsy-charcoal)" }}
+              />
+              <InlineText
+                enabled={isAdmin}
+                as="p"
+                value={body}
+                onSave={(v) => saveSectionField(section.id, "body", v)}
+                className="text-lg leading-relaxed"
+                style={{ color: "var(--epsy-slate-blue)" }}
+              />
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    if (section.type === "divider") {
+      return (
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
+          <SectionControls section={section} />
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6">
+            <div
+              className="h-px w-full"
+              style={{ backgroundColor: "rgba(15,30,36,0.10)" }}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (section.type === "spacer") {
+      const h = Number(section.data?.height ?? 48);
+      return (
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
+          <SectionControls section={section} />
+          <div style={{ height: Math.max(12, Math.min(h, 240)) }} />
+        </div>
+      );
+    }
+
+    return (
+      <div
+        onDragOver={(e) => isAdmin && e.preventDefault()}
+        onDrop={() => isAdmin && onDropOn(section.id)}
+      >
+        <SectionControls section={section} />
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10">
+          <div
+            className="rounded-3xl border p-6"
+            style={{ borderColor: "rgba(15,30,36,0.12)" }}
+          >
+            <div className="font-semibold" style={{ color: "var(--epsy-charcoal)" }}>
+              Unknown section type
+            </div>
+            <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
+              type: {section.type}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
       {/* Admin bar */}
@@ -175,226 +909,13 @@ export default function Contact() {
         adminEmail={ADMIN_EMAIL}
       />
 
-      {/* Hidden form for Netlify build-time detection */}
-      <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
-        <input name="bot-field" />
-        <input type="text" name="name" />
-        <input type="email" name="email" />
-        <textarea name="message" />
-      </form>
+      {/* Always-visible add section bar */}
+      <AdminAddBar />
 
-      {/* Header */}
-      <section className="py-20 lg:py-28" style={{ backgroundColor: "var(--epsy-off-white)" }}>
-        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <InlineText
-              enabled={isAdmin}
-              as="h1"
-              value={view.header_title}
-              onSave={(v) => saveField("header_title", v)}
-              className="text-4xl lg:text-5xl font-bold mb-4"
-              style={{ color: "var(--epsy-charcoal)" }}
-            />
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
-            <InlineText
-              enabled={isAdmin}
-              as="p"
-              value={view.header_subtitle}
-              onSave={(v) => saveField("header_subtitle", v)}
-              className="text-lg leading-relaxed"
-              style={{ color: "var(--epsy-slate-blue)" }}
-            />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Content */}
-      <section className="py-16 lg:py-24" style={{ backgroundColor: "white" }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Form */}
-          <motion.div {...fadeInUp}>
-            <Card className="p-8 rounded-2xl border-0 shadow-sm" style={{ backgroundColor: "var(--epsy-off-white)" }}>
-              <InlineText
-                enabled={isAdmin}
-                as="h2"
-                value={view.form_title}
-                onSave={(v) => saveField("form_title", v)}
-                className="text-2xl font-bold mb-6"
-                style={{ color: "var(--epsy-charcoal)" }}
-              />
-
-              {/* Visitor form (NOT inline editable) */}
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <input type="hidden" name="form-name" value="contact" />
-                <p hidden>
-                  <label>
-                    Don’t fill this out: <input name="bot-field" onChange={() => {}} />
-                  </label>
-                </p>
-
-                <div>
-                  <Label htmlFor="name" className="text-sm font-medium mb-2 block" style={{ color: "var(--epsy-charcoal)" }}>
-                    Name
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    placeholder="Your name"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="email" className="text-sm font-medium mb-2 block" style={{ color: "var(--epsy-charcoal)" }}>
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    placeholder="you@example.com"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="message" className="text-sm font-medium mb-2 block" style={{ color: "var(--epsy-charcoal)" }}>
-                    Message
-                  </Label>
-                  <Textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={6}
-                    placeholder="Tell us what you need..."
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-6 rounded-2xl font-semibold"
-                  style={{ backgroundColor: "var(--epsy-sky-blue)", color: "var(--epsy-charcoal)" }}
-                >
-                  {loading ? "Sending..." : "Send message"}
-                  <Send className="ml-2 h-4 w-4" />
-                </Button>
-
-                {submitted && (
-                  <div className="flex items-center justify-center gap-2 text-sm font-medium mt-2" style={{ color: "var(--epsy-slate-blue)" }}>
-                    <CheckCircle className="h-4 w-4" /> Message sent!
-                  </div>
-                )}
-              </form>
-            </Card>
-          </motion.div>
-
-          {/* Details */}
-          <motion.div {...fadeInUp} transition={{ duration: 0.6, delay: 0.1 }}>
-            <Card className="p-8 rounded-2xl border-0 shadow-sm" style={{ backgroundColor: "var(--epsy-off-white)" }}>
-              <InlineText
-                enabled={isAdmin}
-                as="h2"
-                value={view.details_title}
-                onSave={(v) => saveField("details_title", v)}
-                className="text-2xl font-bold mb-6"
-                style={{ color: "var(--epsy-charcoal)" }}
-              />
-
-              <div className="space-y-6">
-                {contactInfo.map((info) => {
-                  const Icon = info.icon;
-
-                  // If admin changes the DETAIL, we also auto-fix email/tel link if they kept the default format
-                  const onSaveDetail = async (v) => {
-                    await saveField(info.detailField, v);
-
-                    // auto-update link for email/phone if link is empty or looks auto-generated
-                    if (info.key === "email") {
-                      const auto = `mailto:${v}`;
-                      if (!view.email_link || view.email_link.startsWith("mailto:")) {
-                        await saveField(info.linkField, auto);
-                      }
-                    }
-                    if (info.key === "phone") {
-                      const auto = `tel:${String(v).replace(/\s+/g, "")}`;
-                      if (!view.phone_link || view.phone_link.startsWith("tel:")) {
-                        await saveField(info.linkField, auto);
-                      }
-                    }
-                  };
-
-                  return (
-                    <div key={info.key} className="flex items-start gap-4">
-                      <div className="h-10 w-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: "rgba(12,192,223,0.20)" }}>
-                        <Icon className="h-5 w-5" style={{ color: "var(--epsy-sky-blue)" }} />
-                      </div>
-
-                      <div className="flex-1">
-                        <div className="font-medium mb-1" style={{ color: "var(--epsy-charcoal)" }}>
-                          {info.title}
-                        </div>
-
-                        {/* Detail value (inline editable) */}
-                        {info.link ? (
-                          <a href={info.link} className="text-sm hover:underline" style={{ color: "var(--epsy-slate-blue)" }}>
-                            <InlineText
-                              enabled={isAdmin}
-                              as="span"
-                              value={info.detail}
-                              onSave={onSaveDetail}
-                              style={{ display: "inline-block" }}
-                            />
-                          </a>
-                        ) : (
-                          <InlineText
-                            enabled={isAdmin}
-                            as="div"
-                            value={info.detail}
-                            onSave={onSaveDetail}
-                            className="text-sm"
-                            style={{ color: "var(--epsy-slate-blue)" }}
-                          />
-                        )}
-
-                        {/* Link editor (admin only, because you can’t “see” a link) */}
-                        <LinkEditor
-                          label="Link"
-                          value={info.link}
-                          placeholder={
-                            info.key === "email"
-                              ? "mailto:hello@epsy.org.za"
-                              : info.key === "phone"
-                              ? "tel:+27000000000"
-                              : "https://maps.google.com/..."
-                          }
-                          onSave={async (v) => {
-                            // allow empty to remove location link
-                            if (info.key === "location") {
-                              await saveField(info.linkField, v || "");
-                            } else {
-                              await saveField(info.linkField, v);
-                            }
-                            toast.success("Saved");
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
+      {/* Render sections */}
+      {sections.map((section) => (
+        <div key={section.id}>{renderSection(section)}</div>
+      ))}
     </div>
   );
 }
