@@ -23,6 +23,11 @@ import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
 
 import AdminBar from "@/components/admin/AdminBar";
 import InlineText from "@/components/admin/InlineText";
+import SectionBackgroundControls from "@/components/admin/SectionBackgroundControls";
+import {
+  getSectionBackgroundData,
+  getSectionBackgroundStyle,
+} from "@/components/admin/sectionBackground";
 import { supabase } from "@/lib/supabaseClient";
 
 /**
@@ -35,8 +40,11 @@ import { supabase } from "@/lib/supabaseClient";
  *  { id, type: "spacer", data: { height } }
  * ]
  *
- * Backwards compatible:
- * - If "home.sections" doesn't exist yet, we build sections from old fields.
+ * Background fields per section:
+ * - background_type: "none" | "color" | "image"
+ * - background_color: "#ffffff"
+ * - background_image: "/assets/example.jpg"
+ * - background_overlay: 0.35
  */
 
 export default function Home() {
@@ -57,7 +65,7 @@ export default function Home() {
     queryFn: async () => await getSiteContent("home"),
   });
 
-  // Determine if current session is admin (for enabling inline edits)
+  // Determine if current session is admin
   const { data: sessionData } = useQuery({
     queryKey: ["authSession"],
     queryFn: async () => {
@@ -71,7 +79,7 @@ export default function Home() {
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  // ---------- Defaults (old field model) ----------
+  // ---------- Defaults ----------
   const oldView = {
     hero_title:
       homeContent.hero_title ?? "Building resilience through everyday psychology.",
@@ -110,12 +118,11 @@ export default function Home() {
     partner_button_text: homeContent.partner_button_text ?? "Partner with us",
   };
 
-  // ---------- Sections (new model, fallback to old model) ----------
+  // ---------- Sections ----------
   const sections = useMemo(() => {
     const s = homeContent.sections;
     if (Array.isArray(s) && s.length) return s;
 
-    // Build default sections from old model
     return [
       {
         id: "hero",
@@ -125,6 +132,10 @@ export default function Home() {
           hero_subtitle: oldView.hero_subtitle,
           hero_cta_primary_text: oldView.hero_cta_primary_text,
           hero_cta_secondary_text: oldView.hero_cta_secondary_text,
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
         },
       },
       {
@@ -135,6 +146,10 @@ export default function Home() {
           what_subtitle: oldView.what_subtitle,
           cards: oldView.cards,
           partner_button_text: oldView.partner_button_text,
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
         },
       },
     ];
@@ -154,6 +169,13 @@ export default function Home() {
     await saveSections(nextSections);
   };
 
+  const updateSectionData = async (sectionId, patch) => {
+    const nextSections = sections.map((s) =>
+      s.id === sectionId ? { ...s, data: { ...s.data, ...patch } } : s
+    );
+    await saveSections(nextSections);
+  };
+
   const saveCardField = async (sectionId, cardIndex, field, value) => {
     const nextSections = sections.map((s) => {
       if (s.id !== sectionId) return s;
@@ -166,7 +188,7 @@ export default function Home() {
     await saveSections(nextSections);
   };
 
-  // ---------- Drag & drop (HTML5) ----------
+  // ---------- Drag & drop ----------
   const dragIdRef = useRef(null);
 
   const onDragStart = (id) => {
@@ -237,7 +259,7 @@ export default function Home() {
     }
   };
 
-  // ---------- Add Section (admin only) ----------
+  // ---------- Add Section ----------
   const makeSection = (type) => {
     const id = `${type}_${Date.now()}`;
 
@@ -250,6 +272,10 @@ export default function Home() {
           hero_subtitle: "New hero subtitle…",
           hero_cta_primary_text: "Learn more",
           hero_cta_secondary_text: "Contact us",
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
         },
       };
     }
@@ -267,6 +293,10 @@ export default function Home() {
             { key: "card3", title: "Card 3", description: "Description…" },
           ],
           partner_button_text: "Partner with us",
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
         },
       };
     }
@@ -278,19 +308,53 @@ export default function Home() {
         data: {
           title: "Section title…",
           body: "Write your paragraph here…",
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
         },
       };
     }
 
     if (type === "divider") {
-      return { id, type: "divider", data: {} };
+      return {
+        id,
+        type: "divider",
+        data: {
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
+        },
+      };
     }
 
     if (type === "spacer") {
-      return { id, type: "spacer", data: { height: 48 } };
+      return {
+        id,
+        type: "spacer",
+        data: {
+          height: 48,
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
+        },
+      };
     }
 
-    return { id, type: "text", data: { title: "Section", body: "" } };
+    return {
+      id,
+      type: "text",
+      data: {
+        title: "Section",
+        body: "",
+        background_type: "none",
+        background_color: "",
+        background_image: "",
+        background_overlay: 0.35,
+      },
+    };
   };
 
   const addSection = async (type) => {
@@ -364,7 +428,6 @@ export default function Home() {
 
     return (
       <div className="flex items-center justify-end gap-2 mb-3">
-        {/* Drag handle */}
         <div
           className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl border cursor-grab active:cursor-grabbing"
           draggable
@@ -405,6 +468,9 @@ export default function Home() {
 
   // ---------- Section render ----------
   const renderSection = (section) => {
+    const bgData = getSectionBackgroundData(section);
+    const bgStyle = getSectionBackgroundStyle(section);
+
     if (section.type === "hero") {
       const d = section.data || {};
       const heroTitle =
@@ -415,15 +481,39 @@ export default function Home() {
       const primaryText = d.hero_cta_primary_text ?? "Learn more";
       const secondaryText = d.hero_cta_secondary_text ?? "Contact us";
 
+      // Fallback: if no section background is chosen, use existing site hero background
+      const shouldUseSectionImage = bgData.backgroundType === "image";
+      const shouldUseSectionColor = bgData.backgroundType === "color";
+      const shouldUseDefaultHero =
+        bgData.backgroundType === "none" && settings?.hero_background_url;
+
       return (
         <div
           onDragOver={(e) => isAdmin && e.preventDefault()}
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
 
           <section className="relative overflow-hidden">
-            {settings?.hero_background_url ? (
+            {shouldUseSectionImage ? (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            ) : shouldUseSectionColor ? (
+              <div className="absolute inset-0" style={bgStyle} />
+            ) : shouldUseDefaultHero ? (
               <>
                 <div
                   className="absolute inset-0 bg-cover bg-center"
@@ -454,9 +544,10 @@ export default function Home() {
                     onSave={(v) => saveSectionField(section.id, "hero_title", v)}
                     className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight"
                     style={{
-                      color: settings?.hero_background_url
-                        ? "white"
-                        : "var(--epsy-charcoal)",
+                      color:
+                        shouldUseSectionImage || shouldUseDefaultHero
+                          ? "white"
+                          : "var(--epsy-charcoal)",
                     }}
                   />
                 </motion.div>
@@ -469,13 +560,15 @@ export default function Home() {
                   <InlineText
                     enabled={isAdmin}
                     as="p"
+                    multiLine
                     value={heroSubtitle}
                     onSave={(v) => saveSectionField(section.id, "hero_subtitle", v)}
                     className="text-lg lg:text-xl mb-10 leading-relaxed"
                     style={{
-                      color: settings?.hero_background_url
-                        ? "rgba(255,255,255,0.9)"
-                        : "var(--epsy-slate-blue)",
+                      color:
+                        shouldUseSectionImage || shouldUseDefaultHero
+                          ? "rgba(255,255,255,0.9)"
+                          : "var(--epsy-slate-blue)",
                     }}
                   />
                 </motion.div>
@@ -512,8 +605,18 @@ export default function Home() {
                       variant="outline"
                       className="px-8 py-6 text-base rounded-2xl font-semibold"
                       style={{
-                        borderColor: "var(--epsy-sky-blue)",
-                        color: "var(--epsy-sky-blue)",
+                        borderColor:
+                          shouldUseSectionImage || shouldUseDefaultHero
+                            ? "white"
+                            : "var(--epsy-sky-blue)",
+                        color:
+                          shouldUseSectionImage || shouldUseDefaultHero
+                            ? "white"
+                            : "var(--epsy-sky-blue)",
+                        backgroundColor:
+                          shouldUseSectionImage || shouldUseDefaultHero
+                            ? "rgba(255,255,255,0.05)"
+                            : "transparent",
                       }}
                     >
                       <InlineText
@@ -550,9 +653,36 @@ export default function Home() {
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
 
-          <section className="py-24 lg:py-32" style={{ backgroundColor: "white" }}>
-            <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <section
+            className="py-24 lg:py-32 relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? bgStyle
+                : bgData.backgroundType === "none"
+                ? { backgroundColor: "white" }
+                : {}
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
               <div className="max-w-3xl mx-auto text-center mb-16">
                 <InlineText
                   enabled={isAdmin}
@@ -560,15 +690,26 @@ export default function Home() {
                   value={whatTitle}
                   onSave={(v) => saveSectionField(section.id, "what_title", v)}
                   className="text-3xl lg:text-4xl font-bold mb-4"
-                  style={{ color: "var(--epsy-charcoal)" }}
+                  style={{
+                    color:
+                      bgData.backgroundType === "image"
+                        ? "white"
+                        : "var(--epsy-charcoal)",
+                  }}
                 />
                 <InlineText
                   enabled={isAdmin}
                   as="p"
+                  multiLine
                   value={whatSubtitle}
                   onSave={(v) => saveSectionField(section.id, "what_subtitle", v)}
                   className="text-lg leading-relaxed"
-                  style={{ color: "var(--epsy-slate-blue)" }}
+                  style={{
+                    color:
+                      bgData.backgroundType === "image"
+                        ? "rgba(255,255,255,0.9)"
+                        : "var(--epsy-slate-blue)",
+                  }}
                 />
               </div>
 
@@ -585,7 +726,10 @@ export default function Home() {
                       transition={{ duration: 0.5, delay: idx * 0.05 }}
                       className="p-8 rounded-3xl border shadow-sm"
                       style={{
-                        backgroundColor: "var(--epsy-off-white)",
+                        backgroundColor:
+                          bgData.backgroundType === "image"
+                            ? "rgba(250,251,249,0.92)"
+                            : "var(--epsy-off-white)",
                         borderColor: "rgba(15,30,36,0.08)",
                       }}
                     >
@@ -608,6 +752,7 @@ export default function Home() {
                       <InlineText
                         enabled={isAdmin}
                         as="p"
+                        multiLine
                         value={item.description}
                         onSave={(v) => saveCardField(section.id, idx, "description", v)}
                         className="leading-relaxed"
@@ -664,24 +809,62 @@ export default function Home() {
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
 
-          <section className="py-16 lg:py-24" style={{ backgroundColor: "white" }}>
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+          <section
+            className="py-16 lg:py-24 relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? bgStyle
+                : bgData.backgroundType === "none"
+                ? { backgroundColor: "white" }
+                : {}
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+
+            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
               <InlineText
                 enabled={isAdmin}
                 as="h2"
                 value={title}
                 onSave={(v) => saveSectionField(section.id, "title", v)}
                 className="text-3xl lg:text-4xl font-bold mb-6"
-                style={{ color: "var(--epsy-charcoal)" }}
+                style={{
+                  color:
+                    bgData.backgroundType === "image"
+                      ? "white"
+                      : "var(--epsy-charcoal)",
+                }}
               />
               <InlineText
                 enabled={isAdmin}
                 as="p"
+                multiLine
                 value={body}
                 onSave={(v) => saveSectionField(section.id, "body", v)}
                 className="text-lg leading-relaxed"
-                style={{ color: "var(--epsy-slate-blue)" }}
+                style={{
+                  color:
+                    bgData.backgroundType === "image"
+                      ? "rgba(255,255,255,0.9)"
+                      : "var(--epsy-slate-blue)",
+                }}
               />
             </div>
           </section>
@@ -696,11 +879,46 @@ export default function Home() {
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
-          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6">
-            <div
-              className="h-px w-full"
-              style={{ backgroundColor: "rgba(15,30,36,0.10)" }}
-            />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
+
+          <div
+            className="max-w-7xl mx-auto px-6 lg:px-12 py-6 relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? bgStyle
+                : bgData.backgroundType === "none"
+                ? {}
+                : {}
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+
+            <div className="relative z-10">
+              <div
+                className="h-px w-full"
+                style={{
+                  backgroundColor:
+                    bgData.backgroundType === "image"
+                      ? "rgba(255,255,255,0.35)"
+                      : "rgba(15,30,36,0.10)",
+                }}
+              />
+            </div>
           </div>
         </div>
       );
@@ -708,13 +926,40 @@ export default function Home() {
 
     if (section.type === "spacer") {
       const h = Number(section.data?.height ?? 48);
+
       return (
         <div
           onDragOver={(e) => isAdmin && e.preventDefault()}
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
-          <div style={{ height: Math.max(12, Math.min(h, 240)) }} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
+
+          <div
+            className="relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? { ...bgStyle, height: Math.max(12, Math.min(h, 240)) }
+                : { height: Math.max(12, Math.min(h, 240)) }
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+          </div>
         </div>
       );
     }
@@ -727,6 +972,12 @@ export default function Home() {
         className="max-w-7xl mx-auto px-6 lg:px-12 py-10"
       >
         <SectionControls section={section} />
+        <SectionBackgroundControls
+          section={section}
+          isAdmin={isAdmin}
+          onChange={(patch) => updateSectionData(section.id, patch)}
+        />
+
         <div
           className="rounded-3xl border p-6"
           style={{ borderColor: "rgba(15,30,36,0.12)" }}
@@ -744,17 +995,14 @@ export default function Home() {
 
   return (
     <div>
-      {/* Admin login bar (only when ?admin=1) */}
       <AdminBar
         show={showAdmin}
         redirectPathWithAdmin="/?admin=1"
         adminEmail={ADMIN_EMAIL}
       />
 
-      {/* Always-visible admin add bar */}
       <AdminAddBar />
 
-      {/* Render sections in stored order */}
       {sections.map((section) => (
         <div key={section.id}>{renderSection(section)}</div>
       ))}
