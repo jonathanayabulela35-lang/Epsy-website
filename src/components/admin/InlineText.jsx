@@ -1,6 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+/**
+ * InlineText v3 (Notion-style toolbar)
+ * - Stable cursor (no re-render on each keystroke)
+ * - Draft does NOT get overwritten while editing
+ * - Floating Save/Cancel toolbar appears while editing
+ * - Status: Saving… / Saved ✓ / Error
+ */
 export default function InlineText({
   value,
   onSave,
@@ -10,161 +17,284 @@ export default function InlineText({
   placeholder = "Click to edit…",
   enabled = false,
 
-  // Optional: if you ever want to allow multi-line editing explicitly
-  multiline: multilineProp,
+  // Editing behavior
+  multiLine = false,
+  trimOnSave = true,
+
+  // UI
+  showToolbar = true, // ✅ Notion-style mini toolbar
 }) {
   const Tag = as;
 
   const elRef = useRef(null);
+  const wrapRef = useRef(null);
+
   const lastSaved = useRef(value ?? "");
-  const saving = useRef(false);
-  const isFocused = useRef(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle | saving | saved | error
+  const [toolbarPos, setToolbarPos] = useState({ top: 0, left: 0 });
+  const savedTimer = useRef(null);
 
-  // We keep a tiny piece of state only to force placeholder behavior when empty.
-  // We DO NOT store live typing in React state (prevents cursor jump).
-  const [isEmpty, setIsEmpty] = useState(!(String(value ?? "").length > 0));
-
-  const multiline = useMemo(() => {
-    if (typeof multilineProp === "boolean") return multilineProp;
-    // sensible defaults:
-    // - paragraphs/divs: allow multiline
-    // - headings/spans: single-line
-    return as === "p" || as === "div";
-  }, [as, multilineProp]);
-
-  // Sync DOM text from `value`, BUT never overwrite while user is typing (focused).
+  // Only sync from props when NOT editing
   useEffect(() => {
-    const next = String(value ?? "");
-    lastSaved.current = next;
-
-    // If user is actively editing, don't stomp their typing.
-    if (isFocused.current) return;
-
-    const el = elRef.current;
-    if (!el) return;
-
-    // Only update DOM if different
-    if ((el.innerText ?? "") !== next) {
-      el.innerText = next;
+    if (isEditing) return;
+    lastSaved.current = value ?? "";
+    if (elRef.current) {
+      elRef.current.innerText = (value ?? "") || "";
     }
+  }, [value, isEditing]);
 
-    setIsEmpty(!(next.length > 0));
-  }, [value]);
+  const clearSavedTimer = () => {
+    if (savedTimer.current) {
+      clearTimeout(savedTimer.current);
+      savedTimer.current = null;
+    }
+  };
+
+  const setSavedForMoment = () => {
+    clearSavedTimer();
+    setStatus("saved");
+    savedTimer.current = setTimeout(() => setStatus("idle"), 1500);
+  };
 
   const getCurrentText = () => {
-    const el = elRef.current;
-    return String(el?.innerText ?? "");
+    if (!elRef.current) return "";
+    return elRef.current.innerText ?? "";
   };
 
-  const saveNow = async () => {
+  const positionToolbar = () => {
+    if (!wrapRef.current) return;
+    const rect = wrapRef.current.getBoundingClientRect();
+    // Show near top-right of the editable element, with a small offset
+    setToolbarPos({
+      top: rect.top + window.scrollY - 10,
+      left: rect.left + window.scrollX + rect.width - 170, // ~toolbar width
+    });
+  };
+
+  const enterEditMode = () => {
     if (!enabled) return;
-    if (saving.current) return;
+    setIsEditing(true);
+    setStatus("idle");
+    // Position after render tick
+    setTimeout(positionToolbar, 0);
+  };
+
+  const exitEditMode = () => {
+    setIsEditing(false);
+    clearSavedTimer();
+    setStatus("idle");
+  };
+
+  const revertUI = () => {
+    if (!elRef.current) return;
+    elRef.current.innerText = lastSaved.current ?? "";
+  };
+
+  const doSave = async () => {
+    if (!enabled) return;
+    if (saving) return;
 
     const raw = getCurrentText();
+    const next = trimOnSave ? raw.trim() : raw;
+    const prev = trimOnSave
+      ? (lastSaved.current ?? "").trim()
+      : (lastSaved.current ?? "");
 
-    // For single-line fields, remove newlines
-    const cleaned = multiline ? raw : raw.replace(/\n/g, " ");
-
-    const next = cleaned.trim();
-    const prev = String(lastSaved.current ?? "").trim();
-
-    if (next === prev) return;
+    if (next === prev) {
+      // No changes, but still confirm
+      setSavedForMoment();
+      toast.success("No changes");
+      return;
+    }
 
     try {
-      saving.current = true;
+      setSaving(true);
+      setStatus("saving");
       await onSave(next);
       lastSaved.current = next;
+      setSaving(false);
+      setSavedForMoment();
       toast.success("Saved");
+      return true;
     } catch (e) {
       console.error(e);
-      toast.error("Save failed — reverted");
-
-      // Revert DOM to last saved
-      const el = elRef.current;
-      if (el) el.innerText = String(lastSaved.current ?? "");
-      setIsEmpty(!(String(lastSaved.current ?? "").length > 0));
-    } finally {
-      saving.current = false;
+      setSaving(false);
+      setStatus("error");
+      toast.error("Save failed");
+      return false;
     }
   };
+
+  const cancelEdit = () => {
+    revertUI();
+    exitEditMode();
+    elRef.current?.blur();
+  };
+
+  // Keep toolbar positioned on scroll/resize while editing
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const onScroll = () => positionToolbar();
+    const onResize = () => positionToolbar();
+
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [isEditing]);
 
   const handleFocus = () => {
     if (!enabled) return;
-    isFocused.current = true;
-
-    // If placeholder is showing, clear it on focus
-    const el = elRef.current;
-    if (!el) return;
-    if ((el.innerText ?? "") === placeholder) {
-      el.innerText = "";
-      setIsEmpty(true);
-    }
+    enterEditMode();
   };
 
-  const handleBlur = async () => {
-    if (!enabled) return;
-    isFocused.current = false;
-
-    const text = getCurrentText().trim();
-    setIsEmpty(!(text.length > 0));
-
-    await saveNow();
-  };
-
-  const handleInput = () => {
-    const text = getCurrentText().trim();
-    setIsEmpty(!(text.length > 0));
+  const handleBlur = () => {
+    // Don’t autosave on blur anymore (toolbar handles save),
+    // because clicking the toolbar triggers blur.
+    // We'll keep editing until Save/Cancel.
   };
 
   const handleKeyDown = async (e) => {
     if (!enabled) return;
 
-    // Save shortcuts (Notion-ish):
-    // - Ctrl/Cmd + Enter saves (both single + multi)
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    if (e.key === "Escape") {
       e.preventDefault();
-      await saveNow();
+      cancelEdit();
       return;
     }
 
-    // For single-line fields:
-    // - Enter saves and prevents newline
-    if (!multiline && e.key === "Enter") {
+    // Save shortcuts:
+    // Single-line: Enter saves
+    if (!multiLine && e.key === "Enter") {
       e.preventDefault();
-      await saveNow();
-      // blur after save (feels “committed”)
-      elRef.current?.blur();
+      const ok = await doSave();
+      if (ok) {
+        exitEditMode();
+        elRef.current?.blur();
+      }
       return;
     }
 
-    // For multiline:
-    // - Enter makes a newline (normal)
-    // - (optional) you can still blur to save, or use Ctrl/Cmd+Enter
+    // Multi-line:
+    // Shift+Enter creates new line (allow)
+    // Ctrl/Cmd+Enter saves
+    if (multiLine && e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      const ok = await doSave();
+      if (ok) {
+        exitEditMode();
+        elRef.current?.blur();
+      }
+    }
   };
 
-  // Initial render: show value (or placeholder if admin + empty)
-  const initialText =
-    String(value ?? "").length > 0 ? String(value ?? "") : enabled ? placeholder : "";
-
   return (
-    <Tag
-      ref={elRef}
-      className={className}
-      style={{
-        ...style,
-        outline: "none",
-        cursor: enabled ? "text" : undefined,
-        // subtle hint for admin mode when empty
-        opacity: enabled && isEmpty ? 0.75 : 1,
-      }}
-      contentEditable={enabled}
-      suppressContentEditableWarning
-      onFocus={handleFocus}
-      onInput={handleInput}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-    >
-      {initialText}
-    </Tag>
+    <>
+      <span ref={wrapRef} className="inline-block relative">
+        <Tag
+          ref={elRef}
+          className={className}
+          style={{
+            ...style,
+            outline: "none",
+            cursor: enabled ? "text" : undefined,
+            whiteSpace: multiLine ? "pre-wrap" : "normal",
+          }}
+          contentEditable={enabled}
+          suppressContentEditableWarning
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+        >
+          {(value ?? "").length ? value : enabled ? "" : ""}
+        </Tag>
+
+        {/* Optional placeholder (visual only) */}
+        {enabled && !(value ?? "").length && !isEditing && (
+          <span
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              pointerEvents: "none",
+              opacity: 0.55,
+            }}
+          >
+            {placeholder}
+          </span>
+        )}
+      </span>
+
+      {/* Floating toolbar */}
+      {enabled && showToolbar && isEditing && (
+        <div
+          style={{
+            position: "absolute",
+            top: toolbarPos.top,
+            left: toolbarPos.left,
+            zIndex: 9999,
+          }}
+        >
+          <div
+            className="flex items-center gap-2 px-3 py-2 rounded-2xl shadow-sm border"
+            style={{
+              backgroundColor: "rgba(250,251,249,0.98)",
+              borderColor: "rgba(15,30,36,0.12)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()} // prevents blur killing edit
+              onClick={async () => {
+                const ok = await doSave();
+                if (ok) {
+                  exitEditMode();
+                  elRef.current?.blur();
+                }
+              }}
+              className="text-sm font-semibold px-3 py-1 rounded-xl"
+              style={{
+                backgroundColor: "var(--epsy-charcoal)",
+                color: "white",
+                opacity: saving ? 0.6 : 1,
+              }}
+              disabled={saving}
+            >
+              {saving ? "Saving…" : "Save"}
+            </button>
+
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={cancelEdit}
+              className="text-sm font-semibold px-3 py-1 rounded-xl"
+              style={{
+                backgroundColor: "rgba(15,30,36,0.08)",
+                color: "var(--epsy-charcoal)",
+              }}
+            >
+              Cancel
+            </button>
+
+            {/* Status */}
+            <div
+              className="text-xs ml-1"
+              style={{ color: "rgba(15,30,36,0.65)", minWidth: 70 }}
+            >
+              {status === "saving" && "Saving…"}
+              {status === "saved" && "Saved ✓"}
+              {status === "error" && "Error"}
+              {status === "idle" && ""}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
