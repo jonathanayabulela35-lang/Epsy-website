@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Mail,
@@ -32,23 +32,6 @@ import {
   getSectionBackgroundData,
   getSectionBackgroundStyle,
 } from "@/components/admin/sectionBackground";
-
-/**
- * CONTACT SECTIONS MODEL (stored in Supabase under contact.sections):
- * [
- *  { id, type: "header", data: { header_title, header_subtitle } },
- *  { id, type: "contact_layout", data: { form_title, details_title, email, email_link, phone, phone_link, location, location_link } },
- *  { id, type: "text", data: { title, body } },
- *  { id, type: "divider", data: {} },
- *  { id, type: "spacer", data: { height } }
- * ]
- *
- * Background fields per section:
- * - background_type: "none" | "color" | "image"
- * - background_color
- * - background_image
- * - background_overlay
- */
 
 function encode(data) {
   return new URLSearchParams(data).toString();
@@ -493,17 +476,52 @@ export default function Contact() {
   };
 
   const LinkEditor = ({ label, value, placeholder, onSave }) => {
+    const [draft, setDraft] = useState(value || "");
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+      setDraft(value || "");
+    }, [value]);
+
     if (!isAdmin) return null;
+
+    const handleSave = async () => {
+      try {
+        setSaving(true);
+        await onSave((draft || "").trim());
+        toast.success("Saved");
+      } catch (err) {
+        console.error(err);
+        toast.error("Save failed");
+      } finally {
+        setSaving(false);
+      }
+    };
+
     return (
       <div className="mt-2">
         <div className="text-xs mb-1" style={{ color: "rgba(15,30,36,0.65)" }}>
           {label}
         </div>
-        <Input
-          defaultValue={value || ""}
-          placeholder={placeholder}
-          onBlur={(e) => onSave(e.target.value.trim())}
-        />
+
+        <div className="flex gap-2 items-center">
+          <Input
+            value={draft}
+            placeholder={placeholder}
+            onChange={(e) => setDraft(e.target.value)}
+          />
+
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-xl"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save"}
+          </Button>
+        </div>
+
         <div className="text-xs mt-1" style={{ color: "rgba(15,30,36,0.55)" }}>
           Tip: For maps, paste a Google Maps link.
         </div>
@@ -518,7 +536,8 @@ export default function Contact() {
     if (section.type === "header") {
       const d = section.data || {};
       const title = d.header_title ?? "Contact";
-      const subtitle = d.header_subtitle ?? "Send us a message and we’ll get back to you.";
+      const subtitle =
+        d.header_subtitle ?? "Send us a message and we’ll get back to you.";
 
       return (
         <div
@@ -841,14 +860,29 @@ export default function Contact() {
 
                         if (info.key === "email") {
                           const auto = `mailto:${v}`;
-                          if (!emailLink || String(emailLink).startsWith("mailto:")) {
-                            await saveSectionField(section.id, info.linkField, auto);
+                          if (
+                            !emailLink ||
+                            String(emailLink).startsWith("mailto:")
+                          ) {
+                            await saveSectionField(
+                              section.id,
+                              info.linkField,
+                              auto
+                            );
                           }
                         }
+
                         if (info.key === "phone") {
                           const auto = `tel:${String(v).replace(/\s+/g, "")}`;
-                          if (!phoneLink || String(phoneLink).startsWith("tel:")) {
-                            await saveSectionField(section.id, info.linkField, auto);
+                          if (
+                            !phoneLink ||
+                            String(phoneLink).startsWith("tel:")
+                          ) {
+                            await saveSectionField(
+                              section.id,
+                              info.linkField,
+                              auto
+                            );
                           }
                         }
                       };
@@ -912,11 +946,18 @@ export default function Contact() {
                               }
                               onSave={async (v) => {
                                 if (info.key === "location") {
-                                  await saveSectionField(section.id, info.linkField, v || "");
+                                  await saveSectionField(
+                                    section.id,
+                                    info.linkField,
+                                    v || ""
+                                  );
                                 } else {
-                                  await saveSectionField(section.id, info.linkField, v);
+                                  await saveSectionField(
+                                    section.id,
+                                    info.linkField,
+                                    v
+                                  );
                                 }
-                                toast.success("Saved");
                               }}
                             />
                           </div>
@@ -1107,7 +1148,10 @@ export default function Contact() {
             className="rounded-3xl border p-6"
             style={{ borderColor: "rgba(15,30,36,0.12)" }}
           >
-            <div className="font-semibold" style={{ color: "var(--epsy-charcoal)" }}>
+            <div
+              className="font-semibold"
+              style={{ color: "var(--epsy-charcoal)" }}
+            >
               Unknown section type
             </div>
             <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
