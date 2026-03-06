@@ -22,6 +22,7 @@ export default function SectionBackgroundControls({
   const backgroundImage = d.background_image ?? "";
   const backgroundOverlay =
     typeof d.background_overlay === "number" ? d.background_overlay : 0.35;
+  const backgroundScrollEffect = d.background_scroll_effect ?? "normal";
 
   const handleUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -140,6 +141,34 @@ export default function SectionBackgroundControls({
                   })
                 }
               />
+            </div>
+
+            <div className="grid gap-1">
+              <Label>Background scroll effect</Label>
+              <select
+                className="h-10 rounded-xl border px-3"
+                style={{
+                  borderColor: "rgba(15,30,36,0.12)",
+                  color: "var(--epsy-charcoal)",
+                  backgroundColor: "white",
+                }}
+                value={backgroundScrollEffect}
+                onChange={(e) =>
+                  onChange({
+                    background_scroll_effect: e.target.value,
+                  })
+                }
+              >
+                <option value="normal">Normal</option>
+                <option value="fixed">Fixed / parallax-style</option>
+              </select>
+              <div
+                className="text-xs"
+                style={{ color: "rgba(15,30,36,0.60)" }}
+              >
+                Fixed creates the effect of scrolling over the background image.
+                On some mobile browsers it may fall back to normal behavior.
+              </div>
             </div>
 
             <div className="grid gap-1">
