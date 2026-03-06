@@ -20,6 +20,11 @@ import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
 
 import AdminBar from "@/components/admin/AdminBar";
 import InlineText from "@/components/admin/InlineText";
+import SectionBackgroundControls from "@/components/admin/SectionBackgroundControls";
+import {
+  getSectionBackgroundData,
+  getSectionBackgroundStyle,
+} from "@/components/admin/sectionBackground";
 
 /**
  * EPSYAPP SECTIONS MODEL (stored in Supabase under epsyapp.sections):
@@ -31,14 +36,16 @@ import InlineText from "@/components/admin/InlineText";
  *  { id, type: "spacer", data: { height } }
  * ]
  *
- * Backwards compatible:
- * - If epsyapp.sections doesn't exist, we build sections from old fields (header_title, header_subtitle, features).
+ * Background fields per section:
+ * - background_type: "none" | "color" | "image"
+ * - background_color
+ * - background_image
+ * - background_overlay
  */
 
 export default function EpsyApp() {
   const queryClient = useQueryClient();
 
-  // admin mode only with ?admin=1
   const showAdmin = useMemo(() => {
     return new URLSearchParams(window.location.search).get("admin") === "1";
   }, []);
@@ -46,13 +53,11 @@ export default function EpsyApp() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  // Load content
   const { data: pageContent = {} } = useQuery({
     queryKey: ["siteContent", "epsyapp"],
     queryFn: async () => await getSiteContent("epsyapp"),
   });
 
-  // session for enabling inline editing
   const { data: sessionData } = useQuery({
     queryKey: ["authSession"],
     queryFn: async () => {
@@ -66,7 +71,6 @@ export default function EpsyApp() {
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  // Old fields fallback (your current structure)
   const defaultFeatures = [
     {
       id: "library",
@@ -123,7 +127,6 @@ export default function EpsyApp() {
         : defaultFeatures,
   };
 
-  // Sections (new model; fallback to old)
   const sections = useMemo(() => {
     const s = pageContent.sections;
     if (Array.isArray(s) && s.length) return s;
@@ -135,6 +138,10 @@ export default function EpsyApp() {
         data: {
           header_title: oldView.header_title,
           header_subtitle: oldView.header_subtitle,
+          background_type: "color",
+          background_color: "var(--epsy-off-white)",
+          background_image: "",
+          background_overlay: 0.35,
         },
       },
       {
@@ -142,12 +149,15 @@ export default function EpsyApp() {
         type: "features",
         data: {
           items: oldView.features,
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
         },
       },
     ];
   }, [pageContent.sections, oldView]);
 
-  // Save helpers
   const saveSections = async (nextSections) => {
     const next = { ...pageContent, sections: nextSections };
     await updateSiteContent("epsyapp", next);
@@ -161,7 +171,13 @@ export default function EpsyApp() {
     await saveSections(nextSections);
   };
 
-  // Drag & drop (HTML5)
+  const updateSectionData = async (sectionId, patch) => {
+    const nextSections = sections.map((s) =>
+      s.id === sectionId ? { ...s, data: { ...s.data, ...patch } } : s
+    );
+    await saveSections(nextSections);
+  };
+
   const dragIdRef = useRef(null);
 
   const onDragStart = (id) => {
@@ -191,7 +207,6 @@ export default function EpsyApp() {
     }
   };
 
-  // Duplicate / Delete
   const duplicateSection = async (id) => {
     const current = [...sections];
     const idx = current.findIndex((s) => s.id === id);
@@ -204,7 +219,6 @@ export default function EpsyApp() {
       data: JSON.parse(JSON.stringify(src.data || {})),
     };
 
-    // If we duplicate features, also duplicate item ids so React keys don’t collide
     if (cloned.type === "features") {
       const items = Array.isArray(cloned.data?.items) ? cloned.data.items : [];
       cloned.data.items = items.map((it) => ({
@@ -241,7 +255,6 @@ export default function EpsyApp() {
     }
   };
 
-  // Add section (admin only)
   const makeSection = (type) => {
     const id = `${type}_${Date.now()}`;
 
@@ -249,7 +262,14 @@ export default function EpsyApp() {
       return {
         id,
         type: "header",
-        data: { header_title: "EpsyApp", header_subtitle: "Write a subtitle here…" },
+        data: {
+          header_title: "EpsyApp",
+          header_subtitle: "Write a subtitle here…",
+          background_type: "color",
+          background_color: "var(--epsy-off-white)",
+          background_image: "",
+          background_overlay: 0.35,
+        },
       };
     }
 
@@ -267,6 +287,10 @@ export default function EpsyApp() {
               details: ["Bullet 1", "Bullet 2"],
             },
           ],
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
         },
       };
     }
@@ -275,15 +299,56 @@ export default function EpsyApp() {
       return {
         id,
         type: "text",
-        data: { title: "Section title…", body: "Write your text here…" },
+        data: {
+          title: "Section title…",
+          body: "Write your text here…",
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
+        },
       };
     }
 
-    if (type === "divider") return { id, type: "divider", data: {} };
+    if (type === "divider") {
+      return {
+        id,
+        type: "divider",
+        data: {
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
+        },
+      };
+    }
 
-    if (type === "spacer") return { id, type: "spacer", data: { height: 48 } };
+    if (type === "spacer") {
+      return {
+        id,
+        type: "spacer",
+        data: {
+          height: 48,
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
+        },
+      };
+    }
 
-    return { id, type: "text", data: { title: "Section", body: "" } };
+    return {
+      id,
+      type: "text",
+      data: {
+        title: "Section",
+        body: "",
+        background_type: "none",
+        background_color: "",
+        background_image: "",
+        background_overlay: 0.35,
+      },
+    };
   };
 
   const addSection = async (type) => {
@@ -401,7 +466,6 @@ export default function EpsyApp() {
     return Library;
   };
 
-  // Features item helpers
   const updateFeatureItem = async (sectionId, itemId, patch) => {
     const nextSections = sections.map((s) => {
       if (s.id !== sectionId) return s;
@@ -515,7 +579,9 @@ export default function EpsyApp() {
   };
 
   const renderSection = (section) => {
-    // HEADER
+    const bgData = getSectionBackgroundData(section);
+    const bgStyle = getSectionBackgroundStyle(section);
+
     if (section.type === "header") {
       const d = section.data || {};
       const title = d.header_title ?? "EpsyApp";
@@ -524,9 +590,36 @@ export default function EpsyApp() {
       return (
         <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
           <SectionControls section={section} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
 
-          <section className="py-20 lg:py-28" style={{ backgroundColor: "var(--epsy-off-white)" }}>
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+          <section
+            className="py-20 lg:py-28 relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? bgStyle
+                : bgData.backgroundType === "none"
+                ? { backgroundColor: "var(--epsy-off-white)" }
+                : {}
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+
+            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
                 <InlineText
                   enabled={isAdmin}
@@ -534,7 +627,12 @@ export default function EpsyApp() {
                   value={title}
                   onSave={(v) => saveSectionField(section.id, "header_title", v)}
                   className="text-4xl lg:text-5xl font-bold mb-6"
-                  style={{ color: "var(--epsy-charcoal)" }}
+                  style={{
+                    color:
+                      bgData.backgroundType === "image"
+                        ? "white"
+                        : "var(--epsy-charcoal)",
+                  }}
                 />
               </motion.div>
 
@@ -542,10 +640,16 @@ export default function EpsyApp() {
                 <InlineText
                   enabled={isAdmin}
                   as="p"
+                  multiLine
                   value={subtitle}
                   onSave={(v) => saveSectionField(section.id, "header_subtitle", v)}
                   className="text-lg leading-relaxed"
-                  style={{ color: "var(--epsy-slate-blue)" }}
+                  style={{
+                    color:
+                      bgData.backgroundType === "image"
+                        ? "rgba(255,255,255,0.9)"
+                        : "var(--epsy-slate-blue)",
+                  }}
                 />
               </motion.div>
             </div>
@@ -554,7 +658,6 @@ export default function EpsyApp() {
       );
     }
 
-    // FEATURES
     if (section.type === "features") {
       const d = section.data || {};
       const items = Array.isArray(d.items) ? d.items : [];
@@ -562,9 +665,36 @@ export default function EpsyApp() {
       return (
         <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
           <SectionControls section={section} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
 
-          <section className="py-16 lg:py-24">
-            <div className="max-w-6xl mx-auto px-6 lg:px-12">
+          <section
+            className="py-16 lg:py-24 relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? bgStyle
+                : bgData.backgroundType === "none"
+                ? {}
+                : {}
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+
+            <div className="max-w-6xl mx-auto px-6 lg:px-12 relative z-10">
               {isAdmin && (
                 <div className="flex justify-center pb-6">
                   <Button className="rounded-2xl" variant="outline" onClick={() => addFeatureItem(section.id)}>
@@ -584,7 +714,12 @@ export default function EpsyApp() {
                       {...fadeInUp}
                       transition={{ delay: index * 0.08, duration: 0.6 }}
                       className="p-8 lg:p-10 rounded-2xl"
-                      style={{ backgroundColor: "var(--epsy-off-white)" }}
+                      style={{
+                        backgroundColor:
+                          bgData.backgroundType === "image"
+                            ? "rgba(250,251,249,0.92)"
+                            : "var(--epsy-off-white)",
+                      }}
                     >
                       <div className="flex flex-col lg:flex-row gap-6">
                         <div
@@ -621,6 +756,7 @@ export default function EpsyApp() {
                           <InlineText
                             enabled={isAdmin}
                             as="p"
+                            multiLine
                             value={feature.description ?? ""}
                             onSave={(v) => updateFeatureItem(section.id, feature.id, { description: v })}
                             className="text-base mb-4 leading-relaxed"
@@ -709,7 +845,6 @@ export default function EpsyApp() {
       );
     }
 
-    // TEXT
     if (section.type === "text") {
       const d = section.data || {};
       const title = d.title ?? "Section title…";
@@ -718,23 +853,62 @@ export default function EpsyApp() {
       return (
         <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
           <SectionControls section={section} />
-          <section className="py-16 lg:py-24" style={{ backgroundColor: "white" }}>
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
+
+          <section
+            className="py-16 lg:py-24 relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? bgStyle
+                : bgData.backgroundType === "none"
+                ? { backgroundColor: "white" }
+                : {}
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+
+            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
               <InlineText
                 enabled={isAdmin}
                 as="h2"
                 value={title}
                 onSave={(v) => saveSectionField(section.id, "title", v)}
                 className="text-3xl lg:text-4xl font-bold mb-6"
-                style={{ color: "var(--epsy-charcoal)" }}
+                style={{
+                  color:
+                    bgData.backgroundType === "image"
+                      ? "white"
+                      : "var(--epsy-charcoal)",
+                }}
               />
               <InlineText
                 enabled={isAdmin}
                 as="p"
+                multiLine
                 value={body}
                 onSave={(v) => saveSectionField(section.id, "body", v)}
                 className="text-lg leading-relaxed"
-                style={{ color: "var(--epsy-slate-blue)" }}
+                style={{
+                  color:
+                    bgData.backgroundType === "image"
+                      ? "rgba(255,255,255,0.9)"
+                      : "var(--epsy-slate-blue)",
+                }}
               />
             </div>
           </section>
@@ -742,25 +916,80 @@ export default function EpsyApp() {
       );
     }
 
-    // DIVIDER
     if (section.type === "divider") {
       return (
         <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
           <SectionControls section={section} />
-          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6">
-            <div className="h-px w-full" style={{ backgroundColor: "rgba(15,30,36,0.10)" }} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
+
+          <div
+            className="max-w-7xl mx-auto px-6 lg:px-12 py-6 relative overflow-hidden"
+            style={bgData.backgroundType === "color" ? bgStyle : {}}
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+            <div className="relative z-10">
+              <div
+                className="h-px w-full"
+                style={{
+                  backgroundColor:
+                    bgData.backgroundType === "image"
+                      ? "rgba(255,255,255,0.35)"
+                      : "rgba(15,30,36,0.10)",
+                }}
+              />
+            </div>
           </div>
         </div>
       );
     }
 
-    // SPACER
     if (section.type === "spacer") {
       const h = Number(section.data?.height ?? 48);
       return (
         <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
           <SectionControls section={section} />
-          <div style={{ height: Math.max(12, Math.min(h, 240)) }} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
+
+          <div
+            className="relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? { ...bgStyle, height: Math.max(12, Math.min(h, 240)) }
+                : { height: Math.max(12, Math.min(h, 240)) }
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+          </div>
         </div>
       );
     }
@@ -768,6 +997,12 @@ export default function EpsyApp() {
     return (
       <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
         <SectionControls section={section} />
+        <SectionBackgroundControls
+          section={section}
+          isAdmin={isAdmin}
+          onChange={(patch) => updateSectionData(section.id, patch)}
+        />
+
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10">
           <div className="rounded-3xl border p-6" style={{ borderColor: "rgba(15,30,36,0.12)" }}>
             <div className="font-semibold" style={{ color: "var(--epsy-charcoal)" }}>
@@ -784,14 +1019,12 @@ export default function EpsyApp() {
 
   return (
     <div>
-      {/* Admin login bar */}
       <AdminBar
         show={showAdmin}
         redirectPathWithAdmin="/epsyapp?admin=1"
         adminEmail={ADMIN_EMAIL}
       />
 
-      {/* Always-visible add section bar */}
       {isAdmin && (
         <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
           <div
@@ -831,7 +1064,6 @@ export default function EpsyApp() {
         </div>
       )}
 
-      {/* Render sections */}
       {sections.map((section) => (
         <div key={section.id}>{renderSection(section)}</div>
       ))}
