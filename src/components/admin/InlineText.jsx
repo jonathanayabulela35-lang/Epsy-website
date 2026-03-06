@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 /**
- * InlineText v3 (Notion-style toolbar)
- * - Stable cursor (no re-render on each keystroke)
- * - Draft does NOT get overwritten while editing
- * - Floating Save/Cancel toolbar appears while editing
- * - Status: Saving… / Saved ✓ / Error
+ * InlineText v5
+ * - Keeps true inline editing on the page
+ * - Reliable saves for short and long text
+ * - Tracks draft on every input
+ * - Preserves multi-line text
+ * - Floating Save / Cancel toolbar
  */
 export default function InlineText({
   value,
@@ -22,7 +23,7 @@ export default function InlineText({
   trimOnSave = true,
 
   // UI
-  showToolbar = true, // ✅ Notion-style mini toolbar
+  showToolbar = true,
 }) {
   const Tag = as;
 
@@ -30,18 +31,24 @@ export default function InlineText({
   const wrapRef = useRef(null);
 
   const lastSaved = useRef(value ?? "");
+  const savedTimer = useRef(null);
+
+  const [draft, setDraft] = useState(value ?? "");
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState("idle"); // idle | saving | saved | error
+  const [status, setStatus] = useState("idle");
   const [toolbarPos, setToolbarPos] = useState({ top: 0, left: 0 });
-  const savedTimer = useRef(null);
 
   // Only sync from props when NOT editing
   useEffect(() => {
     if (isEditing) return;
-    lastSaved.current = value ?? "";
-    if (elRef.current) {
-      elRef.current.innerText = (value ?? "") || "";
+
+    const next = value ?? "";
+    lastSaved.current = next;
+    setDraft(next);
+
+    if (elRef.current && elRef.current.innerText !== next) {
+      elRef.current.innerText = next;
     }
   }, [value, isEditing]);
 
@@ -58,27 +65,37 @@ export default function InlineText({
     savedTimer.current = setTimeout(() => setStatus("idle"), 1500);
   };
 
-  const getCurrentText = () => {
-    if (!elRef.current) return "";
-    return elRef.current.innerText ?? "";
-  };
-
   const positionToolbar = () => {
     if (!wrapRef.current) return;
     const rect = wrapRef.current.getBoundingClientRect();
-    // Show near top-right of the editable element, with a small offset
+
     setToolbarPos({
       top: rect.top + window.scrollY - 10,
-      left: rect.left + window.scrollX + rect.width - 170, // ~toolbar width
+      left: Math.max(12, rect.left + window.scrollX + rect.width - 170),
     });
   };
 
   const enterEditMode = () => {
     if (!enabled) return;
+
     setIsEditing(true);
     setStatus("idle");
-    // Position after render tick
-    setTimeout(positionToolbar, 0);
+
+    setTimeout(() => {
+      positionToolbar();
+
+      if (elRef.current) {
+        elRef.current.focus();
+
+        // Move caret to end
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(elRef.current);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }, 0);
   };
 
   const exitEditMode = () => {
@@ -88,32 +105,44 @@ export default function InlineText({
   };
 
   const revertUI = () => {
-    if (!elRef.current) return;
-    elRef.current.innerText = lastSaved.current ?? "";
+    const prev = lastSaved.current ?? "";
+    setDraft(prev);
+
+    if (elRef.current) {
+      elRef.current.innerText = prev;
+    }
+  };
+
+  const normalize = (text) => {
+    const raw = text ?? "";
+    return trimOnSave ? raw.trim() : raw;
   };
 
   const doSave = async () => {
-    if (!enabled) return;
-    if (saving) return;
+    if (!enabled || saving) return false;
 
-    const raw = getCurrentText();
-    const next = trimOnSave ? raw.trim() : raw;
-    const prev = trimOnSave
-      ? (lastSaved.current ?? "").trim()
-      : (lastSaved.current ?? "");
+    const next = normalize(draft);
+    const prev = normalize(lastSaved.current ?? "");
 
     if (next === prev) {
-      // No changes, but still confirm
       setSavedForMoment();
       toast.success("No changes");
-      return;
+      return true;
     }
 
     try {
       setSaving(true);
       setStatus("saving");
+
       await onSave(next);
+
       lastSaved.current = next;
+      setDraft(next);
+
+      if (elRef.current && elRef.current.innerText !== next) {
+        elRef.current.innerText = next;
+      }
+
       setSaving(false);
       setSavedForMoment();
       toast.success("Saved");
@@ -133,7 +162,6 @@ export default function InlineText({
     elRef.current?.blur();
   };
 
-  // Keep toolbar positioned on scroll/resize while editing
   useEffect(() => {
     if (!isEditing) return;
 
@@ -142,11 +170,16 @@ export default function InlineText({
 
     window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", onResize);
+
     return () => {
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onResize);
     };
   }, [isEditing]);
+
+  useEffect(() => {
+    return () => clearSavedTimer();
+  }, []);
 
   const handleFocus = () => {
     if (!enabled) return;
@@ -154,9 +187,18 @@ export default function InlineText({
   };
 
   const handleBlur = () => {
-    // Don’t autosave on blur anymore (toolbar handles save),
-    // because clicking the toolbar triggers blur.
-    // We'll keep editing until Save/Cancel.
+    // no autosave on blur
+  };
+
+  const handleInput = (e) => {
+    setDraft(e.currentTarget.innerText ?? "");
+  };
+
+  const handlePaste = (e) => {
+    // Paste as plain text
+    e.preventDefault();
+    const text = e.clipboardData.getData("text/plain");
+    document.execCommand("insertText", false, text);
   };
 
   const handleKeyDown = async (e) => {
@@ -168,8 +210,6 @@ export default function InlineText({
       return;
     }
 
-    // Save shortcuts:
-    // Single-line: Enter saves
     if (!multiLine && e.key === "Enter") {
       e.preventDefault();
       const ok = await doSave();
@@ -180,9 +220,6 @@ export default function InlineText({
       return;
     }
 
-    // Multi-line:
-    // Shift+Enter creates new line (allow)
-    // Ctrl/Cmd+Enter saves
     if (multiLine && e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       const ok = await doSave();
@@ -193,9 +230,11 @@ export default function InlineText({
     }
   };
 
+  const showPlaceholder = enabled && !isEditing && !(value ?? "").length;
+
   return (
     <>
-      <span ref={wrapRef} className="inline-block relative">
+      <span ref={wrapRef} className="inline-block relative w-full">
         <Tag
           ref={elRef}
           className={className}
@@ -204,18 +243,20 @@ export default function InlineText({
             outline: "none",
             cursor: enabled ? "text" : undefined,
             whiteSpace: multiLine ? "pre-wrap" : "normal",
+            wordBreak: "break-word",
           }}
           contentEditable={enabled}
           suppressContentEditableWarning
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onInput={handleInput}
+          onPaste={handlePaste}
           onKeyDown={handleKeyDown}
         >
           {(value ?? "").length ? value : enabled ? "" : ""}
         </Tag>
 
-        {/* Optional placeholder (visual only) */}
-        {enabled && !(value ?? "").length && !isEditing && (
+        {showPlaceholder && (
           <span
             style={{
               position: "absolute",
@@ -223,6 +264,7 @@ export default function InlineText({
               top: 0,
               pointerEvents: "none",
               opacity: 0.55,
+              whiteSpace: multiLine ? "pre-wrap" : "normal",
             }}
           >
             {placeholder}
@@ -230,7 +272,6 @@ export default function InlineText({
         )}
       </span>
 
-      {/* Floating toolbar */}
       {enabled && showToolbar && isEditing && (
         <div
           style={{
@@ -250,7 +291,7 @@ export default function InlineText({
           >
             <button
               type="button"
-              onMouseDown={(e) => e.preventDefault()} // prevents blur killing edit
+              onMouseDown={(e) => e.preventDefault()}
               onClick={async () => {
                 const ok = await doSave();
                 if (ok) {
@@ -282,7 +323,6 @@ export default function InlineText({
               Cancel
             </button>
 
-            {/* Status */}
             <div
               className="text-xs ml-1"
               style={{ color: "rgba(15,30,36,0.65)", minWidth: 70 }}
