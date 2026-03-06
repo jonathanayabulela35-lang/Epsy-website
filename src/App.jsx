@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, NavLink } from "react-router-dom";
 import {
   Youtube,
@@ -24,6 +24,27 @@ import { getSiteContent } from "@/lib/siteContentApi";
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
   const linkBase =
     "text-sm font-medium px-3 py-2 rounded-xl transition-colors";
   const active = "bg-white/70 shadow-sm";
@@ -39,71 +60,85 @@ function Header() {
   ];
 
   return (
-    <header
-      className="sticky top-0 z-50 backdrop-blur-md shadow-sm"
-      style={{ backgroundColor: "rgba(250,251,249,0.82)" }}
-    >
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 h-[92px] flex items-center justify-between">
-        {/* Brand */}
-        <NavLink
-          to="/"
-          className="flex items-center gap-3 min-w-0"
-          onClick={() => setMobileOpen(false)}
-        >
-          <img
-            src="/assets/logo.jpg"
-            alt="Everyday Psychology NPO logo"
-            className="h-12 w-12 rounded-2xl object-contain bg-white/80 p-1"
-          />
-          <span
-            className="font-semibold tracking-tight text-sm sm:text-base lg:text-lg leading-tight"
-            style={{ color: "var(--epsy-charcoal)" }}
+    <>
+      <header
+        className="sticky top-0 z-50 backdrop-blur-md shadow-sm"
+        style={{ backgroundColor: "rgba(250,251,249,0.82)" }}
+      >
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 h-[92px] flex items-center justify-between">
+          <NavLink
+            to="/"
+            className="flex items-center gap-3 min-w-0"
+            onClick={() => setMobileOpen(false)}
           >
-            Everyday Psychology NPO
-          </span>
-        </NavLink>
-
-        {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-2">
-          {items.map((it) => (
-            <NavLink
-              key={it.to}
-              to={it.to}
-              end={it.end}
-              className={({ isActive }) =>
-                `${linkBase} ${isActive ? active : inactive}`
-              }
+            <img
+              src="/assets/logo.jpg"
+              alt="Everyday Psychology NPO logo"
+              className="h-12 w-12 rounded-2xl object-contain bg-white/80 p-1"
+            />
+            <span
+              className="font-semibold tracking-tight text-sm sm:text-base lg:text-lg leading-tight"
               style={{ color: "var(--epsy-charcoal)" }}
             >
-              {it.label}
-            </NavLink>
-          ))}
-        </nav>
+              Everyday Psychology NPO
+            </span>
+          </NavLink>
 
-        {/* Mobile menu button */}
+          <nav className="hidden lg:flex items-center gap-2">
+            {items.map((it) => (
+              <NavLink
+                key={it.to}
+                to={it.to}
+                end={it.end}
+                className={({ isActive }) =>
+                  `${linkBase} ${isActive ? active : inactive}`
+                }
+                style={{ color: "var(--epsy-charcoal)" }}
+              >
+                {it.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <button
+            type="button"
+            className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-2xl border"
+            style={{
+              borderColor: "rgba(15,30,36,0.12)",
+              color: "var(--epsy-charcoal)",
+              backgroundColor: "rgba(255,255,255,0.72)",
+            }}
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </header>
+
+      <div
+        className={`lg:hidden fixed inset-0 z-40 transition-opacity duration-300 ${
+          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
         <button
           type="button"
-          className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-2xl border"
-          style={{
-            borderColor: "rgba(15,30,36,0.12)",
-            color: "var(--epsy-charcoal)",
-            backgroundColor: "rgba(255,255,255,0.72)",
-          }}
-          onClick={() => setMobileOpen((prev) => !prev)}
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      </div>
+          aria-label="Close menu overlay"
+          className="absolute inset-0"
+          onClick={() => setMobileOpen(false)}
+          style={{ backgroundColor: "rgba(15,30,36,0.35)" }}
+        />
 
-      {/* Mobile nav panel */}
-      {mobileOpen && (
         <div
-          className="lg:hidden border-t"
+          className={`absolute top-[92px] left-0 right-0 border-t shadow-lg transition-all duration-300 ${
+            mobileOpen
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-4 opacity-0"
+          }`}
           style={{
             borderColor: "rgba(15,30,36,0.08)",
-            backgroundColor: "rgba(250,251,249,0.96)",
+            backgroundColor: "rgba(250,251,249,0.98)",
           }}
         >
           <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-2">
@@ -125,8 +160,8 @@ function Header() {
             ))}
           </nav>
         </div>
-      )}
-    </header>
+      </div>
+    </>
   );
 }
 
