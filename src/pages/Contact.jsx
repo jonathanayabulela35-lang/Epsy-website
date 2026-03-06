@@ -856,35 +856,33 @@ export default function Contact() {
                       const Icon = info.icon;
 
                       const onSaveDetail = async (v) => {
-                        await saveSectionField(section.id, info.detailField, v);
+                        const patch = {
+                          [info.detailField]: v,
+                        };
 
                         if (info.key === "email") {
-                          const auto = `mailto:${v}`;
                           if (
                             !emailLink ||
                             String(emailLink).startsWith("mailto:")
                           ) {
-                            await saveSectionField(
-                              section.id,
-                              info.linkField,
-                              auto
-                            );
+                            patch[info.linkField] = `mailto:${v}`;
                           }
                         }
 
                         if (info.key === "phone") {
-                          const auto = `tel:${String(v).replace(/\s+/g, "")}`;
                           if (
                             !phoneLink ||
                             String(phoneLink).startsWith("tel:")
                           ) {
-                            await saveSectionField(
-                              section.id,
-                              info.linkField,
-                              auto
-                            );
+                            patch[info.linkField] = `tel:${String(v).replace(
+                              /\s+/g,
+                              ""
+                            )}`;
                           }
                         }
+
+                        await updateSectionData(section.id, patch);
+                        toast.success("Saved");
                       };
 
                       return (
@@ -909,21 +907,7 @@ export default function Contact() {
                               {info.title}
                             </div>
 
-                            {info.link ? (
-                              <a
-                                href={info.link}
-                                className="text-sm hover:underline"
-                                style={{ color: "var(--epsy-slate-blue)" }}
-                              >
-                                <InlineText
-                                  enabled={isAdmin}
-                                  as="span"
-                                  value={info.detail}
-                                  onSave={onSaveDetail}
-                                  style={{ display: "inline-block" }}
-                                />
-                              </a>
-                            ) : (
+                            {isAdmin ? (
                               <InlineText
                                 enabled={isAdmin}
                                 as="div"
@@ -932,6 +916,21 @@ export default function Contact() {
                                 className="text-sm"
                                 style={{ color: "var(--epsy-slate-blue)" }}
                               />
+                            ) : info.link ? (
+                              <a
+                                href={info.link}
+                                className="text-sm hover:underline"
+                                style={{ color: "var(--epsy-slate-blue)" }}
+                              >
+                                {info.detail}
+                              </a>
+                            ) : (
+                              <div
+                                className="text-sm"
+                                style={{ color: "var(--epsy-slate-blue)" }}
+                              >
+                                {info.detail}
+                              </div>
                             )}
 
                             <LinkEditor
