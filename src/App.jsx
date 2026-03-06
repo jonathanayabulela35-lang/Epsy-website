@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Routes, Route, NavLink } from "react-router-dom";
 import {
   Youtube,
@@ -6,6 +6,8 @@ import {
   Instagram,
   Twitter,
   Music2,
+  Menu,
+  X,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -20,6 +22,8 @@ import PageNotFound from "./lib/PageNotFound.jsx";
 import { getSiteContent } from "@/lib/siteContentApi";
 
 function Header() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const linkBase =
     "text-sm font-medium px-3 py-2 rounded-xl transition-colors";
   const active = "bg-white/70 shadow-sm";
@@ -41,14 +45,18 @@ function Header() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 h-[92px] flex items-center justify-between">
         {/* Brand */}
-        <NavLink to="/" className="flex items-center gap-3 min-w-0">
+        <NavLink
+          to="/"
+          className="flex items-center gap-3 min-w-0"
+          onClick={() => setMobileOpen(false)}
+        >
           <img
             src="/assets/logo.jpg"
             alt="Everyday Psychology NPO logo"
             className="h-12 w-12 rounded-2xl object-contain bg-white/80 p-1"
           />
           <span
-            className="font-semibold tracking-tight text-base lg:text-lg leading-tight"
+            className="font-semibold tracking-tight text-sm sm:text-base lg:text-lg leading-tight"
             style={{ color: "var(--epsy-charcoal)" }}
           >
             Everyday Psychology NPO
@@ -71,7 +79,53 @@ function Header() {
             </NavLink>
           ))}
         </nav>
+
+        {/* Mobile menu button */}
+        <button
+          type="button"
+          className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-2xl border"
+          style={{
+            borderColor: "rgba(15,30,36,0.12)",
+            color: "var(--epsy-charcoal)",
+            backgroundColor: "rgba(255,255,255,0.72)",
+          }}
+          onClick={() => setMobileOpen((prev) => !prev)}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+        >
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
+
+      {/* Mobile nav panel */}
+      {mobileOpen && (
+        <div
+          className="lg:hidden border-t"
+          style={{
+            borderColor: "rgba(15,30,36,0.08)",
+            backgroundColor: "rgba(250,251,249,0.96)",
+          }}
+        >
+          <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-2">
+            {items.map((it) => (
+              <NavLink
+                key={it.to}
+                to={it.to}
+                end={it.end}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  `px-4 py-3 rounded-2xl text-sm font-medium transition-colors ${
+                    isActive ? "bg-white shadow-sm" : "hover:bg-white/70"
+                  }`
+                }
+                style={{ color: "var(--epsy-charcoal)" }}
+              >
+                {it.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
@@ -116,7 +170,7 @@ function Footer() {
   ];
 
   const contactEmail = footerContent.contact_email ?? "hello@epsy.org.za";
-  const contactLocation = footerContent.contact_location ?? "South Africa";
+  const contactPhone = footerContent.contact_phone ?? "+27 00 000 0000";
 
   return (
     <footer
@@ -124,7 +178,6 @@ function Footer() {
       className="mt-0"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
-        {/* Site Map */}
         <div>
           <h3 className="text-xl font-bold mb-5" style={{ color: "white" }}>
             Site Map
@@ -182,7 +235,6 @@ function Footer() {
           </div>
         </div>
 
-        {/* Social Links */}
         <div>
           <h3 className="text-xl font-bold mb-5" style={{ color: "white" }}>
             Follow Us
@@ -215,7 +267,6 @@ function Footer() {
           </div>
         </div>
 
-        {/* Contact (static display, values can still come from content) */}
         <div>
           <h3 className="text-xl font-bold mb-5" style={{ color: "white" }}>
             Contact
@@ -225,7 +276,7 @@ function Footer() {
             style={{ color: "rgba(255,255,255,0.88)" }}
           >
             <div>Email: {contactEmail}</div>
-            <div>Location: {contactLocation}</div>
+            <div>Phone: {contactPhone}</div>
           </div>
         </div>
       </div>
