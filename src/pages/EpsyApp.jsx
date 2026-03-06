@@ -20,7 +20,7 @@ import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
 
 import AdminBar from "@/components/admin/AdminBar";
 import InlineText from "@/components/admin/InlineText";
-import SectionBackgroundControls from "@/components/admin/SectionBackgroundControls";
+import SectionBackgroundControls from "@/components/admin/SectionBackgroundControls.jsx";
 import {
   getSectionBackgroundData,
   getSectionBackgroundStyle,
