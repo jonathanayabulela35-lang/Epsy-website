@@ -27,6 +27,11 @@ import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
 
 import AdminBar from "@/components/admin/AdminBar";
 import InlineText from "@/components/admin/InlineText";
+import SectionBackgroundControls from "@/components/admin/SectionBackgroundControls";
+import {
+  getSectionBackgroundData,
+  getSectionBackgroundStyle,
+} from "@/components/admin/sectionBackground";
 
 /**
  * CONTACT SECTIONS MODEL (stored in Supabase under contact.sections):
@@ -38,8 +43,11 @@ import InlineText from "@/components/admin/InlineText";
  *  { id, type: "spacer", data: { height } }
  * ]
  *
- * Backwards compatible:
- * - If contact.sections doesn't exist yet, we build sections from old fields.
+ * Background fields per section:
+ * - background_type: "none" | "color" | "image"
+ * - background_color
+ * - background_image
+ * - background_overlay
  */
 
 function encode(data) {
@@ -49,7 +57,6 @@ function encode(data) {
 export default function Contact() {
   const queryClient = useQueryClient();
 
-  // admin mode only with ?admin=1
   const showAdmin = useMemo(() => {
     return new URLSearchParams(window.location.search).get("admin") === "1";
   }, []);
@@ -57,13 +64,11 @@ export default function Contact() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  // Load contact content JSON
   const { data: contactContent = {} } = useQuery({
     queryKey: ["siteContent", "contact"],
     queryFn: async () => await getSiteContent("contact"),
   });
 
-  // session for enabling inline editing
   const { data: sessionData } = useQuery({
     queryKey: ["authSession"],
     queryFn: async () => {
@@ -77,7 +82,6 @@ export default function Contact() {
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  // Old fields fallback view
   const oldView = {
     header_title: contactContent.header_title ?? "Contact",
     header_subtitle:
@@ -103,7 +107,6 @@ export default function Contact() {
     location_link: contactContent.location_link ?? "",
   };
 
-  // Sections (new model; fallback to old model)
   const sections = useMemo(() => {
     const s = contactContent.sections;
     if (Array.isArray(s) && s.length) return s;
@@ -115,6 +118,10 @@ export default function Contact() {
         data: {
           header_title: oldView.header_title,
           header_subtitle: oldView.header_subtitle,
+          background_type: "color",
+          background_color: "var(--epsy-off-white)",
+          background_image: "",
+          background_overlay: 0.35,
         },
       },
       {
@@ -123,21 +130,21 @@ export default function Contact() {
         data: {
           form_title: oldView.form_title,
           details_title: oldView.details_title,
-
           email: oldView.email,
           email_link: oldView.email_link,
-
           phone: oldView.phone,
           phone_link: oldView.phone_link,
-
           location: oldView.location,
           location_link: oldView.location_link || "",
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
         },
       },
     ];
   }, [contactContent.sections, oldView]);
 
-  // Save helpers
   const saveSections = async (nextSections) => {
     const next = { ...contactContent, sections: nextSections };
     await updateSiteContent("contact", next);
@@ -151,7 +158,13 @@ export default function Contact() {
     await saveSections(nextSections);
   };
 
-  // Drag & drop (HTML5)
+  const updateSectionData = async (sectionId, patch) => {
+    const nextSections = sections.map((s) =>
+      s.id === sectionId ? { ...s, data: { ...s.data, ...patch } } : s
+    );
+    await saveSections(nextSections);
+  };
+
   const dragIdRef = useRef(null);
 
   const onDragStart = (id) => {
@@ -181,7 +194,6 @@ export default function Contact() {
     }
   };
 
-  // Duplicate / Delete
   const duplicateSection = async (id) => {
     const current = [...sections];
     const idx = current.findIndex((s) => s.id === id);
@@ -222,7 +234,6 @@ export default function Contact() {
     }
   };
 
-  // Add section (admin only)
   const makeSection = (type) => {
     const id = `${type}_${Date.now()}`;
 
@@ -233,6 +244,10 @@ export default function Contact() {
         data: {
           header_title: "Contact",
           header_subtitle: "Send us a message and we’ll get back to you.",
+          background_type: "color",
+          background_color: "var(--epsy-off-white)",
+          background_image: "",
+          background_overlay: 0.35,
         },
       };
     }
@@ -250,6 +265,10 @@ export default function Contact() {
           phone_link: "tel:+27000000000",
           location: "South Africa",
           location_link: "",
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
         },
       };
     }
@@ -258,19 +277,56 @@ export default function Contact() {
       return {
         id,
         type: "text",
-        data: { title: "Section title…", body: "Write your text here…" },
+        data: {
+          title: "Section title…",
+          body: "Write your text here…",
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
+        },
       };
     }
 
     if (type === "divider") {
-      return { id, type: "divider", data: {} };
+      return {
+        id,
+        type: "divider",
+        data: {
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
+        },
+      };
     }
 
     if (type === "spacer") {
-      return { id, type: "spacer", data: { height: 48 } };
+      return {
+        id,
+        type: "spacer",
+        data: {
+          height: 48,
+          background_type: "none",
+          background_color: "",
+          background_image: "",
+          background_overlay: 0.35,
+        },
+      };
     }
 
-    return { id, type: "text", data: { title: "Section", body: "" } };
+    return {
+      id,
+      type: "text",
+      data: {
+        title: "Section",
+        body: "",
+        background_type: "none",
+        background_color: "",
+        background_image: "",
+        background_overlay: 0.35,
+      },
+    };
   };
 
   const addSection = async (type) => {
@@ -284,7 +340,6 @@ export default function Contact() {
     }
   };
 
-  // Contact form state (kept as-is)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -457,6 +512,9 @@ export default function Contact() {
   };
 
   const renderSection = (section) => {
+    const bgData = getSectionBackgroundData(section);
+    const bgStyle = getSectionBackgroundStyle(section);
+
     if (section.type === "header") {
       const d = section.data || {};
       const title = d.header_title ?? "Contact";
@@ -468,12 +526,36 @@ export default function Contact() {
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
 
           <section
-            className="py-20 lg:py-28"
-            style={{ backgroundColor: "var(--epsy-off-white)" }}
+            className="py-20 lg:py-28 relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? bgStyle
+                : bgData.backgroundType === "none"
+                ? { backgroundColor: "var(--epsy-off-white)" }
+                : {}
+            }
           >
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+
+            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -485,7 +567,12 @@ export default function Contact() {
                   value={title}
                   onSave={(v) => saveSectionField(section.id, "header_title", v)}
                   className="text-4xl lg:text-5xl font-bold mb-4"
-                  style={{ color: "var(--epsy-charcoal)" }}
+                  style={{
+                    color:
+                      bgData.backgroundType === "image"
+                        ? "white"
+                        : "var(--epsy-charcoal)",
+                  }}
                 />
               </motion.div>
 
@@ -497,12 +584,18 @@ export default function Contact() {
                 <InlineText
                   enabled={isAdmin}
                   as="p"
+                  multiLine
                   value={subtitle}
                   onSave={(v) =>
                     saveSectionField(section.id, "header_subtitle", v)
                   }
                   className="text-lg leading-relaxed"
-                  style={{ color: "var(--epsy-slate-blue)" }}
+                  style={{
+                    color:
+                      bgData.backgroundType === "image"
+                        ? "rgba(255,255,255,0.9)"
+                        : "var(--epsy-slate-blue)",
+                  }}
                 />
               </motion.div>
             </div>
@@ -535,7 +628,6 @@ export default function Contact() {
           link: emailLink,
           detailField: "email",
           linkField: "email_link",
-          defaultLink: (v) => `mailto:${v}`,
         },
         {
           key: "phone",
@@ -545,7 +637,6 @@ export default function Contact() {
           link: phoneLink,
           detailField: "phone",
           linkField: "phone_link",
-          defaultLink: (v) => `tel:${String(v).replace(/\s+/g, "")}`,
         },
         {
           key: "location",
@@ -555,7 +646,6 @@ export default function Contact() {
           link: locationLink || "",
           detailField: "location",
           linkField: "location_link",
-          defaultLink: () => "",
         },
       ];
 
@@ -565,8 +655,12 @@ export default function Contact() {
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
 
-          {/* Hidden form for Netlify build-time detection */}
           <form
             name="contact"
             data-netlify="true"
@@ -579,13 +673,39 @@ export default function Contact() {
             <textarea name="message" />
           </form>
 
-          <section className="py-16 lg:py-24" style={{ backgroundColor: "white" }}>
-            <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* Form */}
+          <section
+            className="py-16 lg:py-24 relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? bgStyle
+                : bgData.backgroundType === "none"
+                ? { backgroundColor: "white" }
+                : {}
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10 relative z-10">
               <motion.div {...fadeInUp}>
                 <Card
                   className="p-8 rounded-2xl border-0 shadow-sm"
-                  style={{ backgroundColor: "var(--epsy-off-white)" }}
+                  style={{
+                    backgroundColor:
+                      bgData.backgroundType === "image"
+                        ? "rgba(250,251,249,0.94)"
+                        : "var(--epsy-off-white)",
+                  }}
                 >
                   <InlineText
                     enabled={isAdmin}
@@ -598,7 +718,6 @@ export default function Contact() {
                     style={{ color: "var(--epsy-charcoal)" }}
                   />
 
-                  {/* Visitor form (NOT inline editable) */}
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <input type="hidden" name="form-name" value="contact" />
                     <p hidden>
@@ -689,14 +808,18 @@ export default function Contact() {
                 </Card>
               </motion.div>
 
-              {/* Details */}
               <motion.div
                 {...fadeInUp}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
                 <Card
                   className="p-8 rounded-2xl border-0 shadow-sm"
-                  style={{ backgroundColor: "var(--epsy-off-white)" }}
+                  style={{
+                    backgroundColor:
+                      bgData.backgroundType === "image"
+                        ? "rgba(250,251,249,0.94)"
+                        : "var(--epsy-off-white)",
+                  }}
                 >
                   <InlineText
                     enabled={isAdmin}
@@ -716,7 +839,6 @@ export default function Contact() {
                       const onSaveDetail = async (v) => {
                         await saveSectionField(section.id, info.detailField, v);
 
-                        // auto-update link for email/phone if they kept default format
                         if (info.key === "email") {
                           const auto = `mailto:${v}`;
                           if (!emailLink || String(emailLink).startsWith("mailto:")) {
@@ -789,7 +911,6 @@ export default function Contact() {
                                   : "https://maps.google.com/..."
                               }
                               onSave={async (v) => {
-                                // allow empty to remove location link
                                 if (info.key === "location") {
                                   await saveSectionField(section.id, info.linkField, v || "");
                                 } else {
@@ -822,24 +943,62 @@ export default function Contact() {
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
 
-          <section className="py-16 lg:py-24" style={{ backgroundColor: "white" }}>
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+          <section
+            className="py-16 lg:py-24 relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? bgStyle
+                : bgData.backgroundType === "none"
+                ? { backgroundColor: "white" }
+                : {}
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+
+            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
               <InlineText
                 enabled={isAdmin}
                 as="h2"
                 value={title}
                 onSave={(v) => saveSectionField(section.id, "title", v)}
                 className="text-3xl lg:text-4xl font-bold mb-6"
-                style={{ color: "var(--epsy-charcoal)" }}
+                style={{
+                  color:
+                    bgData.backgroundType === "image"
+                      ? "white"
+                      : "var(--epsy-charcoal)",
+                }}
               />
               <InlineText
                 enabled={isAdmin}
                 as="p"
+                multiLine
                 value={body}
                 onSave={(v) => saveSectionField(section.id, "body", v)}
                 className="text-lg leading-relaxed"
-                style={{ color: "var(--epsy-slate-blue)" }}
+                style={{
+                  color:
+                    bgData.backgroundType === "image"
+                      ? "rgba(255,255,255,0.9)"
+                      : "var(--epsy-slate-blue)",
+                }}
               />
             </div>
           </section>
@@ -854,11 +1013,39 @@ export default function Contact() {
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
-          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6">
-            <div
-              className="h-px w-full"
-              style={{ backgroundColor: "rgba(15,30,36,0.10)" }}
-            />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
+
+          <div
+            className="max-w-7xl mx-auto px-6 lg:px-12 py-6 relative overflow-hidden"
+            style={bgData.backgroundType === "color" ? bgStyle : {}}
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+            <div className="relative z-10">
+              <div
+                className="h-px w-full"
+                style={{
+                  backgroundColor:
+                    bgData.backgroundType === "image"
+                      ? "rgba(255,255,255,0.35)"
+                      : "rgba(15,30,36,0.10)",
+                }}
+              />
+            </div>
           </div>
         </div>
       );
@@ -872,7 +1059,33 @@ export default function Contact() {
           onDrop={() => isAdmin && onDropOn(section.id)}
         >
           <SectionControls section={section} />
-          <div style={{ height: Math.max(12, Math.min(h, 240)) }} />
+          <SectionBackgroundControls
+            section={section}
+            isAdmin={isAdmin}
+            onChange={(patch) => updateSectionData(section.id, patch)}
+          />
+
+          <div
+            className="relative overflow-hidden"
+            style={
+              bgData.backgroundType === "color"
+                ? { ...bgStyle, height: Math.max(12, Math.min(h, 240)) }
+                : { height: Math.max(12, Math.min(h, 240)) }
+            }
+          >
+            {bgData.backgroundType === "image" && (
+              <>
+                <div className="absolute inset-0" style={bgStyle} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: "black",
+                    opacity: bgData.backgroundOverlay,
+                  }}
+                />
+              </>
+            )}
+          </div>
         </div>
       );
     }
@@ -883,6 +1096,12 @@ export default function Contact() {
         onDrop={() => isAdmin && onDropOn(section.id)}
       >
         <SectionControls section={section} />
+        <SectionBackgroundControls
+          section={section}
+          isAdmin={isAdmin}
+          onChange={(patch) => updateSectionData(section.id, patch)}
+        />
+
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10">
           <div
             className="rounded-3xl border p-6"
@@ -902,17 +1121,14 @@ export default function Contact() {
 
   return (
     <div>
-      {/* Admin bar */}
       <AdminBar
         show={showAdmin}
         redirectPathWithAdmin="/contact?admin=1"
         adminEmail={ADMIN_EMAIL}
       />
 
-      {/* Always-visible add section bar */}
       <AdminAddBar />
 
-      {/* Render sections */}
       {sections.map((section) => (
         <div key={section.id}>{renderSection(section)}</div>
       ))}
