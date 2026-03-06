@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, NavLink } from "react-router-dom";
 import {
-  Youtube,
   Facebook,
   Instagram,
-  Twitter,
   Music2,
   Menu,
   X,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 
 import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
@@ -18,8 +15,6 @@ import EpsyApp from "./pages/EpsyApp.jsx";
 import Gallery from "./pages/Gallery.jsx";
 import Partnerships from "./pages/Partnerships.jsx";
 import PageNotFound from "./lib/PageNotFound.jsx";
-
-import { getSiteContent } from "@/lib/siteContentApi";
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -47,7 +42,8 @@ function Header() {
 
   const linkBase =
     "text-sm font-medium px-3 py-2 rounded-xl transition-colors";
-  const active = "bg-white/70 shadow-sm";
+  const active =
+    "shadow-sm";
   const inactive = "hover:bg-white/50";
 
   const items = [
@@ -93,7 +89,10 @@ function Header() {
                 className={({ isActive }) =>
                   `${linkBase} ${isActive ? active : inactive}`
                 }
-                style={{ color: "var(--epsy-charcoal)" }}
+                style={({ isActive }) => ({
+                  color: isActive ? "white" : "var(--epsy-charcoal)",
+                  backgroundColor: isActive ? "var(--epsy-charcoal)" : "transparent",
+                })}
               >
                 {it.label}
               </NavLink>
@@ -148,12 +147,11 @@ function Header() {
                 to={it.to}
                 end={it.end}
                 onClick={() => setMobileOpen(false)}
-                className={({ isActive }) =>
-                  `px-4 py-3 rounded-2xl text-sm font-medium transition-colors ${
-                    isActive ? "bg-white shadow-sm" : "hover:bg-white/70"
-                  }`
-                }
-                style={{ color: "var(--epsy-charcoal)" }}
+                className="px-4 py-3 rounded-2xl text-sm font-medium transition-colors"
+                style={({ isActive }) => ({
+                  color: isActive ? "white" : "var(--epsy-charcoal)",
+                  backgroundColor: isActive ? "var(--epsy-charcoal)" : "transparent",
+                })}
               >
                 {it.label}
               </NavLink>
@@ -166,46 +164,29 @@ function Header() {
 }
 
 function Footer() {
-  const { data: footerContent = {} } = useQuery({
-    queryKey: ["siteContent", "footer"],
-    queryFn: async () => await getSiteContent("footer"),
-  });
-
   const socials = [
-    {
-      key: "youtube",
-      label: "YouTube",
-      href: footerContent.youtube_link ?? "https://youtube.com",
-      icon: Youtube,
-    },
     {
       key: "facebook",
       label: "Facebook",
-      href: footerContent.facebook_link ?? "https://facebook.com",
+      href: "https://www.facebook.com/share/1AbrmXahaN/?mibextid=wwXIfr",
       icon: Facebook,
     },
     {
       key: "instagram",
       label: "Instagram",
-      href: footerContent.instagram_link ?? "https://instagram.com",
+      href: "https://www.instagram.com/everydaypsychology_npo?igsh=MTR0cXZoampwOTl6cQ%3D%3D&utm_source=qr",
       icon: Instagram,
-    },
-    {
-      key: "twitter",
-      label: "Twitter",
-      href: footerContent.twitter_link ?? "https://x.com",
-      icon: Twitter,
     },
     {
       key: "tiktok",
       label: "TikTok",
-      href: footerContent.tiktok_link ?? "https://tiktok.com",
+      href: "http://www.tiktok.com/@epsy_npo",
       icon: Music2,
     },
   ];
 
-  const contactEmail = footerContent.contact_email ?? "hello@epsy.org.za";
-  const contactPhone = footerContent.contact_phone ?? "+27 00 000 0000";
+  const contactEmail = "everydaypsychologynpo@gmial.com";
+  const contactPhone = "+27 065 064 7232";
 
   return (
     <footer
