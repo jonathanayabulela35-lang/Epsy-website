@@ -37,6 +37,66 @@ function encode(data) {
   return new URLSearchParams(data).toString();
 }
 
+function AdminValueEditor({
+  label,
+  value,
+  placeholder,
+  onSave,
+  helpText,
+}) {
+  const [draft, setDraft] = useState(value || "");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setDraft(value || "");
+  }, [value]);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await onSave((draft || "").trim());
+      toast.success("Saved");
+    } catch (err) {
+      console.error(err);
+      toast.error("Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-2">
+      <div className="text-xs mb-1" style={{ color: "rgba(15,30,36,0.65)" }}>
+        {label}
+      </div>
+
+      <div className="flex gap-2 items-center">
+        <Input
+          value={draft}
+          placeholder={placeholder}
+          onChange={(e) => setDraft(e.target.value)}
+        />
+
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-xl"
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving ? "Saving..." : "Save"}
+        </Button>
+      </div>
+
+      {helpText ? (
+        <div className="text-xs mt-1" style={{ color: "rgba(15,30,36,0.55)" }}>
+          {helpText}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function Contact() {
   const queryClient = useQueryClient();
 
@@ -647,6 +707,9 @@ export default function Contact() {
           link: emailLink,
           detailField: "email",
           linkField: "email_link",
+          valuePlaceholder: "hello@epsy.org.za",
+          linkPlaceholder: "mailto:hello@epsy.org.za",
+          valueHelp: "This is the visible email text shown on the page.",
         },
         {
           key: "phone",
@@ -656,6 +719,9 @@ export default function Contact() {
           link: phoneLink,
           detailField: "phone",
           linkField: "phone_link",
+          valuePlaceholder: "+27 00 000 0000",
+          linkPlaceholder: "tel:+27000000000",
+          valueHelp: "This is the visible phone number shown on the page.",
         },
         {
           key: "location",
@@ -665,6 +731,9 @@ export default function Contact() {
           link: locationLink || "",
           detailField: "location",
           linkField: "location_link",
+          valuePlaceholder: "South Africa",
+          linkPlaceholder: "https://maps.google.com/...",
+          valueHelp: "This is the visible location text shown on the page.",
         },
       ];
 
@@ -855,36 +924,6 @@ export default function Contact() {
                     {contactInfo.map((info) => {
                       const Icon = info.icon;
 
-                      const onSaveDetail = async (v) => {
-                        const patch = {
-                          [info.detailField]: v,
-                        };
-
-                        if (info.key === "email") {
-                          if (
-                            !emailLink ||
-                            String(emailLink).startsWith("mailto:")
-                          ) {
-                            patch[info.linkField] = `mailto:${v}`;
-                          }
-                        }
-
-                        if (info.key === "phone") {
-                          if (
-                            !phoneLink ||
-                            String(phoneLink).startsWith("tel:")
-                          ) {
-                            patch[info.linkField] = `tel:${String(v).replace(
-                              /\s+/g,
-                              ""
-                            )}`;
-                          }
-                        }
-
-                        await updateSectionData(section.id, patch);
-                        toast.success("Saved");
-                      };
-
                       return (
                         <div key={info.key} className="flex items-start gap-4">
                           <div
@@ -908,14 +947,62 @@ export default function Contact() {
                             </div>
 
                             {isAdmin ? (
-                              <InlineText
-                                enabled={isAdmin}
-                                as="div"
-                                value={info.detail}
-                                onSave={onSaveDetail}
-                                className="text-sm"
-                                style={{ color: "var(--epsy-slate-blue)" }}
-                              />
+                              <>
+                                <AdminValueEditor
+                                  label={`${info.title} value`}
+                                  value={info.detail}
+                                  placeholder={info.valuePlaceholder}
+                                  helpText={info.valueHelp}
+                                  onSave={async (v) => {
+                                    const patch = {
+                                      [info.detailField]: v,
+                                    };
+
+                                    if (info.key === "email") {
+                                      if (
+                                        !emailLink ||
+                                        String(emailLink).startsWith("mailto:")
+                                      ) {
+                                        patch[info.linkField] = `mailto:${v}`;
+                                      }
+                                    }
+
+                                    if (info.key === "phone") {
+                                      if (
+                                        !phoneLink ||
+                                        String(phoneLink).startsWith("tel:")
+                                      ) {
+                                        patch[info.linkField] = `tel:${String(
+                                          v
+                                        ).replace(/\s+/g, "")}`;
+                                      }
+                                    }
+
+                                    await updateSectionData(section.id, patch);
+                                  }}
+                                />
+
+                                <LinkEditor
+                                  label="Link"
+                                  value={info.link}
+                                  placeholder={info.linkPlaceholder}
+                                  onSave={async (v) => {
+                                    if (info.key === "location") {
+                                      await saveSectionField(
+                                        section.id,
+                                        info.linkField,
+                                        v || ""
+                                      );
+                                    } else {
+                                      await saveSectionField(
+                                        section.id,
+                                        info.linkField,
+                                        v
+                                      );
+                                    }
+                                  }}
+                                />
+                              </>
                             ) : info.link ? (
                               <a
                                 href={info.link}
@@ -932,33 +1019,6 @@ export default function Contact() {
                                 {info.detail}
                               </div>
                             )}
-
-                            <LinkEditor
-                              label="Link"
-                              value={info.link}
-                              placeholder={
-                                info.key === "email"
-                                  ? "mailto:hello@epsy.org.za"
-                                  : info.key === "phone"
-                                  ? "tel:+27000000000"
-                                  : "https://maps.google.com/..."
-                              }
-                              onSave={async (v) => {
-                                if (info.key === "location") {
-                                  await saveSectionField(
-                                    section.id,
-                                    info.linkField,
-                                    v || ""
-                                  );
-                                } else {
-                                  await saveSectionField(
-                                    section.id,
-                                    info.linkField,
-                                    v
-                                  );
-                                }
-                              }}
-                            />
                           </div>
                         </div>
                       );
