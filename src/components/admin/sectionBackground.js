@@ -13,6 +13,11 @@ export function getSectionBackgroundData(section) {
   };
 }
 
+function shouldUseFixedBackground() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(min-width: 1024px)").matches;
+}
+
 export function getSectionBackgroundStyle(section) {
   const {
     backgroundType,
@@ -28,15 +33,15 @@ export function getSectionBackgroundStyle(section) {
   }
 
   if (backgroundType === "image") {
+    const useFixed =
+      backgroundScrollEffect === "fixed" && shouldUseFixedBackground();
+
     return {
       backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
-
-      // This is the scrolling image effect
-      backgroundAttachment:
-        backgroundScrollEffect === "fixed" ? "fixed" : "scroll",
+      backgroundAttachment: useFixed ? "fixed" : "scroll",
     };
   }
 
