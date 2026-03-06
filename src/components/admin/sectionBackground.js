@@ -5,6 +5,7 @@ export function getSectionBackgroundData(section) {
     backgroundType: d.background_type ?? "none",
     backgroundColor: d.background_color ?? "",
     backgroundImage: d.background_image ?? "",
+    backgroundScrollEffect: d.background_scroll_effect ?? "normal",
     backgroundOverlay:
       typeof d.background_overlay === "number"
         ? d.background_overlay
@@ -13,8 +14,12 @@ export function getSectionBackgroundData(section) {
 }
 
 export function getSectionBackgroundStyle(section) {
-  const { backgroundType, backgroundColor, backgroundImage } =
-    getSectionBackgroundData(section);
+  const {
+    backgroundType,
+    backgroundColor,
+    backgroundImage,
+    backgroundScrollEffect,
+  } = getSectionBackgroundData(section);
 
   if (backgroundType === "color") {
     return {
@@ -28,6 +33,10 @@ export function getSectionBackgroundStyle(section) {
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
+
+      // This is the scrolling image effect
+      backgroundAttachment:
+        backgroundScrollEffect === "fixed" ? "fixed" : "scroll",
     };
   }
 
