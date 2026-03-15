@@ -218,7 +218,7 @@ export default function EpsyApp() {
       )}
 
       <section
-        className="py-20 lg:py-28 relative overflow-hidden"
+        className="py-16 lg:py-20 relative overflow-hidden"
         style={
           headerBgData.backgroundType === "color"
             ? headerBgStyle
@@ -266,19 +266,21 @@ export default function EpsyApp() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.6 }}
           >
-            <InlineText
-              enabled={isAdmin}
-              as="p"
-              value={view.header_subtitle}
-              onSave={(v) => saveField("header_subtitle", v)}
-              className="text-lg leading-relaxed"
-              style={{
-                color:
-                  headerBgData.backgroundType === "image"
-                    ? "rgba(255,255,255,0.9)"
-                    : "var(--epsy-slate-blue)",
-              }}
-            />
+            <div className="max-w-3xl mx-auto">
+              <InlineText
+                enabled={isAdmin}
+                as="p"
+                value={view.header_subtitle}
+                onSave={(v) => saveField("header_subtitle", v)}
+                className="text-base sm:text-lg leading-8 sm:leading-9 text-left md:text-center"
+                style={{
+                  color:
+                    headerBgData.backgroundType === "image"
+                      ? "rgba(255,255,255,0.9)"
+                      : "var(--epsy-slate-blue)",
+                }}
+              />
+            </div>
           </motion.div>
         </div>
       </section>
@@ -292,7 +294,7 @@ export default function EpsyApp() {
       )}
 
       <section
-        className="py-10 relative overflow-hidden"
+        className="py-10 lg:py-12 relative overflow-hidden"
         style={
           downloadBgData.backgroundType === "color"
             ? downloadBgStyle
@@ -335,18 +337,20 @@ export default function EpsyApp() {
               Download the EpsyApp
             </h2>
 
-            <a href={APK_URL}>
-              <Button
-                className="px-8 py-6 text-base rounded-2xl font-semibold"
-                style={{
-                  backgroundColor: "var(--epsy-charcoal)",
-                  color: "white",
-                }}
-              >
-                <Download className="mr-2 h-5 w-5" />
-                Download EpsyApp APK
-              </Button>
-            </a>
+            <div className="flex justify-center">
+              <a href={APK_URL}>
+                <Button
+                  className="px-8 py-6 text-base rounded-2xl font-semibold"
+                  style={{
+                    backgroundColor: "var(--epsy-charcoal)",
+                    color: "white",
+                  }}
+                >
+                  <Download className="mr-2 h-5 w-5" />
+                  Download EpsyApp APK
+                </Button>
+              </a>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -360,7 +364,7 @@ export default function EpsyApp() {
       )}
 
       <section
-        className="py-16 lg:py-24 relative overflow-hidden"
+        className="py-16 lg:py-20 relative overflow-hidden"
         style={
           featuresBgData.backgroundType === "color"
             ? featuresBgStyle
@@ -419,20 +423,22 @@ export default function EpsyApp() {
                         style={{ color: "var(--epsy-charcoal)" }}
                       />
 
-                      <InlineText
-                        enabled={isAdmin}
-                        as="p"
-                        value={feature.description ?? ""}
-                        onSave={(v) => updateFeature(index, { description: v })}
-                        className="text-base mb-4 leading-relaxed"
-                        style={{ color: "var(--epsy-slate-blue)" }}
-                      />
+                      <div className="max-w-3xl">
+                        <InlineText
+                          enabled={isAdmin}
+                          as="p"
+                          value={feature.description ?? ""}
+                          onSave={(v) => updateFeature(index, { description: v })}
+                          className="text-base leading-8 text-left"
+                          style={{ color: "var(--epsy-slate-blue)" }}
+                        />
+                      </div>
 
-                      <ul className="space-y-2">
+                      <ul className="space-y-3 pt-2">
                         {details.map((detail, idx) => (
                           <li key={idx} className="flex items-start gap-3">
                             <div
-                              className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
+                              className="w-1.5 h-1.5 rounded-full mt-3 flex-shrink-0"
                               style={{ backgroundColor: "var(--epsy-sky-blue)" }}
                             />
 
@@ -442,7 +448,7 @@ export default function EpsyApp() {
                                 as="span"
                                 value={detail}
                                 onSave={(v) => updateBullet(index, idx, v)}
-                                className="text-sm leading-relaxed"
+                                className="text-sm sm:text-base leading-7 text-left"
                                 style={{
                                   color: "var(--epsy-slate-blue)",
                                   display: "inline-block",

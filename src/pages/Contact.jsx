@@ -612,7 +612,7 @@ export default function Contact() {
           />
 
           <section
-            className="py-20 lg:py-28 relative overflow-hidden"
+            className="py-14 lg:py-16 relative overflow-hidden"
             style={
               bgData.backgroundType === "color"
                 ? bgStyle
@@ -762,7 +762,7 @@ export default function Contact() {
           </form>
 
           <section
-            className="py-16 lg:py-24 relative overflow-hidden"
+            className="py-10 lg:py-14 relative overflow-hidden"
             style={
               bgData.backgroundType === "color"
                 ? bgStyle

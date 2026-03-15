@@ -490,7 +490,7 @@ export default function About() {
                     multiLine
                     value={subtitle}
                     onSave={(v) => saveSectionField(section.id, "header_subtitle", v)}
-                    className="text-base sm:text-lg leading-8 sm:leading-9"
+                    className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
                     style={{
                       color:
                         bgData.backgroundType === "image"
@@ -526,7 +526,7 @@ export default function About() {
           />
 
           <section
-            className="py-16 lg:py-24 relative overflow-hidden"
+            className="py-16 lg:py-20 relative overflow-hidden"
             style={bgData.backgroundType === "color" ? bgStyle : {}}
           >
             {bgData.backgroundType === "image" && (
@@ -576,7 +576,7 @@ export default function About() {
                     multiLine
                     value={visionText}
                     onSave={(v) => saveSectionField(section.id, "vision_text", v)}
-                    className="text-base sm:text-lg leading-8"
+                    className="text-base sm:text-lg leading-8 text-left"
                     style={{ color: "var(--epsy-slate-blue)" }}
                   />
                 </motion.div>
@@ -614,7 +614,7 @@ export default function About() {
                     multiLine
                     value={missionText}
                     onSave={(v) => saveSectionField(section.id, "mission_text", v)}
-                    className="text-base sm:text-lg leading-8"
+                    className="text-base sm:text-lg leading-8 text-left"
                     style={{ color: "var(--epsy-slate-blue)" }}
                   />
                 </motion.div>
@@ -644,7 +644,7 @@ export default function About() {
           />
 
           <section
-            className="py-16 lg:py-24 relative overflow-hidden"
+            className="py-16 lg:py-20 relative overflow-hidden"
             style={
               bgData.backgroundType === "color"
                 ? bgStyle
@@ -690,7 +690,7 @@ export default function About() {
                 />
 
                 <div
-                  className="max-w-3xl mx-auto space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left md:text-center"
+                  className="max-w-3xl mx-auto space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
                   style={{
                     color:
                       bgData.backgroundType === "image"
@@ -751,7 +751,7 @@ export default function About() {
           />
 
           <section
-            className="py-16 lg:py-24 relative overflow-hidden"
+            className="py-16 lg:py-20 relative overflow-hidden"
             style={bgData.backgroundType === "color" ? bgStyle : {}}
           >
             {bgData.backgroundType === "image" && (
@@ -790,7 +790,7 @@ export default function About() {
                     multiLine
                     value={text}
                     onSave={(v) => saveSectionField(section.id, "motto_text", v)}
-                    className="text-base sm:text-lg leading-8 sm:leading-9 text-left md:text-center"
+                    className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
                     style={{
                       color:
                         bgData.backgroundType === "image"
@@ -824,7 +824,7 @@ export default function About() {
           />
 
           <section
-            className="py-16 lg:py-24 relative overflow-hidden"
+            className="py-16 lg:py-20 relative overflow-hidden"
             style={
               bgData.backgroundType === "color"
                 ? bgStyle
@@ -867,7 +867,7 @@ export default function About() {
                   multiLine
                   value={body}
                   onSave={(v) => saveSectionField(section.id, "body", v)}
-                  className="text-base sm:text-lg leading-8 sm:leading-9 text-left md:text-center"
+                  className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
                   style={{
                     color:
                       bgData.backgroundType === "image"

@@ -26,24 +26,6 @@ import {
   getSectionBackgroundStyle,
 } from "@/components/admin/sectionBackground";
 
-/**
- * PARTNERSHIPS SECTIONS MODEL (stored in Supabase under partnerships.sections):
- * [
- *  { id, type: "header", data: { header_title, header_subtitle } },
- *  { id, type: "partner_cards", data: { section_title, cards:[{id,title,description,icon}] } },
- *  { id, type: "donation", data: { donate_title, donate_button_text, donate_button_link, donate_note } },
- *  { id, type: "text", data: { title, body } },
- *  { id, type: "divider", data: {} },
- *  { id, type: "spacer", data: { height } }
- * ]
- *
- * Background fields per section:
- * - background_type: "none" | "color" | "image"
- * - background_color
- * - background_image
- * - background_overlay
- */
-
 export default function Partnerships() {
   const queryClient = useQueryClient();
 
@@ -456,7 +438,10 @@ export default function Partnerships() {
             backgroundColor: "rgba(250,251,249,0.85)",
           }}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl" style={{ color: "var(--epsy-charcoal)" }}>
+          <div
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl"
+            style={{ color: "var(--epsy-charcoal)" }}
+          >
             <Plus className="h-4 w-4" />
             <span className="text-sm font-semibold">Add section</span>
           </div>
@@ -565,7 +550,7 @@ export default function Partnerships() {
           />
 
           <section
-            className="py-20 lg:py-28 relative overflow-hidden"
+            className="py-16 lg:py-20 relative overflow-hidden"
             style={
               bgData.backgroundType === "color"
                 ? bgStyle
@@ -605,20 +590,22 @@ export default function Partnerships() {
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.6 }}>
-                <InlineText
-                  enabled={isAdmin}
-                  as="p"
-                  multiLine
-                  value={subtitle}
-                  onSave={(v) => saveSectionField(section.id, "header_subtitle", v)}
-                  className="text-lg leading-relaxed"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "rgba(255,255,255,0.9)"
-                        : "var(--epsy-slate-blue)",
-                  }}
-                />
+                <div className="max-w-3xl mx-auto">
+                  <InlineText
+                    enabled={isAdmin}
+                    as="p"
+                    multiLine
+                    value={subtitle}
+                    onSave={(v) => saveSectionField(section.id, "header_subtitle", v)}
+                    className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
+                    style={{
+                      color:
+                        bgData.backgroundType === "image"
+                          ? "rgba(255,255,255,0.9)"
+                          : "var(--epsy-slate-blue)",
+                    }}
+                  />
+                </div>
               </motion.div>
             </div>
           </section>
@@ -641,14 +628,8 @@ export default function Partnerships() {
           />
 
           <section
-            className="py-16 lg:py-24 relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? bgStyle
-                : bgData.backgroundType === "none"
-                ? {}
-                : {}
-            }
+            className="py-16 lg:py-20 relative overflow-hidden"
+            style={bgData.backgroundType === "color" ? bgStyle : {}}
           >
             {bgData.backgroundType === "image" && (
               <>
@@ -735,15 +716,17 @@ export default function Partnerships() {
                         style={{ color: "var(--epsy-charcoal)" }}
                       />
 
-                      <InlineText
-                        enabled={isAdmin}
-                        as="p"
-                        multiLine
-                        value={card.description ?? ""}
-                        onSave={(v) => updatePartnerCard(section.id, card.id, { description: v })}
-                        className="leading-relaxed"
-                        style={{ color: "var(--epsy-slate-blue)" }}
-                      />
+                      <div className="max-w-2xl">
+                        <InlineText
+                          enabled={isAdmin}
+                          as="p"
+                          multiLine
+                          value={card.description ?? ""}
+                          onSave={(v) => updatePartnerCard(section.id, card.id, { description: v })}
+                          className="text-base leading-8 text-left"
+                          style={{ color: "var(--epsy-slate-blue)" }}
+                        />
+                      </div>
 
                       {isAdmin && (
                         <div className="pt-4">
@@ -754,9 +737,16 @@ export default function Partnerships() {
                             enabled={isAdmin}
                             as="div"
                             value={card.icon ?? "school"}
-                            onSave={(v) => updatePartnerCard(section.id, card.id, { icon: (v || "school").trim().toLowerCase() })}
+                            onSave={(v) =>
+                              updatePartnerCard(section.id, card.id, {
+                                icon: (v || "school").trim().toLowerCase(),
+                              })
+                            }
                             className="text-sm px-3 py-2 rounded-xl border"
-                            style={{ borderColor: "rgba(15,30,36,0.12)", color: "var(--epsy-slate-blue)" }}
+                            style={{
+                              borderColor: "rgba(15,30,36,0.12)",
+                              color: "var(--epsy-slate-blue)",
+                            }}
                           />
                         </div>
                       )}
@@ -787,7 +777,7 @@ export default function Partnerships() {
           />
 
           <section
-            className="py-16 lg:py-24 relative overflow-hidden"
+            className="py-16 lg:py-20 relative overflow-hidden"
             style={
               bgData.backgroundType === "color"
                 ? bgStyle
@@ -878,6 +868,7 @@ export default function Partnerships() {
                               : "var(--epsy-slate-blue)",
                         }}
                       />
+
                       <div
                         className="text-xs"
                         style={{
@@ -893,20 +884,22 @@ export default function Partnerships() {
                   )}
                 </div>
 
-                <InlineText
-                  enabled={isAdmin}
-                  as="p"
-                  multiLine
-                  value={donateNote}
-                  onSave={(v) => saveSectionField(section.id, "donate_note", v)}
-                  className="text-sm leading-relaxed max-w-xl mx-auto"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "rgba(255,255,255,0.9)"
-                        : "var(--epsy-slate-blue)",
-                  }}
-                />
+                <div className="max-w-xl mx-auto">
+                  <InlineText
+                    enabled={isAdmin}
+                    as="p"
+                    multiLine
+                    value={donateNote}
+                    onSave={(v) => saveSectionField(section.id, "donate_note", v)}
+                    className="text-sm leading-7 text-left"
+                    style={{
+                      color:
+                        bgData.backgroundType === "image"
+                          ? "rgba(255,255,255,0.9)"
+                          : "var(--epsy-slate-blue)",
+                    }}
+                  />
+                </div>
               </motion.div>
             </div>
           </section>
@@ -929,7 +922,7 @@ export default function Partnerships() {
           />
 
           <section
-            className="py-16 lg:py-24 relative overflow-hidden"
+            className="py-16 lg:py-20 relative overflow-hidden"
             style={
               bgData.backgroundType === "color"
                 ? bgStyle
@@ -965,20 +958,22 @@ export default function Partnerships() {
                       : "var(--epsy-charcoal)",
                 }}
               />
-              <InlineText
-                enabled={isAdmin}
-                as="p"
-                multiLine
-                value={body}
-                onSave={(v) => saveSectionField(section.id, "body", v)}
-                className="text-lg leading-relaxed"
-                style={{
-                  color:
-                    bgData.backgroundType === "image"
-                      ? "rgba(255,255,255,0.9)"
-                      : "var(--epsy-slate-blue)",
-                }}
-              />
+              <div className="max-w-3xl mx-auto">
+                <InlineText
+                  enabled={isAdmin}
+                  as="p"
+                  multiLine
+                  value={body}
+                  onSave={(v) => saveSectionField(section.id, "body", v)}
+                  className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
+                  style={{
+                    color:
+                      bgData.backgroundType === "image"
+                        ? "rgba(255,255,255,0.9)"
+                        : "var(--epsy-slate-blue)",
+                  }}
+                />
+              </div>
             </div>
           </section>
         </div>
