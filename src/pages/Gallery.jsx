@@ -275,22 +275,7 @@ export default function Gallery() {
                     />
                   </div>
 
-                  <div className="p-4">
-                    {/* Caption (editable) */}
-                    <InlineText
-                      enabled={isAdmin}
-                      as="div"
-                      value={img.caption || ""}
-                      placeholder="Click to add a caption…"
-                      onSave={(v) =>
-                        captionMutation.mutate({
-                          id: img.id,
-                          caption: (v ?? "").trim(),
-                        })
-                      }
-                      className="font-medium"
-                      style={{ color: "var(--epsy-charcoal)" }}
-                    />
+            
 
                     {isAdmin && (
                       <div className="flex items-center justify-between pt-4">
