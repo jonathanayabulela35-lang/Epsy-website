@@ -13,23 +13,11 @@ import AdminBar from "@/components/admin/AdminBar";
 import InlineText from "@/components/admin/InlineText";
 import { supabase } from "@/lib/supabaseClient";
 
-/**
- * HOME SECTIONS MODEL (stored in Supabase under home.sections):
- * [
- *  { id, type: "hero", data: {...} },
- *  { id, type: "what", data: {...} },
- *  { id, type: "text", data: { title, body } },
- *  { id, type: "divider", data: {} },
- *  { id, type: "spacer", data: { height } }
- * ]
- *
- * Background fields per section:
- * - background_type: "none" | "color" | "image"
- * - background_color: "#ffffff"
- * - background_image: "/assets/example.jpg"
- * - background_overlay: 0.35
- */
+const APK_URL = "/downloads/epsyapp.apk";
 
+export default function Home() {
+  const settings = siteSettings;
+  const queryClient = useQueryClient();
 
   const showAdmin = useMemo(() => {
     return new URLSearchParams(window.location.search).get("admin") === "1";
