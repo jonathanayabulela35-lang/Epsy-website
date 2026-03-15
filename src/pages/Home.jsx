@@ -1,12 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import { ArrowRight, Globe, Users, Smartphone, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-import { siteSettings } from "@/lib/siteSettings";
 import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
 
 import AdminBar from "@/components/admin/AdminBar";
@@ -15,8 +16,15 @@ import { supabase } from "@/lib/supabaseClient";
 
 const APK_URL = "/downloads/epsyapp.apk";
 
+const defaultHomeSettings = {
+  hero_background_url: "",
+  hero_overlay_opacity: 0.3,
+  hero_background_color: "#F7F9F8",
+  download_section_background_color: "#FFFFFF",
+  what_we_do_background_color: "#FFFFFF",
+};
+
 export default function Home() {
-  const settings = siteSettings;
   const queryClient = useQueryClient();
 
   const showAdmin = useMemo(() => {
@@ -31,6 +39,16 @@ export default function Home() {
     queryFn: async () => await getSiteContent("home"),
   });
 
+  const { data: homeSettingsRaw = {} } = useQuery({
+    queryKey: ["siteContent", "home_settings"],
+    queryFn: async () => await getSiteContent("home_settings"),
+  });
+
+  const homeSettings = {
+    ...defaultHomeSettings,
+    ...(homeSettingsRaw || {}),
+  };
+
   const { data: sessionData } = useQuery({
     queryKey: ["authSession"],
     queryFn: async () => {
@@ -43,6 +61,12 @@ export default function Home() {
   const isAdmin =
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  const [settingsForm, setSettingsForm] = useState(homeSettings);
+
+  useEffect(() => {
+    setSettingsForm(homeSettings);
+  }, [homeSettingsRaw]);
 
   const view = {
     hero_title:
@@ -97,6 +121,16 @@ export default function Home() {
     queryClient.invalidateQueries({ queryKey: ["siteContent", "home"] });
   };
 
+  const saveSettingsMutation = useMutation({
+    mutationFn: async (nextSettings) => {
+      await updateSiteContent("home_settings", nextSettings);
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["siteContent", "home_settings"] });
+    },
+  });
+
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
     animate: { opacity: 1, y: 0 },
@@ -113,25 +147,144 @@ export default function Home() {
         adminEmail={ADMIN_EMAIL}
       />
 
+      {isAdmin && (
+        <section className="py-6" style={{ backgroundColor: "white" }}>
+          <div className="max-w-5xl mx-auto px-6 lg:px-12">
+            <div
+              className="rounded-3xl border p-6 lg:p-8 shadow-sm"
+              style={{
+                backgroundColor: "var(--epsy-off-white)",
+                borderColor: "rgba(15,30,36,0.08)",
+              }}
+            >
+              <h2
+                className="text-2xl font-bold mb-6"
+                style={{ color: "var(--epsy-charcoal)" }}
+              >
+                Home Page Background Settings
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <Label>Hero background image URL</Label>
+                  <Input
+                    value={settingsForm.hero_background_url}
+                    onChange={(e) =>
+                      setSettingsForm((prev) => ({
+                        ...prev,
+                        hero_background_url: e.target.value,
+                      }))
+                    }
+                    placeholder="Paste image URL"
+                  />
+                </div>
+
+                <div>
+                  <Label>Hero overlay opacity (0 to 1)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={settingsForm.hero_overlay_opacity}
+                    onChange={(e) =>
+                      setSettingsForm((prev) => ({
+                        ...prev,
+                        hero_overlay_opacity: e.target.value,
+                      }))
+                    }
+                    placeholder="0.3"
+                  />
+                </div>
+
+                <div>
+                  <Label>Hero fallback background color</Label>
+                  <Input
+                    value={settingsForm.hero_background_color}
+                    onChange={(e) =>
+                      setSettingsForm((prev) => ({
+                        ...prev,
+                        hero_background_color: e.target.value,
+                      }))
+                    }
+                    placeholder="#F7F9F8"
+                  />
+                </div>
+
+                <div>
+                  <Label>Download section background color</Label>
+                  <Input
+                    value={settingsForm.download_section_background_color}
+                    onChange={(e) =>
+                      setSettingsForm((prev) => ({
+                        ...prev,
+                        download_section_background_color: e.target.value,
+                      }))
+                    }
+                    placeholder="#FFFFFF"
+                  />
+                </div>
+
+                <div>
+                  <Label>What We Do section background color</Label>
+                  <Input
+                    value={settingsForm.what_we_do_background_color}
+                    onChange={(e) =>
+                      setSettingsForm((prev) => ({
+                        ...prev,
+                        what_we_do_background_color: e.target.value,
+                      }))
+                    }
+                    placeholder="#FFFFFF"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-6">
+                <Button
+                  onClick={() =>
+                    saveSettingsMutation.mutate({
+                      ...settingsForm,
+                      hero_overlay_opacity:
+                        Number(settingsForm.hero_overlay_opacity) || 0,
+                    })
+                  }
+                  disabled={saveSettingsMutation.isPending}
+                  className="rounded-2xl"
+                  style={{
+                    backgroundColor: "var(--epsy-charcoal)",
+                    color: "white",
+                  }}
+                >
+                  {saveSettingsMutation.isPending
+                    ? "Saving..."
+                    : "Save background settings"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="relative overflow-hidden">
-        {settings?.hero_background_url ? (
+        {homeSettings.hero_background_url ? (
           <>
             <div
               className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${settings.hero_background_url})` }}
+              style={{ backgroundImage: `url(${homeSettings.hero_background_url})` }}
             />
             <div
               className="absolute inset-0"
               style={{
                 backgroundColor: "var(--epsy-charcoal)",
-                opacity: settings?.hero_overlay_opacity ?? 0.3,
+                opacity: homeSettings.hero_overlay_opacity ?? 0.3,
               }}
             />
           </>
         ) : (
           <div
             className="absolute inset-0"
-            style={{ backgroundColor: "var(--epsy-off-white)" }}
+            style={{ backgroundColor: homeSettings.hero_background_color }}
           />
         )}
 
@@ -145,7 +298,9 @@ export default function Home() {
                 onSave={(v) => saveField("hero_title", v)}
                 className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight"
                 style={{
-                  color: settings?.hero_background_url ? "white" : "var(--epsy-charcoal)",
+                  color: homeSettings.hero_background_url
+                    ? "white"
+                    : "var(--epsy-charcoal)",
                 }}
               />
             </motion.div>
@@ -162,7 +317,7 @@ export default function Home() {
                 onSave={(v) => saveField("hero_subtitle", v)}
                 className="text-lg lg:text-xl mb-10 leading-relaxed"
                 style={{
-                  color: settings?.hero_background_url
+                  color: homeSettings.hero_background_url
                     ? "rgba(255,255,255,0.9)"
                     : "var(--epsy-slate-blue)",
                 }}
@@ -217,7 +372,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16" style={{ backgroundColor: "white" }}>
+      <section
+        className="py-16"
+        style={{ backgroundColor: homeSettings.download_section_background_color }}
+      >
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -253,7 +411,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-24 lg:py-32" style={{ backgroundColor: "white" }}>
+      <section
+        className="py-24 lg:py-32"
+        style={{ backgroundColor: homeSettings.what_we_do_background_color }}
+      >
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <InlineText

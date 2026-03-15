@@ -1,9 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Library, Search, MessageSquare, Plus, Trash2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabaseClient";
 import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
@@ -12,6 +14,13 @@ import AdminBar from "@/components/admin/AdminBar";
 import InlineText from "@/components/admin/InlineText";
 
 const APK_URL = "/downloads/epsyapp.apk";
+
+const defaultEpsyAppSettings = {
+  header_background_color: "#F7F9F8",
+  download_section_background_color: "#FFFFFF",
+  features_section_background_color: "#FFFFFF",
+  feature_card_background_color: "#F7F9F8",
+};
 
 export default function EpsyApp() {
   const queryClient = useQueryClient();
@@ -28,6 +37,16 @@ export default function EpsyApp() {
     queryFn: async () => await getSiteContent("epsyapp"),
   });
 
+  const { data: pageSettingsRaw = {} } = useQuery({
+    queryKey: ["siteContent", "epsyapp_settings"],
+    queryFn: async () => await getSiteContent("epsyapp_settings"),
+  });
+
+  const pageSettings = {
+    ...defaultEpsyAppSettings,
+    ...(pageSettingsRaw || {}),
+  };
+
   const { data: sessionData } = useQuery({
     queryKey: ["authSession"],
     queryFn: async () => {
@@ -40,6 +59,12 @@ export default function EpsyApp() {
   const isAdmin =
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  const [settingsForm, setSettingsForm] = useState(pageSettings);
+
+  useEffect(() => {
+    setSettingsForm(pageSettings);
+  }, [pageSettingsRaw]);
 
   const defaultFeatures = [
     {
@@ -98,6 +123,20 @@ export default function EpsyApp() {
     await saveNext(next);
   };
 
+  const saveSettingsMutation = useMutation({
+    mutationFn: async (nextSettings) => {
+      await updateSiteContent("epsyapp_settings", nextSettings);
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["siteContent", "epsyapp_settings"] });
+      toast.success("Background settings saved.");
+    },
+    onError: () => {
+      toast.error("Could not save background settings.");
+    },
+  });
+
   const updateFeature = async (index, patch) => {
     const nextFeatures = [...view.features];
     nextFeatures[index] = { ...nextFeatures[index], ...patch };
@@ -152,9 +191,104 @@ export default function EpsyApp() {
         adminEmail={ADMIN_EMAIL}
       />
 
+      {isAdmin && (
+        <section className="py-6" style={{ backgroundColor: "white" }}>
+          <div className="max-w-5xl mx-auto px-6 lg:px-12">
+            <div
+              className="rounded-3xl border p-6 lg:p-8 shadow-sm"
+              style={{
+                backgroundColor: "var(--epsy-off-white)",
+                borderColor: "rgba(15,30,36,0.08)",
+              }}
+            >
+              <h2
+                className="text-2xl font-bold mb-6"
+                style={{ color: "var(--epsy-charcoal)" }}
+              >
+                EpsyApp Page Background Settings
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <Label>Header section background color</Label>
+                  <Input
+                    value={settingsForm.header_background_color}
+                    onChange={(e) =>
+                      setSettingsForm((prev) => ({
+                        ...prev,
+                        header_background_color: e.target.value,
+                      }))
+                    }
+                    placeholder="#F7F9F8"
+                  />
+                </div>
+
+                <div>
+                  <Label>Download section background color</Label>
+                  <Input
+                    value={settingsForm.download_section_background_color}
+                    onChange={(e) =>
+                      setSettingsForm((prev) => ({
+                        ...prev,
+                        download_section_background_color: e.target.value,
+                      }))
+                    }
+                    placeholder="#FFFFFF"
+                  />
+                </div>
+
+                <div>
+                  <Label>Features section background color</Label>
+                  <Input
+                    value={settingsForm.features_section_background_color}
+                    onChange={(e) =>
+                      setSettingsForm((prev) => ({
+                        ...prev,
+                        features_section_background_color: e.target.value,
+                      }))
+                    }
+                    placeholder="#FFFFFF"
+                  />
+                </div>
+
+                <div>
+                  <Label>Feature card background color</Label>
+                  <Input
+                    value={settingsForm.feature_card_background_color}
+                    onChange={(e) =>
+                      setSettingsForm((prev) => ({
+                        ...prev,
+                        feature_card_background_color: e.target.value,
+                      }))
+                    }
+                    placeholder="#F7F9F8"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-6">
+                <Button
+                  onClick={() => saveSettingsMutation.mutate(settingsForm)}
+                  disabled={saveSettingsMutation.isPending}
+                  className="rounded-2xl"
+                  style={{
+                    backgroundColor: "var(--epsy-charcoal)",
+                    color: "white",
+                  }}
+                >
+                  {saveSettingsMutation.isPending
+                    ? "Saving..."
+                    : "Save background settings"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section
         className="py-20 lg:py-28"
-        style={{ backgroundColor: "var(--epsy-off-white)" }}
+        style={{ backgroundColor: pageSettings.header_background_color }}
       >
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.div
@@ -189,7 +323,10 @@ export default function EpsyApp() {
         </div>
       </section>
 
-      <section className="py-10" style={{ backgroundColor: "white" }}>
+      <section
+        className="py-10"
+        style={{ backgroundColor: pageSettings.download_section_background_color }}
+      >
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -224,7 +361,10 @@ export default function EpsyApp() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24">
+      <section
+        className="py-16 lg:py-24"
+        style={{ backgroundColor: pageSettings.features_section_background_color }}
+      >
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="space-y-8">
             {view.features.map((feature, index) => {
@@ -237,7 +377,7 @@ export default function EpsyApp() {
                   {...fadeInUp}
                   transition={{ delay: index * 0.1, duration: 0.6 }}
                   className="p-8 lg:p-10 rounded-2xl"
-                  style={{ backgroundColor: "var(--epsy-off-white)" }}
+                  style={{ backgroundColor: pageSettings.feature_card_background_color }}
                 >
                   <div className="flex flex-col lg:flex-row gap-6">
                     <div
