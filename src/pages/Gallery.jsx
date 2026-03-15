@@ -25,7 +25,6 @@ export default function Gallery() {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
 
-  // admin mode only with ?admin=1
   const showAdmin = useMemo(() => {
     return new URLSearchParams(window.location.search).get("admin") === "1";
   }, []);
@@ -33,7 +32,6 @@ export default function Gallery() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  // Session (so we know if it's you)
   const { data: session } = useQuery({
     queryKey: ["authSession"],
     queryFn: async () => {
@@ -47,7 +45,6 @@ export default function Gallery() {
     showAdmin &&
     session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  // ✅ Load page content for Gallery header/subtitle
   const { data: galleryContent = {} } = useQuery({
     queryKey: ["siteContent", "gallery"],
     queryFn: async () => await getSiteContent("gallery"),
@@ -65,7 +62,6 @@ export default function Gallery() {
     queryClient.invalidateQueries({ queryKey: ["siteContent", "gallery"] });
   };
 
-  // ✅ Gallery images (unchanged)
   const { data: images = [], isLoading } = useQuery({
     queryKey: ["galleryImages"],
     queryFn: async () => {
@@ -171,14 +167,12 @@ export default function Gallery() {
 
   return (
     <div>
-      {/* Admin login/logout bar (only on ?admin=1) */}
       <AdminBar
         show={showAdmin}
         redirectPathWithAdmin="/gallery?admin=1"
         adminEmail={ADMIN_EMAIL}
       />
 
-      {/* Admin-only uploader */}
       {isAdmin && (
         <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-4">
           <div className="flex items-center gap-3">
@@ -204,7 +198,6 @@ export default function Gallery() {
         </div>
       )}
 
-      {/* Header (✅ now editable) */}
       <section
         className="py-20 lg:py-28"
         style={{ backgroundColor: "var(--epsy-off-white)" }}
@@ -242,7 +235,6 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* Images */}
       <section className="py-12 lg:py-16" style={{ backgroundColor: "white" }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {isLoading ? (
@@ -275,9 +267,8 @@ export default function Gallery() {
                     />
                   </div>
 
-            
-
-                    {isAdmin && (
+                  {isAdmin && (
+                    <div className="p-4">
                       <div className="flex items-center justify-between pt-4">
                         <div className="flex items-center gap-2">
                           <Button
@@ -309,8 +300,8 @@ export default function Gallery() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
