@@ -26,29 +26,9 @@ import {
 } from "@/components/admin/sectionBackground";
 import { Button } from "@/components/ui/button";
 
-/**
- * ABOUT SECTIONS MODEL (stored in Supabase under about.sections):
- * [
- *  { id, type: "header", data: {...} },
- *  { id, type: "vision_mission", data: {...} },
- *  { id, type: "story", data: {...} },
- *  { id, type: "motto", data: {...} },
- *  { id, type: "text", data: { title, body } },
- *  { id, type: "divider", data: {} },
- *  { id, type: "spacer", data: { height } }
- * ]
- *
- * Background fields per section:
- * - background_type: "none" | "color" | "image"
- * - background_color
- * - background_image
- * - background_overlay
- */
-
 export default function About() {
   const queryClient = useQueryClient();
 
-  // admin mode only with ?admin=1
   const showAdmin = useMemo(() => {
     return new URLSearchParams(window.location.search).get("admin") === "1";
   }, []);
@@ -56,13 +36,11 @@ export default function About() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  // Load about content from Supabase
   const { data: aboutContent = {} } = useQuery({
     queryKey: ["siteContent", "about"],
     queryFn: async () => await getSiteContent("about"),
   });
 
-  // session for enabling inline editing
   const { data: sessionData } = useQuery({
     queryKey: ["authSession"],
     queryFn: async () => {
@@ -76,7 +54,6 @@ export default function About() {
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  // Defaults
   const oldView = {
     header_title: aboutContent.header_title ?? "Who We Are",
     header_subtitle:
@@ -103,7 +80,6 @@ export default function About() {
       "Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters — it's where everything begins.",
   };
 
-  // Sections
   const sections = useMemo(() => {
     const s = aboutContent.sections;
     if (Array.isArray(s) && s.length) return s;
@@ -163,7 +139,6 @@ export default function About() {
     ];
   }, [aboutContent.sections, oldView]);
 
-  // Save helpers
   const saveSections = async (nextSections) => {
     const next = { ...aboutContent, sections: nextSections };
     await updateSiteContent("about", next);
@@ -184,7 +159,6 @@ export default function About() {
     await saveSections(nextSections);
   };
 
-  // Drag & drop
   const dragIdRef = useRef(null);
 
   const onDragStart = (id) => {
@@ -214,7 +188,6 @@ export default function About() {
     }
   };
 
-  // Duplicate / Delete
   const duplicateSection = async (id) => {
     const current = [...sections];
     const idx = current.findIndex((s) => s.id === id);
@@ -255,7 +228,6 @@ export default function About() {
     }
   };
 
-  // Add section
   const makeSection = (type) => {
     const id = `${type}_${Date.now()}`;
 
@@ -389,60 +361,11 @@ export default function About() {
     }
   };
 
-  // Animation helper
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true },
     transition: { duration: 0.6 },
-  };
-
-  const AdminAddBar = () => {
-    if (!isAdmin) return null;
-
-    return (
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
-        <div
-          className="rounded-3xl border p-4 flex flex-wrap gap-2 items-center"
-          style={{
-            borderColor: "rgba(15,30,36,0.12)",
-            backgroundColor: "rgba(250,251,249,0.85)",
-          }}
-        >
-          <div
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl"
-            style={{ color: "var(--epsy-charcoal)" }}
-          >
-            <Plus className="h-4 w-4" />
-            <span className="text-sm font-semibold">Add section</span>
-          </div>
-
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("header")}>
-            Add Header
-          </Button>
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("vision_mission")}>
-            Add Vision/Mission
-          </Button>
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("story")}>
-            Add Story
-          </Button>
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("motto")}>
-            Add Motto
-          </Button>
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("text")}>
-            <Type className="h-4 w-4 mr-2" />
-            Add Text
-          </Button>
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("divider")}>
-            <Minus className="h-4 w-4 mr-2" />
-            Add Divider
-          </Button>
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("spacer")}>
-            Add Spacer
-          </Button>
-        </div>
-      </div>
-    );
   };
 
   const SectionControls = ({ section }) => {
@@ -488,7 +411,6 @@ export default function About() {
     );
   };
 
-  // Render section types
   const renderSection = (section) => {
     const bgData = getSectionBackgroundData(section);
     const bgStyle = getSectionBackgroundStyle(section);
@@ -501,7 +423,10 @@ export default function About() {
         "Epsy is a non-profit organisation focused on psychological awareness and resilience.";
 
       return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
           <SectionControls section={section} />
           <SectionBackgroundControls
             section={section}
@@ -510,7 +435,7 @@ export default function About() {
           />
 
           <section
-            className="py-20 lg:py-28 relative overflow-hidden"
+            className="py-16 lg:py-20 relative overflow-hidden"
             style={
               bgData.backgroundType === "color"
                 ? bgStyle
@@ -533,7 +458,11 @@ export default function About() {
             )}
 
             <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
                 <InlineText
                   enabled={isAdmin}
                   as="h1"
@@ -549,21 +478,27 @@ export default function About() {
                 />
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.6 }}>
-                <InlineText
-                  enabled={isAdmin}
-                  as="p"
-                  multiLine
-                  value={subtitle}
-                  onSave={(v) => saveSectionField(section.id, "header_subtitle", v)}
-                  className="text-lg leading-relaxed"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "rgba(255,255,255,0.9)"
-                        : "var(--epsy-slate-blue)",
-                  }}
-                />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.6 }}
+              >
+                <div className="max-w-3xl mx-auto">
+                  <InlineText
+                    enabled={isAdmin}
+                    as="p"
+                    multiLine
+                    value={subtitle}
+                    onSave={(v) => saveSectionField(section.id, "header_subtitle", v)}
+                    className="text-base sm:text-lg leading-8 sm:leading-9"
+                    style={{
+                      color:
+                        bgData.backgroundType === "image"
+                          ? "rgba(255,255,255,0.9)"
+                          : "var(--epsy-slate-blue)",
+                    }}
+                  />
+                </div>
               </motion.div>
             </div>
           </section>
@@ -579,7 +514,10 @@ export default function About() {
       const missionText = d.mission_text ?? "To raise psychological awareness.";
 
       return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
           <SectionControls section={section} />
           <SectionBackgroundControls
             section={section}
@@ -589,13 +527,7 @@ export default function About() {
 
           <section
             className="py-16 lg:py-24 relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? bgStyle
-                : bgData.backgroundType === "none"
-                ? {}
-                : {}
-            }
+            style={bgData.backgroundType === "color" ? bgStyle : {}}
           >
             {bgData.backgroundType === "image" && (
               <>
@@ -614,7 +546,7 @@ export default function About() {
               <div className="grid md:grid-cols-2 gap-8">
                 <motion.div
                   {...fadeInUp}
-                  className="p-10 rounded-2xl"
+                  className="p-8 lg:p-10 rounded-2xl"
                   style={{
                     backgroundColor:
                       bgData.backgroundType === "image"
@@ -644,7 +576,7 @@ export default function About() {
                     multiLine
                     value={visionText}
                     onSave={(v) => saveSectionField(section.id, "vision_text", v)}
-                    className="text-lg leading-relaxed"
+                    className="text-base sm:text-lg leading-8"
                     style={{ color: "var(--epsy-slate-blue)" }}
                   />
                 </motion.div>
@@ -652,7 +584,7 @@ export default function About() {
                 <motion.div
                   {...fadeInUp}
                   transition={{ delay: 0.1, duration: 0.6 }}
-                  className="p-10 rounded-2xl"
+                  className="p-8 lg:p-10 rounded-2xl"
                   style={{
                     backgroundColor:
                       bgData.backgroundType === "image"
@@ -682,7 +614,7 @@ export default function About() {
                     multiLine
                     value={missionText}
                     onSave={(v) => saveSectionField(section.id, "mission_text", v)}
-                    className="text-lg leading-relaxed"
+                    className="text-base sm:text-lg leading-8"
                     style={{ color: "var(--epsy-slate-blue)" }}
                   />
                 </motion.div>
@@ -700,7 +632,10 @@ export default function About() {
       const p2 = d.story_p2 ?? "Paragraph 2…";
 
       return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
           <SectionControls section={section} />
           <SectionBackgroundControls
             section={section}
@@ -755,7 +690,7 @@ export default function About() {
                 />
 
                 <div
-                  className="space-y-6 text-lg leading-relaxed"
+                  className="max-w-3xl mx-auto space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left md:text-center"
                   style={{
                     color:
                       bgData.backgroundType === "image"
@@ -804,7 +739,10 @@ export default function About() {
       const text = d.motto_text ?? "Motto explanation…";
 
       return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
           <SectionControls section={section} />
           <SectionBackgroundControls
             section={section}
@@ -814,13 +752,7 @@ export default function About() {
 
           <section
             className="py-16 lg:py-24 relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? bgStyle
-                : bgData.backgroundType === "none"
-                ? {}
-                : {}
-            }
+            style={bgData.backgroundType === "color" ? bgStyle : {}}
           >
             {bgData.backgroundType === "image" && (
               <>
@@ -851,20 +783,22 @@ export default function About() {
                   }}
                 />
 
-                <InlineText
-                  enabled={isAdmin}
-                  as="p"
-                  multiLine
-                  value={text}
-                  onSave={(v) => saveSectionField(section.id, "motto_text", v)}
-                  className="text-lg leading-relaxed"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "rgba(255,255,255,0.9)"
-                        : "var(--epsy-slate-blue)",
-                  }}
-                />
+                <div className="max-w-3xl mx-auto">
+                  <InlineText
+                    enabled={isAdmin}
+                    as="p"
+                    multiLine
+                    value={text}
+                    onSave={(v) => saveSectionField(section.id, "motto_text", v)}
+                    className="text-base sm:text-lg leading-8 sm:leading-9 text-left md:text-center"
+                    style={{
+                      color:
+                        bgData.backgroundType === "image"
+                          ? "rgba(255,255,255,0.9)"
+                          : "var(--epsy-slate-blue)",
+                    }}
+                  />
+                </div>
               </motion.div>
             </div>
           </section>
@@ -878,7 +812,10 @@ export default function About() {
       const body = d.body ?? "Write your text here…";
 
       return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
           <SectionControls section={section} />
           <SectionBackgroundControls
             section={section}
@@ -923,20 +860,22 @@ export default function About() {
                       : "var(--epsy-charcoal)",
                 }}
               />
-              <InlineText
-                enabled={isAdmin}
-                as="p"
-                multiLine
-                value={body}
-                onSave={(v) => saveSectionField(section.id, "body", v)}
-                className="text-lg leading-relaxed"
-                style={{
-                  color:
-                    bgData.backgroundType === "image"
-                      ? "rgba(255,255,255,0.9)"
-                      : "var(--epsy-slate-blue)",
-                }}
-              />
+              <div className="max-w-3xl mx-auto">
+                <InlineText
+                  enabled={isAdmin}
+                  as="p"
+                  multiLine
+                  value={body}
+                  onSave={(v) => saveSectionField(section.id, "body", v)}
+                  className="text-base sm:text-lg leading-8 sm:leading-9 text-left md:text-center"
+                  style={{
+                    color:
+                      bgData.backgroundType === "image"
+                        ? "rgba(255,255,255,0.9)"
+                        : "var(--epsy-slate-blue)",
+                  }}
+                />
+              </div>
             </div>
           </section>
         </div>
@@ -945,7 +884,10 @@ export default function About() {
 
     if (section.type === "divider") {
       return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
           <SectionControls section={section} />
           <SectionBackgroundControls
             section={section}
@@ -988,7 +930,10 @@ export default function About() {
     if (section.type === "spacer") {
       const h = Number(section.data?.height ?? 48);
       return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
+        <div
+          onDragOver={(e) => isAdmin && e.preventDefault()}
+          onDrop={() => isAdmin && onDropOn(section.id)}
+        >
           <SectionControls section={section} />
           <SectionBackgroundControls
             section={section}
@@ -1022,7 +967,10 @@ export default function About() {
     }
 
     return (
-      <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
+      <div
+        onDragOver={(e) => isAdmin && e.preventDefault()}
+        onDrop={() => isAdmin && onDropOn(section.id)}
+      >
         <SectionControls section={section} />
         <SectionBackgroundControls
           section={section}
@@ -1031,7 +979,10 @@ export default function About() {
         />
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10">
-          <div className="rounded-3xl border p-6" style={{ borderColor: "rgba(15,30,36,0.12)" }}>
+          <div
+            className="rounded-3xl border p-6"
+            style={{ borderColor: "rgba(15,30,36,0.12)" }}
+          >
             <div className="font-semibold" style={{ color: "var(--epsy-charcoal)" }}>
               Unknown section type
             </div>
@@ -1061,7 +1012,10 @@ export default function About() {
               backgroundColor: "rgba(250,251,249,0.85)",
             }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl" style={{ color: "var(--epsy-charcoal)" }}>
+            <div
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl"
+              style={{ color: "var(--epsy-charcoal)" }}
+            >
               <Plus className="h-4 w-4" />
               <span className="text-sm font-semibold">Add section</span>
             </div>

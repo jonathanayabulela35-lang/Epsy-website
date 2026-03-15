@@ -275,7 +275,11 @@ export default function Home() {
                     color:
                       heroBgData.backgroundType === "image"
                         ? "white"
-                        : "var(--epsy-sky-blue)",
+                        : "var(--epsy-charcoal)",
+                    backgroundColor:
+                      heroBgData.backgroundType === "image"
+                        ? "transparent"
+                        : "rgba(255,255,255,0.92)",
                   }}
                 >
                   <InlineText
@@ -301,7 +305,7 @@ export default function Home() {
       )}
 
       <section
-        className="py-16 relative overflow-hidden"
+        className="py-10 lg:py-12 relative overflow-hidden"
         style={
           downloadBgData.backgroundType === "color"
             ? downloadBgStyle
@@ -345,18 +349,20 @@ export default function Home() {
               Download the EpsyApp
             </h2>
 
-            <a href={APK_URL}>
-              <Button
-                className="px-8 py-6 text-base rounded-2xl font-semibold"
-                style={{
-                  backgroundColor: "var(--epsy-charcoal)",
-                  color: "white",
-                }}
-              >
-                <Download className="mr-2 h-5 w-5" />
-                Download EpsyApp APK
-              </Button>
-            </a>
+            <div className="flex justify-center">
+              <a href={APK_URL}>
+                <Button
+                  className="px-8 py-6 text-base rounded-2xl font-semibold"
+                  style={{
+                    backgroundColor: "var(--epsy-charcoal)",
+                    color: "white",
+                  }}
+                >
+                  <Download className="mr-2 h-5 w-5" />
+                  Download EpsyApp APK
+                </Button>
+              </a>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -370,7 +376,7 @@ export default function Home() {
       )}
 
       <section
-        className="py-24 lg:py-32 relative overflow-hidden"
+        className="py-16 lg:py-20 relative overflow-hidden"
         style={
           whatWeDoBgData.backgroundType === "color"
             ? whatWeDoBgStyle
