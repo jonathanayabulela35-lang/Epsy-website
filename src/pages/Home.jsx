@@ -231,19 +231,11 @@ export default function Home() {
             }}
           >
             <h2
-              className="text-3xl lg:text-4xl font-bold mb-4"
+              className="text-3xl lg:text-4xl font-bold mb-8"
               style={{ color: "var(--epsy-charcoal)" }}
             >
               Download the EpsyApp
             </h2>
-
-            <p
-              className="text-lg leading-relaxed max-w-2xl mx-auto mb-8"
-              style={{ color: "var(--epsy-slate-blue)" }}
-            >
-              Install the EpsyApp directly on your Android device from the Epsy website.
-              Tap the button below to download the APK, then open it on your phone to install.
-            </p>
 
             <a href={APK_URL}>
               <Button
@@ -257,14 +249,6 @@ export default function Home() {
                 Download EpsyApp APK
               </Button>
             </a>
-
-            <p
-              className="text-sm mt-4"
-              style={{ color: "var(--epsy-slate-blue)" }}
-            >
-              Android only. If your phone asks for permission to install from this source,
-              allow it and continue with the installation.
-            </p>
           </motion.div>
         </div>
       </section>
@@ -333,7 +317,7 @@ export default function Home() {
                   />
 
                   {idx === 2 && (
-                    <div className="pt-5 flex flex-wrap gap-3">
+                    <div className="pt-5">
                       <Link
                         to="/epsyapp"
                         className="inline-flex items-center text-sm font-semibold"
@@ -341,15 +325,6 @@ export default function Home() {
                       >
                         Explore EpsyApp <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
-
-                      <a
-                        href={APK_URL}
-                        className="inline-flex items-center text-sm font-semibold"
-                        style={{ color: "var(--epsy-charcoal)" }}
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Download APK
-                      </a>
                     </div>
                   )}
                 </motion.div>
