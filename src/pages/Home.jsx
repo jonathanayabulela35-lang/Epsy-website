@@ -33,7 +33,6 @@ import { supabase } from "@/lib/supabaseClient";
 /**
  * HOME SECTIONS MODEL (stored in Supabase under home.sections):
  * [
- *  { id, type: "hero", data: {...} },
  *  { id, type: "what", data: {...} },
  *  { id, type: "text", data: { title, body } },
  *  { id, type: "divider", data: {} },
@@ -47,11 +46,7 @@ import { supabase } from "@/lib/supabaseClient";
  * - background_overlay: 0.35
  */
 
-export default function Home() {
-  const settings = siteSettings;
-  const queryClient = useQueryClient();
 
-  // admin mode only with ?admin=1
   const showAdmin = useMemo(() => {
     return new URLSearchParams(window.location.search).get("admin") === "1";
   }, []);
@@ -59,7 +54,6 @@ export default function Home() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  // Load home content from Supabase
   const { data: homeContent = {} } = useQuery({
     queryKey: ["siteContent", "home"],
     queryFn: async () => await getSiteContent("home"),

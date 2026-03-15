@@ -43,6 +43,8 @@ import {
  * - background_overlay
  */
 
+const APK_URL = "/downloads/epsyapp.apk";
+
 export default function EpsyApp() {
   const queryClient = useQueryClient();
 
