@@ -97,6 +97,60 @@ function AdminValueEditor({
   );
 }
 
+function LinkEditor({ isAdmin, label, value, placeholder, onSave }) {
+  const [draft, setDraft] = useState(value || "");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setDraft(value || "");
+  }, [value]);
+
+  if (!isAdmin) return null;
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await onSave((draft || "").trim());
+      toast.success("Saved");
+    } catch (err) {
+      console.error(err);
+      toast.error("Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-2">
+      <div className="text-xs mb-1" style={{ color: "rgba(15,30,36,0.65)" }}>
+        {label}
+      </div>
+
+      <div className="flex gap-2 items-center">
+        <Input
+          value={draft}
+          placeholder={placeholder}
+          onChange={(e) => setDraft(e.target.value)}
+        />
+
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-xl"
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving ? "Saving..." : "Save"}
+        </Button>
+      </div>
+
+      <div className="text-xs mt-1" style={{ color: "rgba(15,30,36,0.55)" }}>
+        Tip: For maps, paste a Google Maps link.
+      </div>
+    </div>
+  );
+}
+
 export default function Contact() {
   const queryClient = useQueryClient();
 
@@ -107,7 +161,7 @@ export default function Contact() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  const { data: contactContent = {}, isLoading: contactLoading } = useQuery({
+  const { data: contactContent = {}, isLoading } = useQuery({
     queryKey: ["siteContent", "contact"],
     queryFn: async () => await getSiteContent("contact"),
   });
@@ -124,17 +178,6 @@ export default function Contact() {
   const isAdmin =
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-
-  if (contactLoading) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          backgroundColor: "var(--epsy-off-white)",
-        }}
-      />
-    );
-  }
 
   const oldView = {
     header_title: contactContent.header_title ?? "Contact",
@@ -546,60 +589,6 @@ export default function Contact() {
     );
   };
 
-  const LinkEditor = ({ label, value, placeholder, onSave }) => {
-    const [draft, setDraft] = useState(value || "");
-    const [saving, setSaving] = useState(false);
-
-    useEffect(() => {
-      setDraft(value || "");
-    }, [value]);
-
-    if (!isAdmin) return null;
-
-    const handleSave = async () => {
-      try {
-        setSaving(true);
-        await onSave((draft || "").trim());
-        toast.success("Saved");
-      } catch (err) {
-        console.error(err);
-        toast.error("Save failed");
-      } finally {
-        setSaving(false);
-      }
-    };
-
-    return (
-      <div className="mt-2">
-        <div className="text-xs mb-1" style={{ color: "rgba(15,30,36,0.65)" }}>
-          {label}
-        </div>
-
-        <div className="flex gap-2 items-center">
-          <Input
-            value={draft}
-            placeholder={placeholder}
-            onChange={(e) => setDraft(e.target.value)}
-          />
-
-          <Button
-            type="button"
-            variant="outline"
-            className="rounded-xl"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save"}
-          </Button>
-        </div>
-
-        <div className="text-xs mt-1" style={{ color: "rgba(15,30,36,0.55)" }}>
-          Tip: For maps, paste a Google Maps link.
-        </div>
-      </div>
-    );
-  };
-
   const renderSection = (section) => {
     const bgData = getSectionBackgroundData(section);
     const bgStyle = getSectionBackgroundStyle(section);
@@ -671,22 +660,24 @@ export default function Contact() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
-                <InlineText
-                  enabled={isAdmin}
-                  as="p"
-                  multiLine
-                  value={subtitle}
-                  onSave={(v) =>
-                    saveSectionField(section.id, "header_subtitle", v)
-                  }
-                  className="text-lg leading-relaxed"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "rgba(255,255,255,0.9)"
-                        : "var(--epsy-slate-blue)",
-                  }}
-                />
+                <div className="max-w-3xl mx-auto">
+                  <InlineText
+                    enabled={isAdmin}
+                    as="p"
+                    multiLine
+                    value={subtitle}
+                    onSave={(v) =>
+                      saveSectionField(section.id, "header_subtitle", v)
+                    }
+                    className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
+                    style={{
+                      color:
+                        bgData.backgroundType === "image"
+                          ? "rgba(255,255,255,0.9)"
+                          : "var(--epsy-slate-blue)",
+                    }}
+                  />
+                </div>
               </motion.div>
             </div>
           </section>
@@ -994,6 +985,7 @@ export default function Contact() {
                                 />
 
                                 <LinkEditor
+                                  isAdmin={isAdmin}
                                   label="Link"
                                   value={info.link}
                                   placeholder={info.linkPlaceholder}
@@ -1061,7 +1053,7 @@ export default function Contact() {
           />
 
           <section
-            className="py-16 lg:py-24 relative overflow-hidden"
+            className="py-16 lg:py-20 relative overflow-hidden"
             style={
               bgData.backgroundType === "color"
                 ? bgStyle
@@ -1097,20 +1089,22 @@ export default function Contact() {
                       : "var(--epsy-charcoal)",
                 }}
               />
-              <InlineText
-                enabled={isAdmin}
-                as="p"
-                multiLine
-                value={body}
-                onSave={(v) => saveSectionField(section.id, "body", v)}
-                className="text-lg leading-relaxed"
-                style={{
-                  color:
-                    bgData.backgroundType === "image"
-                      ? "rgba(255,255,255,0.9)"
-                      : "var(--epsy-slate-blue)",
-                }}
-              />
+              <div className="max-w-3xl mx-auto">
+                <InlineText
+                  enabled={isAdmin}
+                  as="p"
+                  multiLine
+                  value={body}
+                  onSave={(v) => saveSectionField(section.id, "body", v)}
+                  className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
+                  style={{
+                    color:
+                      bgData.backgroundType === "image"
+                        ? "rgba(255,255,255,0.9)"
+                        : "var(--epsy-slate-blue)",
+                  }}
+                />
+              </div>
             </div>
           </section>
         </div>
@@ -1243,9 +1237,18 @@ export default function Contact() {
 
       <AdminAddBar />
 
-      {sections.map((section) => (
-        <div key={section.id}>{renderSection(section)}</div>
-      ))}
+      {isLoading ? (
+        <div
+          style={{
+            minHeight: "60vh",
+            backgroundColor: "var(--epsy-off-white)",
+          }}
+        />
+      ) : (
+        sections.map((section) => (
+          <div key={section.id}>{renderSection(section)}</div>
+        ))
+      )}
     </div>
   );
 }
