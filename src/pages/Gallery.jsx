@@ -267,12 +267,8 @@ export default function Gallery() {
                     />
                   </div>
 
-<<<<<<< Updated upstream
                   {isAdmin && (
                     <div className="p-4">
-=======
-                    {isAdmin && (
->>>>>>> Stashed changes
                       <div className="flex items-center justify-between pt-4">
                         <div className="flex items-center gap-2">
                           <Button
