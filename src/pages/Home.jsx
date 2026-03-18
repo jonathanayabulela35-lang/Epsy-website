@@ -29,7 +29,7 @@ export default function Home() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  const { data: homeContent = {} } = useQuery({
+  const { data: homeContent = {}, isLoading: homeLoading } = useQuery({
     queryKey: ["siteContent", "home"],
     queryFn: async () => await getSiteContent("home"),
   });
@@ -46,6 +46,17 @@ export default function Home() {
   const isAdmin =
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  if (homeLoading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "var(--epsy-off-white)",
+        }}
+      />
+    );
+  }
 
   const view = {
     hero_title:
