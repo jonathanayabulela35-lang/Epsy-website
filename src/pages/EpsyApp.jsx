@@ -28,7 +28,7 @@ export default function EpsyApp() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  const { data: pageContent = {} } = useQuery({
+  const { data: pageContent = {}, isLoading: pageLoading } = useQuery({
     queryKey: ["siteContent", "epsyapp"],
     queryFn: async () => await getSiteContent("epsyapp"),
   });
@@ -45,6 +45,17 @@ export default function EpsyApp() {
   const isAdmin =
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  if (pageLoading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "var(--epsy-off-white)",
+        }}
+      />
+    );
+  }
 
   const defaultFeatures = [
     {
