@@ -107,7 +107,7 @@ export default function Contact() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  const { data: contactContent = {} } = useQuery({
+  const { data: contactContent = {}, isLoading: contactLoading } = useQuery({
     queryKey: ["siteContent", "contact"],
     queryFn: async () => await getSiteContent("contact"),
   });
@@ -124,6 +124,17 @@ export default function Contact() {
   const isAdmin =
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  if (contactLoading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "var(--epsy-off-white)",
+        }}
+      />
+    );
+  }
 
   const oldView = {
     header_title: contactContent.header_title ?? "Contact",
