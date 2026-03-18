@@ -36,7 +36,7 @@ export default function About() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  const { data: aboutContent = {}, isLoading: aboutLoading } = useQuery({
+  const { data: aboutContent = {}, isLoading } = useQuery({
     queryKey: ["siteContent", "about"],
     queryFn: async () => await getSiteContent("about"),
   });
@@ -53,17 +53,6 @@ export default function About() {
   const isAdmin =
     showAdmin &&
     sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-
-  if (aboutLoading) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          backgroundColor: "var(--epsy-off-white)",
-        }}
-      />
-    );
-  }
 
   const oldView = {
     header_title: aboutContent.header_title ?? "Who We Are",
@@ -1058,9 +1047,16 @@ export default function About() {
         </div>
       )}
 
-      {sections.map((section) => (
-        <div key={section.id}>{renderSection(section)}</div>
-      ))}
+      {isLoading ? (
+        <div
+          style={{
+            minHeight: "60vh",
+            backgroundColor: "var(--epsy-off-white)",
+          }}
+        />
+      ) : (
+        sections.map((section) => <div key={section.id}>{renderSection(section)}</div>)
+      )}
     </div>
   );
 }
