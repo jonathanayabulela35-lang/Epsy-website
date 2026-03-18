@@ -1,16 +1,6 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import {
-  School,
-  Users,
-  Heart,
-  GripVertical,
-  Copy,
-  Trash2,
-  Plus,
-  Minus,
-  Type,
-} from "lucide-react";
+import { Library, Search, MessageSquare, Plus, Trash2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -20,13 +10,15 @@ import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
 
 import AdminBar from "@/components/admin/AdminBar";
 import InlineText from "@/components/admin/InlineText";
-import SectionBackgroundControls from "@/components/admin/SectionBackgroundControls";
+import SectionBackgroundControls from "@/components/admin/SectionBackgroundControls.jsx";
 import {
   getSectionBackgroundData,
   getSectionBackgroundStyle,
 } from "@/components/admin/sectionBackground";
 
-export default function Partnerships() {
+const APK_URL = "/downloads/epsyapp.apk";
+
+export default function EpsyApp() {
   const queryClient = useQueryClient();
 
   const showAdmin = useMemo(() => {
@@ -36,12 +28,12 @@ export default function Partnerships() {
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  const { data: pageContent = {} } = useQuery({
-    queryKey: ["siteContent", "partnerships"],
-    queryFn: async () => await getSiteContent("partnerships"),
+  const { data: pageContent = {}, isLoading: pageLoading } = useQuery({
+    queryKey: ["siteContent", "epsyapp"],
+    queryFn: async () => await getSiteContent("epsyapp"),
   });
 
-  const { data: session } = useQuery({
+  const { data: sessionData } = useQuery({
     queryKey: ["authSession"],
     queryFn: async () => {
       const { data } = await supabase.auth.getSession();
@@ -52,327 +44,164 @@ export default function Partnerships() {
 
   const isAdmin =
     showAdmin &&
-    session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  const defaultPartnerTypes = [
+  if (pageLoading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "var(--epsy-off-white)",
+        }}
+      />
+    );
+  }
+
+  const defaultFeatures = [
     {
-      id: "schools",
-      icon: "school",
-      title: "Schools",
+      key: "library",
+      title: "Psychological Insight Library",
       description:
-        "Partner with us to bring psychological resilience training directly to your students.",
+        "Content curated and uploaded by Epsy covering real challenges students face.",
+      details: [
+        "Topics: Bullying, imposter syndrome, exam anxiety, friend groups, gifts and talents, procrastination, fear of failure",
+        "Each topic includes: Why this happens, How to reframe, If you ignore, If you act, Practical steps",
+        "Daily Execution shows visible day-by-day growth, with detailed depth inside each specific day",
+      ],
     },
     {
-      id: "youth_orgs",
-      icon: "users",
-      title: "Youth Development Organisations",
+      key: "decoder",
+      title: "Question Decoder",
       description:
-        "Join forces with organisations aligned with youth development and mental wellness.",
+        "Content uploaded by Epsy to help students understand how exam questions are built.",
+      details: [
+        "Includes past paper examples",
+        "Explains how exam questions are framed",
+        "Embedded sections: How to Respond, How to Remember the Response",
+      ],
     },
     {
-      id: "supporters",
-      icon: "heart",
-      title: "Individual Supporters",
+      key: "builder",
+      title: "Question Builder",
       description:
-        "Support the mission through donations or volunteer your expertise.",
+        "Structured guidance created by Epsy to help students ask clearer academic questions.",
+      details: [
+        "Step-by-step framework for building better questions",
+        "Learn to identify what you actually need to know",
+        "Develop critical thinking through question formation",
+      ],
     },
   ];
 
-  const oldView = {
-    header_title: pageContent.header_title ?? "Partner With Epsy",
+  const view = {
+    header_title: pageContent.header_title ?? "EpsyApp",
     header_subtitle:
       pageContent.header_subtitle ??
-      "We partner with schools, organisations, and individuals who believe in the goal Epsy is working toward — helping students strengthen their mentality and prepare for life mentally before life challenges them outwardly.",
-    section_title: pageContent.section_title ?? "Partnership Opportunities",
-    partner_types:
-      Array.isArray(pageContent.partner_types) && pageContent.partner_types.length
-        ? pageContent.partner_types.map((p, i) => ({
-            id: p.key || `card_${i}`,
-            icon: ["school", "users", "heart"][i] || "school",
-            title: p.title ?? "",
-            description: p.description ?? "",
-          }))
-        : defaultPartnerTypes,
-    donate_title: pageContent.donate_title ?? "Support the Mission",
-    donate_button_text: pageContent.donate_button_text ?? "Donate Now",
-    donate_button_link: pageContent.donate_button_link ?? "#",
-    donate_note:
-      pageContent.donate_note ??
-      "Your donation supports the development of EpsyApp, the creation of structured psychological learning resources, and outreach to more schools.",
+      "EpsyApp is a structured student cognitive literacy and psychological resilience platform. It is not a chatbot. It is not therapy. It is a structured thinking and learning system.",
+    features:
+      Array.isArray(pageContent.features) && pageContent.features.length
+        ? pageContent.features
+        : defaultFeatures,
   };
 
-  const sections = useMemo(() => {
-    const s = pageContent.sections;
-    if (Array.isArray(s) && s.length) return s;
-
-    return [
-      {
-        id: "header",
-        type: "header",
-        data: {
-          header_title: oldView.header_title,
-          header_subtitle: oldView.header_subtitle,
-          background_type: "color",
-          background_color: "var(--epsy-off-white)",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      },
-      {
-        id: "partner_cards",
-        type: "partner_cards",
-        data: {
-          section_title: oldView.section_title,
-          cards: oldView.partner_types,
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      },
-      {
-        id: "donation",
-        type: "donation",
-        data: {
-          donate_title: oldView.donate_title,
-          donate_button_text: oldView.donate_button_text,
-          donate_button_link: oldView.donate_button_link,
-          donate_note: oldView.donate_note,
-          background_type: "color",
-          background_color: "var(--epsy-off-white)",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      },
-    ];
-  }, [pageContent.sections, oldView]);
-
-  const saveSections = async (nextSections) => {
-    const next = { ...pageContent, sections: nextSections };
-    await updateSiteContent("partnerships", next);
-    queryClient.invalidateQueries({ queryKey: ["siteContent", "partnerships"] });
+  const saveNext = async (next) => {
+    await updateSiteContent("epsyapp", next);
+    queryClient.invalidateQueries({ queryKey: ["siteContent", "epsyapp"] });
   };
 
-  const saveSectionField = async (sectionId, field, value) => {
-    const nextSections = sections.map((s) =>
-      s.id === sectionId ? { ...s, data: { ...s.data, [field]: value } } : s
-    );
-    await saveSections(nextSections);
+  const saveField = async (field, value) => {
+    const next = { ...pageContent, [field]: value };
+    await saveNext(next);
   };
 
-  const updateSectionData = async (sectionId, patch) => {
-    const nextSections = sections.map((s) =>
-      s.id === sectionId ? { ...s, data: { ...s.data, ...patch } } : s
-    );
-    await saveSections(nextSections);
+  const updateSectionBackground = async (sectionKey, patch) => {
+    const next = { ...pageContent };
+
+    Object.entries(patch).forEach(([key, value]) => {
+      next[`${sectionKey}_${key}`] = value;
+    });
+
+    await saveNext(next);
   };
 
-  const dragIdRef = useRef(null);
-
-  const onDragStart = (id) => {
-    dragIdRef.current = id;
+  const updateFeature = async (index, patch) => {
+    const nextFeatures = [...view.features];
+    nextFeatures[index] = { ...nextFeatures[index], ...patch };
+    await saveField("features", nextFeatures);
+    toast.success("Saved");
   };
 
-  const onDropOn = async (targetId) => {
-    const draggedId = dragIdRef.current;
-    dragIdRef.current = null;
-
-    if (!draggedId || draggedId === targetId) return;
-
-    const current = [...sections];
-    const fromIndex = current.findIndex((s) => s.id === draggedId);
-    const toIndex = current.findIndex((s) => s.id === targetId);
-    if (fromIndex === -1 || toIndex === -1) return;
-
-    const [moved] = current.splice(fromIndex, 1);
-    current.splice(toIndex, 0, moved);
-
-    try {
-      await saveSections(current);
-      toast.success("Section moved");
-    } catch (e) {
-      console.error(e);
-      toast.error("Move failed");
-    }
+  const updateBullet = async (featureIndex, bulletIndex, value) => {
+    const nextFeatures = [...view.features];
+    const f = nextFeatures[featureIndex] ?? {};
+    const details = Array.isArray(f.details) ? [...f.details] : [];
+    details[bulletIndex] = value;
+    nextFeatures[featureIndex] = { ...f, details };
+    await saveField("features", nextFeatures);
+    toast.success("Saved");
   };
 
-  const duplicateSection = async (id) => {
-    const current = [...sections];
-    const idx = current.findIndex((s) => s.id === id);
-    if (idx === -1) return;
-
-    const src = current[idx];
-    const cloned = {
-      ...src,
-      id: `${src.type}_${Date.now()}`,
-      data: JSON.parse(JSON.stringify(src.data || {})),
-    };
-
-    if (cloned.type === "partner_cards") {
-      const cards = Array.isArray(cloned.data?.cards) ? cloned.data.cards : [];
-      cloned.data.cards = cards.map((c) => ({
-        ...c,
-        id: `${c.id || "card"}_${Date.now()}_${Math.random()
-          .toString(16)
-          .slice(2)}`,
-      }));
-    }
-
-    current.splice(idx + 1, 0, cloned);
-
-    try {
-      await saveSections(current);
-      toast.success("Section duplicated");
-    } catch (e) {
-      console.error(e);
-      toast.error("Duplicate failed");
-    }
+  const addBullet = async (featureIndex) => {
+    const nextFeatures = [...view.features];
+    const f = nextFeatures[featureIndex] ?? {};
+    const details = Array.isArray(f.details) ? [...f.details] : [];
+    details.push("New bullet");
+    nextFeatures[featureIndex] = { ...f, details };
+    await saveField("features", nextFeatures);
+    toast.success("Bullet added");
   };
 
-  const deleteSection = async (id) => {
-    if (sections.length <= 1) {
-      toast.error("You must keep at least one section.");
-      return;
-    }
-    const current = sections.filter((s) => s.id !== id);
-    try {
-      await saveSections(current);
-      toast.success("Section deleted");
-    } catch (e) {
-      console.error(e);
-      toast.error("Delete failed");
-    }
+  const removeBullet = async (featureIndex, bulletIndex) => {
+    const nextFeatures = [...view.features];
+    const f = nextFeatures[featureIndex] ?? {};
+    const details = Array.isArray(f.details) ? [...f.details] : [];
+    details.splice(bulletIndex, 1);
+    nextFeatures[featureIndex] = { ...f, details };
+    await saveField("features", nextFeatures);
+    toast.success("Bullet removed");
   };
 
-  const makeSection = (type) => {
-    const id = `${type}_${Date.now()}`;
-
-    if (type === "header") {
-      return {
-        id,
-        type: "header",
-        data: {
-          header_title: "Partner With Epsy",
-          header_subtitle: "Write a subtitle here…",
-          background_type: "color",
-          background_color: "var(--epsy-off-white)",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "partner_cards") {
-      return {
-        id,
-        type: "partner_cards",
-        data: {
-          section_title: "Partnership Opportunities",
-          cards: [
-            {
-              id: `card_${Date.now()}_1`,
-              icon: "school",
-              title: "Schools",
-              description: "Describe this partnership type…",
-            },
-            {
-              id: `card_${Date.now()}_2`,
-              icon: "users",
-              title: "Organisations",
-              description: "Describe this partnership type…",
-            },
-          ],
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "donation") {
-      return {
-        id,
-        type: "donation",
-        data: {
-          donate_title: "Support the Mission",
-          donate_button_text: "Donate Now",
-          donate_button_link: "#",
-          donate_note: "Write a short note about what donations support…",
-          background_type: "color",
-          background_color: "var(--epsy-off-white)",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "text") {
-      return {
-        id,
-        type: "text",
-        data: {
-          title: "Section title…",
-          body: "Write your text here…",
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "divider") {
-      return {
-        id,
-        type: "divider",
-        data: {
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "spacer") {
-      return {
-        id,
-        type: "spacer",
-        data: {
-          height: 48,
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    return {
-      id,
-      type: "text",
-      data: {
-        title: "Section",
-        body: "",
-        background_type: "none",
-        background_color: "",
-        background_image: "",
-        background_overlay: 0.35,
-      },
-    };
+  const headerSection = {
+    id: "header",
+    type: "header",
+    data: {
+      background_type: pageContent.header_background_type ?? "none",
+      background_color: pageContent.header_background_color ?? "",
+      background_image: pageContent.header_background_image ?? "",
+      background_overlay: pageContent.header_background_overlay ?? 0.35,
+    },
   };
 
-  const addSection = async (type) => {
-    const current = [...sections, makeSection(type)];
-    try {
-      await saveSections(current);
-      toast.success("Section added");
-    } catch (e) {
-      console.error(e);
-      toast.error("Add section failed");
-    }
+  const downloadSection = {
+    id: "download",
+    type: "download",
+    data: {
+      background_type: pageContent.download_background_type ?? "none",
+      background_color: pageContent.download_background_color ?? "",
+      background_image: pageContent.download_background_image ?? "",
+      background_overlay: pageContent.download_background_overlay ?? 0.35,
+    },
   };
+
+  const featuresSection = {
+    id: "features",
+    type: "features",
+    data: {
+      background_type: pageContent.features_background_type ?? "none",
+      background_color: pageContent.features_background_color ?? "",
+      background_image: pageContent.features_background_image ?? "",
+      background_overlay: pageContent.features_background_overlay ?? 0.35,
+    },
+  };
+
+  const headerBgData = getSectionBackgroundData(headerSection);
+  const headerBgStyle = getSectionBackgroundStyle(headerSection);
+
+  const downloadBgData = getSectionBackgroundData(downloadSection);
+  const downloadBgStyle = getSectionBackgroundStyle(downloadSection);
+
+  const featuresBgData = getSectionBackgroundData(featuresSection);
+  const featuresBgStyle = getSectionBackgroundStyle(featuresSection);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -381,719 +210,298 @@ export default function Partnerships() {
     transition: { duration: 0.6 },
   };
 
-  const SectionControls = ({ section }) => {
-    if (!isAdmin) return null;
-
-    return (
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
-        <div className="flex items-center justify-end gap-2">
-          <div
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl border cursor-grab active:cursor-grabbing"
-            draggable
-            onDragStart={() => onDragStart(section.id)}
-            style={{
-              borderColor: "rgba(15,30,36,0.12)",
-              backgroundColor: "rgba(250,251,249,0.85)",
-              color: "var(--epsy-charcoal)",
-            }}
-            title="Drag to move section"
-          >
-            <GripVertical className="h-4 w-4" />
-            <span className="text-xs font-medium">Drag</span>
-          </div>
-
-          <Button
-            variant="outline"
-            className="rounded-2xl"
-            onClick={() => duplicateSection(section.id)}
-            title="Duplicate section"
-          >
-            <Copy className="h-4 w-4 mr-2" />
-            Duplicate
-          </Button>
-
-          <Button
-            variant="destructive"
-            className="rounded-2xl"
-            onClick={() => deleteSection(section.id)}
-            title="Delete section"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
-        </div>
-      </div>
-    );
-  };
-
-  const AdminAddBar = () => {
-    if (!isAdmin) return null;
-
-    return (
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
-        <div
-          className="rounded-3xl border p-4 flex flex-wrap gap-2 items-center"
-          style={{
-            borderColor: "rgba(15,30,36,0.12)",
-            backgroundColor: "rgba(250,251,249,0.85)",
-          }}
-        >
-          <div
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl"
-            style={{ color: "var(--epsy-charcoal)" }}
-          >
-            <Plus className="h-4 w-4" />
-            <span className="text-sm font-semibold">Add section</span>
-          </div>
-
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("header")}>
-            Add Header
-          </Button>
-
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("partner_cards")}>
-            Add Partner Cards
-          </Button>
-
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("donation")}>
-            Add Donation
-          </Button>
-
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("text")}>
-            <Type className="h-4 w-4 mr-2" />
-            Add Text
-          </Button>
-
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("divider")}>
-            <Minus className="h-4 w-4 mr-2" />
-            Add Divider
-          </Button>
-
-          <Button className="rounded-2xl" variant="outline" onClick={() => addSection("spacer")}>
-            Add Spacer
-          </Button>
-        </div>
-      </div>
-    );
-  };
-
-  const iconFromName = (name) => {
-    if (name === "users") return Users;
-    if (name === "heart") return Heart;
-    return School;
-  };
-
-  const updatePartnerCard = async (sectionId, cardId, patch) => {
-    const nextSections = sections.map((s) => {
-      if (s.id !== sectionId) return s;
-      const cards = Array.isArray(s.data?.cards) ? s.data.cards : [];
-      return {
-        ...s,
-        data: {
-          ...s.data,
-          cards: cards.map((c) => (c.id === cardId ? { ...c, ...patch } : c)),
-        },
-      };
-    });
-    await saveSections(nextSections);
-  };
-
-  const addPartnerCard = async (sectionId) => {
-    const nextSections = sections.map((s) => {
-      if (s.id !== sectionId) return s;
-      const cards = Array.isArray(s.data?.cards) ? s.data.cards : [];
-      return {
-        ...s,
-        data: {
-          ...s.data,
-          cards: [
-            ...cards,
-            {
-              id: `card_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-              icon: "school",
-              title: "New card",
-              description: "Describe this partnership type…",
-            },
-          ],
-        },
-      };
-    });
-    await saveSections(nextSections);
-    toast.success("Card added");
-  };
-
-  const deletePartnerCard = async (sectionId, cardId) => {
-    const nextSections = sections.map((s) => {
-      if (s.id !== sectionId) return s;
-      const cards = Array.isArray(s.data?.cards) ? s.data.cards : [];
-      return { ...s, data: { ...s.data, cards: cards.filter((c) => c.id !== cardId) } };
-    });
-    await saveSections(nextSections);
-    toast.success("Card deleted");
-  };
-
-  const renderSection = (section) => {
-    const bgData = getSectionBackgroundData(section);
-    const bgStyle = getSectionBackgroundStyle(section);
-
-    if (section.type === "header") {
-      const d = section.data || {};
-      const title = d.header_title ?? "Partner With Epsy";
-      const subtitle = d.header_subtitle ?? "";
-
-      return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <section
-            className="py-16 lg:py-20 relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? bgStyle
-                : bgData.backgroundType === "none"
-                ? { backgroundColor: "var(--epsy-off-white)" }
-                : {}
-            }
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                <InlineText
-                  enabled={isAdmin}
-                  as="h1"
-                  value={title}
-                  onSave={(v) => saveSectionField(section.id, "header_title", v)}
-                  className="text-4xl lg:text-5xl font-bold mb-6"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "white"
-                        : "var(--epsy-charcoal)",
-                  }}
-                />
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.6 }}>
-                <div className="max-w-3xl mx-auto">
-                  <InlineText
-                    enabled={isAdmin}
-                    as="p"
-                    multiLine
-                    value={subtitle}
-                    onSave={(v) => saveSectionField(section.id, "header_subtitle", v)}
-                    className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
-                    style={{
-                      color:
-                        bgData.backgroundType === "image"
-                          ? "rgba(255,255,255,0.9)"
-                          : "var(--epsy-slate-blue)",
-                    }}
-                  />
-                </div>
-              </motion.div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    if (section.type === "partner_cards") {
-      const d = section.data || {};
-      const sectionTitle = d.section_title ?? "Partnership Opportunities";
-      const cards = Array.isArray(d.cards) ? d.cards : [];
-
-      return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <section
-            className="py-16 lg:py-20 relative overflow-hidden"
-            style={bgData.backgroundType === "color" ? bgStyle : {}}
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-
-            <div className="max-w-6xl mx-auto px-6 lg:px-12 relative z-10">
-              <motion.div {...fadeInUp} className="text-center">
-                <InlineText
-                  enabled={isAdmin}
-                  as="h2"
-                  value={sectionTitle}
-                  onSave={(v) => saveSectionField(section.id, "section_title", v)}
-                  className="text-3xl font-bold mb-12"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "white"
-                        : "var(--epsy-charcoal)",
-                  }}
-                />
-              </motion.div>
-
-              {isAdmin && (
-                <div className="flex justify-center pb-6">
-                  <Button className="rounded-2xl" variant="outline" onClick={() => addPartnerCard(section.id)}>
-                    <Plus className="h-4 w-4 mr-2" /> Add card
-                  </Button>
-                </div>
-              )}
-
-              <div className="grid md:grid-cols-2 gap-6">
-                {cards.map((card, index) => {
-                  const Icon = iconFromName(card.icon);
-
-                  return (
-                    <motion.div
-                      key={card.id || index}
-                      {...fadeInUp}
-                      transition={{ delay: index * 0.08, duration: 0.6 }}
-                      className="p-8 rounded-2xl"
-                      style={{
-                        backgroundColor:
-                          bgData.backgroundType === "image"
-                            ? "rgba(250,251,249,0.92)"
-                            : "var(--epsy-off-white)",
-                      }}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                          style={{ backgroundColor: "var(--epsy-sky-blue)" }}
-                        >
-                          <Icon className="w-6 h-6 text-white" />
-                        </div>
-
-                        {isAdmin && (
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            className="rounded-2xl"
-                            onClick={() => deletePartnerCard(section.id, card.id)}
-                            title="Delete card"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-
-                      <InlineText
-                        enabled={isAdmin}
-                        as="h3"
-                        value={card.title ?? ""}
-                        onSave={(v) => updatePartnerCard(section.id, card.id, { title: v })}
-                        className="text-xl font-semibold mb-2"
-                        style={{ color: "var(--epsy-charcoal)" }}
-                      />
-
-                      <div className="max-w-2xl">
-                        <InlineText
-                          enabled={isAdmin}
-                          as="p"
-                          multiLine
-                          value={card.description ?? ""}
-                          onSave={(v) => updatePartnerCard(section.id, card.id, { description: v })}
-                          className="text-base leading-8 text-left"
-                          style={{ color: "var(--epsy-slate-blue)" }}
-                        />
-                      </div>
-
-                      {isAdmin && (
-                        <div className="pt-4">
-                          <div className="text-xs mb-1" style={{ color: "rgba(15,30,36,0.60)" }}>
-                            Icon name (school / users / heart)
-                          </div>
-                          <InlineText
-                            enabled={isAdmin}
-                            as="div"
-                            value={card.icon ?? "school"}
-                            onSave={(v) =>
-                              updatePartnerCard(section.id, card.id, {
-                                icon: (v || "school").trim().toLowerCase(),
-                              })
-                            }
-                            className="text-sm px-3 py-2 rounded-xl border"
-                            style={{
-                              borderColor: "rgba(15,30,36,0.12)",
-                              color: "var(--epsy-slate-blue)",
-                            }}
-                          />
-                        </div>
-                      )}
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    if (section.type === "donation") {
-      const d = section.data || {};
-      const donateTitle = d.donate_title ?? "Support the Mission";
-      const donateText = d.donate_button_text ?? "Donate Now";
-      const donateLink = d.donate_button_link ?? "#";
-      const donateNote = d.donate_note ?? "";
-
-      return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <section
-            className="py-16 lg:py-20 relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? bgStyle
-                : bgData.backgroundType === "none"
-                ? { backgroundColor: "var(--epsy-off-white)" }
-                : {}
-            }
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-
-            <div className="max-w-2xl mx-auto px-6 lg:px-12 text-center relative z-10">
-              <motion.div {...fadeInUp} className="space-y-8">
-                <InlineText
-                  enabled={isAdmin}
-                  as="h2"
-                  value={donateTitle}
-                  onSave={(v) => saveSectionField(section.id, "donate_title", v)}
-                  className="text-3xl lg:text-4xl font-bold"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "white"
-                        : "var(--epsy-charcoal)",
-                  }}
-                />
-
-                <div className="flex flex-col items-center gap-3">
-                  <Button
-                    size="lg"
-                    className="text-white font-medium px-12 py-6 rounded-xl transition-all duration-300 hover:shadow-lg text-base"
-                    style={{ backgroundColor: "var(--epsy-sky-blue)" }}
-                    onClick={() => window.open(donateLink, "_blank")}
-                  >
-                    {donateText}
-                  </Button>
-
-                  {isAdmin && (
-                    <div className="w-full max-w-xl mx-auto text-left grid gap-2">
-                      <div
-                        className="text-sm font-semibold"
-                        style={{
-                          color:
-                            bgData.backgroundType === "image"
-                              ? "white"
-                              : "var(--epsy-charcoal)",
-                        }}
-                      >
-                        Donation button
-                      </div>
-
-                      <InlineText
-                        enabled={isAdmin}
-                        as="div"
-                        value={donateText}
-                        onSave={(v) => saveSectionField(section.id, "donate_button_text", v)}
-                        className="text-sm px-3 py-2 rounded-xl border"
-                        style={{
-                          borderColor: "rgba(15,30,36,0.12)",
-                          color:
-                            bgData.backgroundType === "image"
-                              ? "rgba(255,255,255,0.92)"
-                              : "var(--epsy-slate-blue)",
-                        }}
-                      />
-
-                      <InlineText
-                        enabled={isAdmin}
-                        as="div"
-                        value={donateLink}
-                        onSave={(v) => saveSectionField(section.id, "donate_button_link", v)}
-                        className="text-sm px-3 py-2 rounded-xl border"
-                        style={{
-                          borderColor: "rgba(15,30,36,0.12)",
-                          color:
-                            bgData.backgroundType === "image"
-                              ? "rgba(255,255,255,0.92)"
-                              : "var(--epsy-slate-blue)",
-                        }}
-                      />
-
-                      <div
-                        className="text-xs"
-                        style={{
-                          color:
-                            bgData.backgroundType === "image"
-                              ? "rgba(255,255,255,0.8)"
-                              : "var(--epsy-slate-blue)",
-                        }}
-                      >
-                        Tip: paste a full link like https://paystack.com/... or https://yourbanklink...
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="max-w-xl mx-auto">
-                  <InlineText
-                    enabled={isAdmin}
-                    as="p"
-                    multiLine
-                    value={donateNote}
-                    onSave={(v) => saveSectionField(section.id, "donate_note", v)}
-                    className="text-sm leading-7 text-left"
-                    style={{
-                      color:
-                        bgData.backgroundType === "image"
-                          ? "rgba(255,255,255,0.9)"
-                          : "var(--epsy-slate-blue)",
-                    }}
-                  />
-                </div>
-              </motion.div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    if (section.type === "text") {
-      const d = section.data || {};
-      const title = d.title ?? "Section title…";
-      const body = d.body ?? "Write your text here…";
-
-      return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <section
-            className="py-16 lg:py-20 relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? bgStyle
-                : bgData.backgroundType === "none"
-                ? { backgroundColor: "white" }
-                : {}
-            }
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
-              <InlineText
-                enabled={isAdmin}
-                as="h2"
-                value={title}
-                onSave={(v) => saveSectionField(section.id, "title", v)}
-                className="text-3xl lg:text-4xl font-bold mb-6"
-                style={{
-                  color:
-                    bgData.backgroundType === "image"
-                      ? "white"
-                      : "var(--epsy-charcoal)",
-                }}
-              />
-              <div className="max-w-3xl mx-auto">
-                <InlineText
-                  enabled={isAdmin}
-                  as="p"
-                  multiLine
-                  value={body}
-                  onSave={(v) => saveSectionField(section.id, "body", v)}
-                  className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "rgba(255,255,255,0.9)"
-                        : "var(--epsy-slate-blue)",
-                  }}
-                />
-              </div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    if (section.type === "divider") {
-      return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <div
-            className="max-w-7xl mx-auto px-6 lg:px-12 py-6 relative overflow-hidden"
-            style={bgData.backgroundType === "color" ? bgStyle : {}}
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-            <div className="relative z-10">
-              <div
-                className="h-px w-full"
-                style={{
-                  backgroundColor:
-                    bgData.backgroundType === "image"
-                      ? "rgba(255,255,255,0.35)"
-                      : "rgba(15,30,36,0.10)",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (section.type === "spacer") {
-      const h = Number(section.data?.height ?? 48);
-      return (
-        <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <div
-            className="relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? { ...bgStyle, height: Math.max(12, Math.min(h, 240)) }
-                : { height: Math.max(12, Math.min(h, 240)) }
-            }
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div onDragOver={(e) => isAdmin && e.preventDefault()} onDrop={() => isAdmin && onDropOn(section.id)}>
-        <SectionControls section={section} />
-        <SectionBackgroundControls
-          section={section}
-          isAdmin={isAdmin}
-          onChange={(patch) => updateSectionData(section.id, patch)}
-        />
-
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10">
-          <div className="rounded-3xl border p-6" style={{ borderColor: "rgba(15,30,36,0.12)" }}>
-            <div className="font-semibold" style={{ color: "var(--epsy-charcoal)" }}>
-              Unknown section type
-            </div>
-            <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
-              type: {section.type}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const featureIcons = [Library, Search, MessageSquare];
 
   return (
     <div>
       <AdminBar
         show={showAdmin}
-        redirectPathWithAdmin="/partnerships?admin=1"
+        redirectPathWithAdmin="/epsyapp?admin=1"
         adminEmail={ADMIN_EMAIL}
       />
 
-      <AdminAddBar />
+      {isAdmin && (
+        <SectionBackgroundControls
+          section={headerSection}
+          isAdmin={isAdmin}
+          onChange={(patch) => updateSectionBackground("header", patch)}
+        />
+      )}
 
-      {sections.map((section) => (
-        <div key={section.id}>{renderSection(section)}</div>
-      ))}
+      <section
+        className="py-16 lg:py-20 relative overflow-hidden"
+        style={
+          headerBgData.backgroundType === "color"
+            ? headerBgStyle
+            : headerBgData.backgroundType === "none"
+            ? { backgroundColor: "var(--epsy-off-white)" }
+            : {}
+        }
+      >
+        {headerBgData.backgroundType === "image" && (
+          <>
+            <div className="absolute inset-0 bg-cover bg-center" style={headerBgStyle} />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundColor: "black",
+                opacity: headerBgData.backgroundOverlay,
+              }}
+            />
+          </>
+        )}
+
+        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <InlineText
+              enabled={isAdmin}
+              as="h1"
+              value={view.header_title}
+              onSave={(v) => saveField("header_title", v)}
+              className="text-4xl lg:text-5xl font-bold mb-6"
+              style={{
+                color:
+                  headerBgData.backgroundType === "image"
+                    ? "white"
+                    : "var(--epsy-charcoal)",
+              }}
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.6 }}
+          >
+            <div className="max-w-3xl mx-auto">
+              <InlineText
+                enabled={isAdmin}
+                as="p"
+                value={view.header_subtitle}
+                onSave={(v) => saveField("header_subtitle", v)}
+                className="text-base sm:text-lg leading-8 sm:leading-9 text-left md:text-center"
+                style={{
+                  color:
+                    headerBgData.backgroundType === "image"
+                      ? "rgba(255,255,255,0.9)"
+                      : "var(--epsy-slate-blue)",
+                }}
+              />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {isAdmin && (
+        <SectionBackgroundControls
+          section={downloadSection}
+          isAdmin={isAdmin}
+          onChange={(patch) => updateSectionBackground("download", patch)}
+        />
+      )}
+
+      <section
+        className="py-10 lg:py-12 relative overflow-hidden"
+        style={
+          downloadBgData.backgroundType === "color"
+            ? downloadBgStyle
+            : downloadBgData.backgroundType === "none"
+            ? { backgroundColor: "white" }
+            : {}
+        }
+      >
+        {downloadBgData.backgroundType === "image" && (
+          <>
+            <div className="absolute inset-0 bg-cover bg-center" style={downloadBgStyle} />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundColor: "black",
+                opacity: downloadBgData.backgroundOverlay,
+              }}
+            />
+          </>
+        )}
+
+        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="rounded-3xl p-8 lg:p-10 border shadow-sm"
+            style={{
+              backgroundColor:
+                downloadBgData.backgroundType === "image"
+                  ? "rgba(250,251,249,0.92)"
+                  : "var(--epsy-off-white)",
+              borderColor: "rgba(15,30,36,0.08)",
+            }}
+          >
+            <h2
+              className="text-3xl lg:text-4xl font-bold mb-8"
+              style={{ color: "var(--epsy-charcoal)" }}
+            >
+              Download the EpsyApp
+            </h2>
+
+            <div className="flex justify-center">
+              <a href={APK_URL}>
+                <Button
+                  className="px-8 py-6 text-base rounded-2xl font-semibold"
+                  style={{
+                    backgroundColor: "var(--epsy-charcoal)",
+                    color: "white",
+                  }}
+                >
+                  <Download className="mr-2 h-5 w-5" />
+                  Download EpsyApp APK
+                </Button>
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {isAdmin && (
+        <SectionBackgroundControls
+          section={featuresSection}
+          isAdmin={isAdmin}
+          onChange={(patch) => updateSectionBackground("features", patch)}
+        />
+      )}
+
+      <section
+        className="py-16 lg:py-20 relative overflow-hidden"
+        style={
+          featuresBgData.backgroundType === "color"
+            ? featuresBgStyle
+            : featuresBgData.backgroundType === "none"
+            ? { backgroundColor: "white" }
+            : {}
+        }
+      >
+        {featuresBgData.backgroundType === "image" && (
+          <>
+            <div className="absolute inset-0 bg-cover bg-center" style={featuresBgStyle} />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundColor: "black",
+                opacity: featuresBgData.backgroundOverlay,
+              }}
+            />
+          </>
+        )}
+
+        <div className="max-w-6xl mx-auto px-6 lg:px-12 relative z-10">
+          <div className="space-y-8">
+            {view.features.map((feature, index) => {
+              const Icon = featureIcons[index] || Library;
+              const details = Array.isArray(feature.details) ? feature.details : [];
+
+              return (
+                <motion.div
+                  key={feature.key || index}
+                  {...fadeInUp}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  className="p-8 lg:p-10 rounded-2xl"
+                  style={{
+                    backgroundColor:
+                      featuresBgData.backgroundType === "image"
+                        ? "rgba(250,251,249,0.92)"
+                        : "var(--epsy-off-white)",
+                  }}
+                >
+                  <div className="flex flex-col lg:flex-row gap-6">
+                    <div
+                      className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: "var(--epsy-sky-blue)" }}
+                    >
+                      <Icon className="w-7 h-7 text-white" />
+                    </div>
+
+                    <div className="flex-1">
+                      <InlineText
+                        enabled={isAdmin}
+                        as="h3"
+                        value={feature.title ?? ""}
+                        onSave={(v) => updateFeature(index, { title: v })}
+                        className="text-2xl font-bold mb-3"
+                        style={{ color: "var(--epsy-charcoal)" }}
+                      />
+
+                      <div className="max-w-3xl">
+                        <InlineText
+                          enabled={isAdmin}
+                          as="p"
+                          value={feature.description ?? ""}
+                          onSave={(v) => updateFeature(index, { description: v })}
+                          className="text-base leading-8 text-left"
+                          style={{ color: "var(--epsy-slate-blue)" }}
+                        />
+                      </div>
+
+                      <ul className="space-y-3 pt-2">
+                        {details.map((detail, idx) => (
+                          <li key={idx} className="flex items-start gap-3">
+                            <div
+                              className="w-1.5 h-1.5 rounded-full mt-3 flex-shrink-0"
+                              style={{ backgroundColor: "var(--epsy-sky-blue)" }}
+                            />
+
+                            <div className="flex-1">
+                              <InlineText
+                                enabled={isAdmin}
+                                as="span"
+                                value={detail}
+                                onSave={(v) => updateBullet(index, idx, v)}
+                                className="text-sm sm:text-base leading-7 text-left"
+                                style={{
+                                  color: "var(--epsy-slate-blue)",
+                                  display: "inline-block",
+                                }}
+                              />
+                            </div>
+
+                            {isAdmin && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="rounded-xl"
+                                onClick={() => removeBullet(index, idx)}
+                                title="Remove bullet"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+
+                      {isAdmin && (
+                        <div className="pt-4">
+                          <Button
+                            variant="outline"
+                            className="rounded-2xl"
+                            onClick={() => addBullet(index)}
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add bullet
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
