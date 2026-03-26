@@ -60,10 +60,7 @@ export default function Home() {
 
   const view = {
     hero_title:
-      homeContent.hero_title ?? "Building resilience through everyday psychology.",
-    hero_subtitle:
-      homeContent.hero_subtitle ??
-      "Epsy helps students and communities understand the mind, strengthen coping skills, and grow practical emotional resilience.",
+      homeContent.hero_title ?? "Its All about Mentality.",
     hero_cta_primary_text: homeContent.hero_cta_primary_text ?? "Learn more",
     hero_cta_secondary_text: homeContent.hero_cta_secondary_text ?? "Contact us",
 
