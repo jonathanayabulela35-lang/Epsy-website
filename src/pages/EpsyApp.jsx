@@ -45,7 +45,7 @@ export default function EpsyApp() {
   const view = {
     header_title: "EpsyApp",
     header_subtitle:
-       "EpsyApp is designed specifically for students, providing quick and practical psychological insights to help them navigate everyday challenges. The app’s Psychological Insight Library covers common difficulties at school, home, and in the community, giving students a clear perspective on how to respond thoughtfully rather than react impulsively. It also includes a Question Decoder, helping students understand the principles behind question structures in various subjects, and a Question Builder, which guides them to ask questions effectively to get the answers they need. EpsyApp turns psychological understanding into practical tools for daily student life.",
+       "EpsyApp helps students navigate everyday challenges through quick, practical psychological insights. Its Insight Library covers common situations at school, home, and in the community, guiding students on how to think and respond effectively. The app also includes a Question Decoder to break down how questions work, and a Question Builder to help students ask better questions and get the answers they need.",
     features: defaultFeatures,
   };
 
