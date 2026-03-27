@@ -185,7 +185,7 @@ function Footer() {
     },
   ];
 
-  const contactEmail = "everydaypsychologynpo@gmial.com";
+  const contactEmail = "everydaypsychologynpo@gmail.com";
   const contactPhone = "+27 065 064 7232";
 
   return (
