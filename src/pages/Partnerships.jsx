@@ -16,7 +16,7 @@ export default function Partnerships() {
       icon: "users",
       title: "Youth Development Organisations",
       description:
-        "Join forces with organisations aligned with youth development and mental wellness.",
+        "We welcome joint efforts with organisations aligned with youth and psychological development.",
     },
     {
       id: "supporters",
