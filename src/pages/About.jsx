@@ -30,9 +30,8 @@ export default function About() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-base sm:text-lg leading-8 sm:leading-9 text-left max-w-3xl mx-auto"
+            className="text-base sm:text-lg leading-8 sm:leading-9 text-centre max-w-3xl mx-auto"
             style={{ color: "var(--epsy-charcoal)" }}
-          >
             Epsy is a non-profit organisation focused on psychological awareness and resilience.
           </motion.p>
         </div>
