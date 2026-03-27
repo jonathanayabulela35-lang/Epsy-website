@@ -45,7 +45,13 @@ export default function EpsyApp() {
   const view = {
     header_title: "EpsyApp",
     header_subtitle:
-      "EpsyApp is a structured student cognitive literacy and psychological resilience platform. It is not a chatbot. It is not therapy. It is a structured thinking and learning system.",
+      <p>
+       "EpsyApp is designed specifically for students, providing quick and practical psychological insights to help them navigate everyday challenges. The app’s Psychological Insight Library covers common difficulties at school, home, and in the community, giving students a clear perspective on how to respond thoughtfully rather than react impulsively.
+      </p>
+
+      <p>
+       It also includes a Question Decoder, helping students understand the principles behind question structures in various subjects, and a Question Builder, which guides them to ask questions effectively to get the answers they need. EpsyApp turns psychological understanding into practical tools for daily student life.",
+      </p>
     features: defaultFeatures,
   };
 
