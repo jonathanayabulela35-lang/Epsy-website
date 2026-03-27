@@ -127,7 +127,7 @@ export default function About() {
               className="text-3xl lg:text-4xl font-bold mb-8 text-center"
               style={{ color: "var(--epsy-charcoal)" }}
             >
-              Our Story
+              Understanding Behaviour, Shaping Minds
             </h2>
 
             <div
@@ -135,11 +135,15 @@ export default function About() {
               style={{ color: "rgba(0,0,0,0.8)" }}
             >
               <p>
-                Epsy was founded to help students develop a true and realistic understanding of life at its different stages. Many people are first defeated in their minds before they are defeated outwardly. Epsy exists to challenge that pattern.
+                Psychology, at its core, is the study of behaviour. It is a phenomenon seen in every living creature, from humans to animals, and even in how plants respond to their environment. No behaviour is truly new, patterns repeat across time and experience.
               </p>
 
               <p>
-                We guide students to mentally prepare for the realities of growth, responsibility, pressure, success, and failure — so they are strengthened inwardly before life tests them outwardly.
+                Everyday Psychology builds on this understanding. We believe that there are psychological reasons behind the journeys of those who end up where they had inteded to end up and those who ended up where they did not intend to. By studying the behaviours of each of these types of individuals and decoding the psychological reasons and principles used, we can uncover the type of mentality they possed infront of different kinds of challenges. These insights can then be used to guide today’s young generation, helping them navigate through challenges in the home, school and community environments. Its always a certain mentality that leads to a certain destination. Everyone can only live up to the level of their understanding.
+              </p>
+          
+              <p>
+                Behaviour doesn’t just reflect the mind — it shapes it. Developing the right mindset equips young people to navigate the challenges of life, from academic pressures and personal growth to friendships, family relationships, and future workplaces. At Everyday Psychology, we focus on turning the study of behaviour into practical principles and guidance, empowering young people and students to cultivate the mentality they need to thrive in every sphere of life.
               </p>
             </div>
           </motion.div>
