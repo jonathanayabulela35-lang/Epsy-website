@@ -1,8 +1,5 @@
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
-
-import { fetchGalleryImages } from "@/lib/galleryApi";
 
 export default function Gallery() {
   const view = {
@@ -10,17 +7,24 @@ export default function Gallery() {
     header_subtitle: "A look into our moments and work.",
   };
 
-  const { data: images = [], isLoading } = useQuery({
-    queryKey: ["galleryImages"],
-    queryFn: async () => {
-      const list = await fetchGalleryImages();
-      return list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    },
-  });
+  const isLoading = false;
+
+  const images = [
+    { id: 1, image_url: "/assets/gallery/img1.jpg", order: 1 },
+    { id: 2, image_url: "/assets/gallery/img2.jpg", order: 2 },
+    { id: 3, image_url: "/assets/gallery/img3.jpg", order: 3 },
+    { id: 4, image_url: "/assets/gallery/img4.jpg", order: 4 },
+    { id: 5, image_url: "/assets/gallery/img5.jpg", order: 5 },
+    { id: 6, image_url: "/assets/gallery/img6.jpg", order: 6 },
+    { id: 7, image_url: "/assets/gallery/img7.jpg", order: 7 },
+    { id: 8, image_url: "/assets/gallery/img8.jpeg", order: 8 },
+    { id: 9, image_url: "/assets/gallery/img9.jpg", order: 9 },
+    { id: 10, image_url: "/assets/gallery/img10.jpg", order: 10 },
+  ];
 
   const sorted = useMemo(
     () => [...images].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-    [images]
+    []
   );
 
   return (
@@ -90,7 +94,7 @@ export default function Gallery() {
                   <div className="aspect-[4/3] bg-slate-100">
                     <img
                       src={img.image_url}
-                      alt={img.caption || "Gallery image"}
+                      alt="Gallery image"
                       className="w-full h-full object-cover"
                     />
                   </div>
