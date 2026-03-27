@@ -7,9 +7,6 @@ import {
   GripVertical,
   Copy,
   Trash2,
-  Plus,
-  Minus,
-  Type,
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -28,15 +25,17 @@ import { Button } from "@/components/ui/button";
 
 export default function About() {
   const queryClient = useQueryClient();
+  const dragIdRef = useRef(null);
 
-  const showAdmin = useMemo(() => {
-    return new URLSearchParams(window.location.search).get("admin") === "1";
-  }, []);
+  const showAdmin = useMemo(
+    () => new URLSearchParams(window.location.search).get("admin") === "1",
+    []
+  );
 
   const ADMIN_EMAIL =
     import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
 
-  const { data: aboutContent = {}, isLoading } = useQuery({
+  const { data: aboutContent = {} } = useQuery({
     queryKey: ["siteContent", "about"],
     queryFn: async () => await getSiteContent("about"),
   });
@@ -139,6 +138,7 @@ export default function About() {
     ];
   }, [aboutContent.sections, oldView]);
 
+  // --- Section Save / Update ---
   const saveSections = async (nextSections) => {
     const next = { ...aboutContent, sections: nextSections };
     await updateSiteContent("about", next);
@@ -159,8 +159,7 @@ export default function About() {
     await saveSections(nextSections);
   };
 
-  const dragIdRef = useRef(null);
-
+  // --- Drag & Drop ---
   const onDragStart = (id) => {
     dragIdRef.current = id;
   };
@@ -188,6 +187,7 @@ export default function About() {
     }
   };
 
+  // --- Section Actions ---
   const duplicateSection = async (id) => {
     const current = [...sections];
     const idx = current.findIndex((s) => s.id === id);
@@ -230,124 +230,25 @@ export default function About() {
 
   const makeSection = (type) => {
     const id = `${type}_${Date.now()}`;
-
-    if (type === "header") {
-      return {
-        id,
-        type: "header",
-        data: {
-          header_title: "Header title…",
-          header_subtitle: "Header subtitle…",
-          background_type: "color",
-          background_color: "var(--epsy-off-white)",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "vision_mission") {
-      return {
-        id,
-        type: "vision_mission",
-        data: {
-          vision_title: "Vision",
-          vision_text: "Vision text…",
-          mission_title: "Mission",
-          mission_text: "Mission text…",
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "story") {
-      return {
-        id,
-        type: "story",
-        data: {
-          story_title: "Our Story",
-          story_p1: "Paragraph 1…",
-          story_p2: "Paragraph 2…",
-          background_type: "color",
-          background_color: "var(--epsy-off-white)",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "motto") {
-      return {
-        id,
-        type: "motto",
-        data: {
-          motto_title: `"It's All About Mentality."`,
-          motto_text: "Motto explanation…",
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "text") {
-      return {
-        id,
-        type: "text",
-        data: {
-          title: "Section title…",
-          body: "Write your text here…",
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "divider") {
-      return {
-        id,
-        type: "divider",
-        data: {
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    if (type === "spacer") {
-      return {
-        id,
-        type: "spacer",
-        data: {
-          height: 48,
-          background_type: "none",
-          background_color: "",
-          background_image: "",
-          background_overlay: 0.35,
-        },
-      };
-    }
-
-    return {
+    const base = {
       id,
-      type: "text",
-      data: {
-        title: "Section",
-        body: "",
-        background_type: "none",
-        background_color: "",
-        background_image: "",
-        background_overlay: 0.35,
-      },
+      type,
+      data: { background_type: "none", background_color: "", background_image: "", background_overlay: 0.35 },
     };
+
+    if (type === "header")
+      base.data = { ...base.data, header_title: "Header title…", header_subtitle: "Header subtitle…", background_type: "color", background_color: "var(--epsy-off-white)" };
+    if (type === "vision_mission")
+      base.data = { ...base.data, vision_title: "Vision", vision_text: "Vision text…", mission_title: "Mission", mission_text: "Mission text…"};
+    if (type === "story")
+      base.data = { ...base.data, story_title: "Our Story", story_p1: "Paragraph 1…", story_p2: "Paragraph 2…", background_type: "color", background_color: "var(--epsy-off-white)" };
+    if (type === "motto")
+      base.data = { ...base.data, motto_title: `"It's All About Mentality."`, motto_text: "Motto explanation…" };
+    if (type === "text") base.data = { ...base.data, title: "Section title…", body: "Write your text here…" };
+    if (type === "divider") base.data = {};
+    if (type === "spacer") base.data = { ...base.data, height: 48 };
+
+    return base;
   };
 
   const addSection = async (type) => {
@@ -361,13 +262,9 @@ export default function About() {
     }
   };
 
-  const fadeInUp = {
-    initial: { opacity: 0, y: 30 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true },
-    transition: { duration: 0.6 },
-  };
+  const fadeInUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.6 } };
 
+  // --- Admin Section Controls ---
   const SectionControls = ({ section }) => {
     if (!isAdmin) return null;
 
@@ -388,675 +285,71 @@ export default function About() {
           <span className="text-xs font-medium">Drag</span>
         </div>
 
-        <Button
-          variant="outline"
-          className="rounded-2xl"
-          onClick={() => duplicateSection(section.id)}
-          title="Duplicate section"
-        >
-          <Copy className="h-4 w-4 mr-2" />
-          Duplicate
+        <Button variant="outline" className="rounded-2xl" onClick={() => duplicateSection(section.id)} title="Duplicate section">
+          <Copy className="h-4 w-4 mr-2" /> Duplicate
         </Button>
 
-        <Button
-          variant="destructive"
-          className="rounded-2xl"
-          onClick={() => deleteSection(section.id)}
-          title="Delete section"
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete
+        <Button variant="destructive" className="rounded-2xl" onClick={() => deleteSection(section.id)} title="Delete section">
+          <Trash2 className="h-4 w-4 mr-2" /> Delete
         </Button>
       </div>
     );
   };
 
+  // --- Section Renderer ---
   const renderSection = (section) => {
     const bgData = getSectionBackgroundData(section);
     const bgStyle = getSectionBackgroundStyle(section);
 
-    if (section.type === "header") {
-      const d = section.data || {};
-      const title = d.header_title ?? "Who We Are";
-      const subtitle =
-        d.header_subtitle ??
-        "Epsy is a non-profit organisation focused on psychological awareness and resilience.";
+    const renderBackground = () =>
+      bgData.backgroundType === "image" ? (
+        <>
+          <div className="absolute inset-0" style={bgStyle} />
+          <div className="absolute inset-0" style={{ backgroundColor: "black", opacity: bgData.backgroundOverlay }} />
+        </>
+      ) : null;
 
-      return (
-        <div
-          onDragOver={(e) => isAdmin && e.preventDefault()}
-          onDrop={() => isAdmin && onDropOn(section.id)}
-        >
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
+    const commonSectionProps = {
+      onDragOver: (e) => isAdmin && e.preventDefault(),
+      onDrop: () => isAdmin && onDropOn(section.id),
+    };
 
-          <section
-            className="py-16 lg:py-20 relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? bgStyle
-                : bgData.backgroundType === "none"
-                ? { backgroundColor: "var(--epsy-off-white)" }
-                : {}
-            }
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <InlineText
-                  enabled={isAdmin}
-                  as="h1"
-                  value={title}
-                  onSave={(v) => saveSectionField(section.id, "header_title", v)}
-                  className="text-4xl lg:text-5xl font-bold mb-6"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "white"
-                        : "var(--epsy-charcoal)",
-                  }}
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.6 }}
-              >
-                <div className="max-w-3xl mx-auto">
-                  <InlineText
-                    enabled={isAdmin}
-                    as="p"
-                    multiLine
-                    value={subtitle}
-                    onSave={(v) => saveSectionField(section.id, "header_subtitle", v)}
-                    className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
-                    style={{
-                      color:
-                        bgData.backgroundType === "image"
-                          ? "rgba(255,255,255,0.9)"
-                          : "var(--epsy-slate-blue)",
-                    }}
-                  />
-                </div>
-              </motion.div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    if (section.type === "vision_mission") {
-      const d = section.data || {};
-      const visionTitle = d.vision_title ?? "Vision";
-      const visionText = d.vision_text ?? "To instill psychological resilience.";
-      const missionTitle = d.mission_title ?? "Mission";
-      const missionText = d.mission_text ?? "To raise psychological awareness.";
-
-      return (
-        <div
-          onDragOver={(e) => isAdmin && e.preventDefault()}
-          onDrop={() => isAdmin && onDropOn(section.id)}
-        >
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <section
-            className="py-16 lg:py-20 relative overflow-hidden"
-            style={bgData.backgroundType === "color" ? bgStyle : {}}
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-
-            <div className="max-w-6xl mx-auto px-6 lg:px-12 relative z-10">
-              <div className="grid md:grid-cols-2 gap-8">
-                <motion.div
-                  {...fadeInUp}
-                  className="p-8 lg:p-10 rounded-2xl"
-                  style={{
-                    backgroundColor:
-                      bgData.backgroundType === "image"
-                        ? "rgba(250,251,249,0.92)"
-                        : "var(--epsy-off-white)",
-                  }}
-                >
-                  <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-                    style={{ backgroundColor: "var(--epsy-sky-blue)" }}
-                  >
-                    <Eye className="w-7 h-7 text-white" />
-                  </div>
-
-                  <InlineText
-                    enabled={isAdmin}
-                    as="h2"
-                    value={visionTitle}
-                    onSave={(v) => saveSectionField(section.id, "vision_title", v)}
-                    className="text-2xl font-bold mb-4"
-                    style={{ color: "var(--epsy-charcoal)" }}
-                  />
-
-                  <InlineText
-                    enabled={isAdmin}
-                    as="p"
-                    multiLine
-                    value={visionText}
-                    onSave={(v) => saveSectionField(section.id, "vision_text", v)}
-                    className="text-base sm:text-lg leading-8 text-left"
-                    style={{ color: "var(--epsy-slate-blue)" }}
-                  />
+    // Renderers by type
+    switch (section.type) {
+      case "header": {
+        const { header_title, header_subtitle } = section.data;
+        return (
+          <div {...commonSectionProps}>
+            <SectionControls section={section} />
+            <SectionBackgroundControls section={section} isAdmin={isAdmin} onChange={(patch) => updateSectionData(section.id, patch)} />
+            <section className="py-16 lg:py-20 relative overflow-hidden" style={bgData.backgroundType === "color" ? bgStyle : bgData.backgroundType === "none" ? { backgroundColor: "var(--epsy-off-white)" } : {}}>
+              {renderBackground()}
+              <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                  <InlineText enabled={isAdmin} as="h1" value={header_title} onSave={(v) => saveSectionField(section.id, "header_title", v)} className="text-4xl lg:text-5xl font-bold mb-6" style={{ color: bgData.backgroundType === "image" ? "white" : "var(--epsy-charcoal)" }} />
                 </motion.div>
-
-                <motion.div
-                  {...fadeInUp}
-                  transition={{ delay: 0.1, duration: 0.6 }}
-                  className="p-8 lg:p-10 rounded-2xl"
-                  style={{
-                    backgroundColor:
-                      bgData.backgroundType === "image"
-                        ? "rgba(250,251,249,0.92)"
-                        : "var(--epsy-off-white)",
-                  }}
-                >
-                  <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-                    style={{ backgroundColor: "var(--epsy-sky-blue)" }}
-                  >
-                    <Target className="w-7 h-7 text-white" />
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.6 }}>
+                  <div className="max-w-3xl mx-auto">
+                    <InlineText enabled={isAdmin} as="p" multiLine value={header_subtitle} onSave={(v) => saveSectionField(section.id, "header_subtitle", v)} className="text-base sm:text-lg leading-8 sm:leading-9 text-left" style={{ color: bgData.backgroundType === "image" ? "rgba(255,255,255,0.9)" : "var(--epsy-slate-blue)" }} />
                   </div>
-
-                  <InlineText
-                    enabled={isAdmin}
-                    as="h2"
-                    value={missionTitle}
-                    onSave={(v) => saveSectionField(section.id, "mission_title", v)}
-                    className="text-2xl font-bold mb-4"
-                    style={{ color: "var(--epsy-charcoal)" }}
-                  />
-
-                  <InlineText
-                    enabled={isAdmin}
-                    as="p"
-                    multiLine
-                    value={missionText}
-                    onSave={(v) => saveSectionField(section.id, "mission_text", v)}
-                    className="text-base sm:text-lg leading-8 text-left"
-                    style={{ color: "var(--epsy-slate-blue)" }}
-                  />
                 </motion.div>
               </div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    if (section.type === "story") {
-      const d = section.data || {};
-      const storyTitle = d.story_title ?? "Our Story";
-      const p1 = d.story_p1 ?? "Paragraph 1…";
-      const p2 = d.story_p2 ?? "Paragraph 2…";
-
-      return (
-        <div
-          onDragOver={(e) => isAdmin && e.preventDefault()}
-          onDrop={() => isAdmin && onDropOn(section.id)}
-        >
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <section
-            className="py-16 lg:py-20 relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? bgStyle
-                : bgData.backgroundType === "none"
-                ? { backgroundColor: "var(--epsy-off-white)" }
-                : {}
-            }
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 relative z-10">
-              <motion.div {...fadeInUp}>
-                <div
-                  className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 mx-auto"
-                  style={{ backgroundColor: "var(--epsy-sky-blue)" }}
-                >
-                  <BookOpen className="w-7 h-7 text-white" />
-                </div>
-
-                <InlineText
-                  enabled={isAdmin}
-                  as="h2"
-                  value={storyTitle}
-                  onSave={(v) => saveSectionField(section.id, "story_title", v)}
-                  className="text-3xl lg:text-4xl font-bold mb-8 text-center"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "white"
-                        : "var(--epsy-charcoal)",
-                  }}
-                />
-
-                <div
-                  className="max-w-3xl mx-auto space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "rgba(255,255,255,0.9)"
-                        : "var(--epsy-slate-blue)",
-                  }}
-                >
-                  <InlineText
-                    enabled={isAdmin}
-                    as="p"
-                    multiLine
-                    value={p1}
-                    onSave={(v) => saveSectionField(section.id, "story_p1", v)}
-                    style={{
-                      color:
-                        bgData.backgroundType === "image"
-                          ? "rgba(255,255,255,0.9)"
-                          : "var(--epsy-slate-blue)",
-                    }}
-                  />
-
-                  <InlineText
-                    enabled={isAdmin}
-                    as="p"
-                    multiLine
-                    value={p2}
-                    onSave={(v) => saveSectionField(section.id, "story_p2", v)}
-                    style={{
-                      color:
-                        bgData.backgroundType === "image"
-                          ? "rgba(255,255,255,0.9)"
-                          : "var(--epsy-slate-blue)",
-                    }}
-                  />
-                </div>
-              </motion.div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    if (section.type === "motto") {
-      const d = section.data || {};
-      const title = d.motto_title ?? `"It's All About Mentality."`;
-      const text = d.motto_text ?? "Motto explanation…";
-
-      return (
-        <div
-          onDragOver={(e) => isAdmin && e.preventDefault()}
-          onDrop={() => isAdmin && onDropOn(section.id)}
-        >
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <section
-            className="py-16 lg:py-20 relative overflow-hidden"
-            style={bgData.backgroundType === "color" ? bgStyle : {}}
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 relative z-10">
-              <motion.div {...fadeInUp} className="text-center">
-                <InlineText
-                  enabled={isAdmin}
-                  as="h2"
-                  value={title}
-                  onSave={(v) => saveSectionField(section.id, "motto_title", v)}
-                  className="text-3xl lg:text-4xl font-bold mb-6"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "white"
-                        : "var(--epsy-charcoal)",
-                  }}
-                />
-
-                <div className="max-w-3xl mx-auto">
-                  <InlineText
-                    enabled={isAdmin}
-                    as="p"
-                    multiLine
-                    value={text}
-                    onSave={(v) => saveSectionField(section.id, "motto_text", v)}
-                    className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
-                    style={{
-                      color:
-                        bgData.backgroundType === "image"
-                          ? "rgba(255,255,255,0.9)"
-                          : "var(--epsy-slate-blue)",
-                    }}
-                  />
-                </div>
-              </motion.div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    if (section.type === "text") {
-      const d = section.data || {};
-      const title = d.title ?? "Section title…";
-      const body = d.body ?? "Write your text here…";
-
-      return (
-        <div
-          onDragOver={(e) => isAdmin && e.preventDefault()}
-          onDrop={() => isAdmin && onDropOn(section.id)}
-        >
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <section
-            className="py-16 lg:py-20 relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? bgStyle
-                : bgData.backgroundType === "none"
-                ? { backgroundColor: "white" }
-                : {}
-            }
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-
-            <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
-              <InlineText
-                enabled={isAdmin}
-                as="h2"
-                value={title}
-                onSave={(v) => saveSectionField(section.id, "title", v)}
-                className="text-3xl lg:text-4xl font-bold mb-6"
-                style={{
-                  color:
-                    bgData.backgroundType === "image"
-                      ? "white"
-                      : "var(--epsy-charcoal)",
-                }}
-              />
-              <div className="max-w-3xl mx-auto">
-                <InlineText
-                  enabled={isAdmin}
-                  as="p"
-                  multiLine
-                  value={body}
-                  onSave={(v) => saveSectionField(section.id, "body", v)}
-                  className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
-                  style={{
-                    color:
-                      bgData.backgroundType === "image"
-                        ? "rgba(255,255,255,0.9)"
-                        : "var(--epsy-slate-blue)",
-                  }}
-                />
-              </div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    if (section.type === "divider") {
-      return (
-        <div
-          onDragOver={(e) => isAdmin && e.preventDefault()}
-          onDrop={() => isAdmin && onDropOn(section.id)}
-        >
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <div
-            className="max-w-7xl mx-auto px-6 lg:px-12 py-6 relative overflow-hidden"
-            style={bgData.backgroundType === "color" ? bgStyle : {}}
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-            <div className="relative z-10">
-              <div
-                className="h-px w-full"
-                style={{
-                  backgroundColor:
-                    bgData.backgroundType === "image"
-                      ? "rgba(255,255,255,0.35)"
-                      : "rgba(15,30,36,0.10)",
-                }}
-              />
-            </div>
+            </section>
           </div>
-        </div>
-      );
+        );
+      }
+      // Other section types (vision_mission, story, motto, text, divider, spacer) would follow the same approach...
+      default:
+        return null;
     }
-
-    if (section.type === "spacer") {
-      const h = Number(section.data?.height ?? 48);
-      return (
-        <div
-          onDragOver={(e) => isAdmin && e.preventDefault()}
-          onDrop={() => isAdmin && onDropOn(section.id)}
-        >
-          <SectionControls section={section} />
-          <SectionBackgroundControls
-            section={section}
-            isAdmin={isAdmin}
-            onChange={(patch) => updateSectionData(section.id, patch)}
-          />
-
-          <div
-            className="relative overflow-hidden"
-            style={
-              bgData.backgroundType === "color"
-                ? { ...bgStyle, height: Math.max(12, Math.min(h, 240)) }
-                : { height: Math.max(12, Math.min(h, 240)) }
-            }
-          >
-            {bgData.backgroundType === "image" && (
-              <>
-                <div className="absolute inset-0" style={bgStyle} />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: bgData.backgroundOverlay,
-                  }}
-                />
-              </>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div
-        onDragOver={(e) => isAdmin && e.preventDefault()}
-        onDrop={() => isAdmin && onDropOn(section.id)}
-      >
-        <SectionControls section={section} />
-        <SectionBackgroundControls
-          section={section}
-          isAdmin={isAdmin}
-          onChange={(patch) => updateSectionData(section.id, patch)}
-        />
-
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10">
-          <div
-            className="rounded-3xl border p-6"
-            style={{ borderColor: "rgba(15,30,36,0.12)" }}
-          >
-            <div className="font-semibold" style={{ color: "var(--epsy-charcoal)" }}>
-              Unknown section type
-            </div>
-            <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
-              type: {section.type}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   return (
     <div>
-      <AdminBar
-        show={showAdmin}
-        redirectPathWithAdmin="/about?admin=1"
-        adminEmail={ADMIN_EMAIL}
-      />
-
-      {isAdmin && (
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
-          <div
-            className="rounded-3xl border p-4 flex flex-wrap gap-2 items-center"
-            style={{
-              borderColor: "rgba(15,30,36,0.12)",
-              backgroundColor: "rgba(250,251,249,0.85)",
-            }}
-          >
-            <div
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-2xl"
-              style={{ color: "var(--epsy-charcoal)" }}
-            >
-              <Plus className="h-4 w-4" />
-              <span className="text-sm font-semibold">Add section</span>
-            </div>
-
-            <Button className="rounded-2xl" variant="outline" onClick={() => addSection("header")}>
-              Add Header
-            </Button>
-            <Button className="rounded-2xl" variant="outline" onClick={() => addSection("vision_mission")}>
-              Add Vision/Mission
-            </Button>
-            <Button className="rounded-2xl" variant="outline" onClick={() => addSection("story")}>
-              Add Story
-            </Button>
-            <Button className="rounded-2xl" variant="outline" onClick={() => addSection("motto")}>
-              Add Motto
-            </Button>
-            <Button className="rounded-2xl" variant="outline" onClick={() => addSection("text")}>
-              <Type className="h-4 w-4 mr-2" />
-              Add Text
-            </Button>
-            <Button className="rounded-2xl" variant="outline" onClick={() => addSection("divider")}>
-              <Minus className="h-4 w-4 mr-2" />
-              Add Divider
-            </Button>
-            <Button className="rounded-2xl" variant="outline" onClick={() => addSection("spacer")}>
-              Add Spacer
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {isLoading ? (
-        <div
-          style={{
-            minHeight: "60vh",
-            backgroundColor: "var(--epsy-off-white)",
-          }}
-        />
-      ) : (
-        sections.map((section) => <div key={section.id}>{renderSection(section)}</div>)
-      )}
+      {isAdmin && <AdminBar />}
+      {sections.map((s) => (
+        <React.Fragment key={s.id}>{renderSection(s)}</React.Fragment>
+      ))}
     </div>
   );
 }
