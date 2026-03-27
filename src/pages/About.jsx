@@ -38,8 +38,8 @@ export default function About() {
         </div>
       </section>
 
-      {/* VISION & MISSION (WHITE) */}
-      <section className="py-16 lg:py-20 bg-white">
+      {/* FIRST SECTION → WHITE */}
+      <section className="py-16 lg:py-20" style={{ backgroundColor: "white" }}>
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div
@@ -100,7 +100,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* STORY (BLUE) */}
+      {/* SECOND SECTION → BLUE (CARDS BACKGROUND COLOR REMAINS SAME) */}
       <section
         className="py-16 lg:py-20"
         style={{ backgroundColor: "#38B6FF" }}
@@ -137,8 +137,8 @@ export default function About() {
         </div>
       </section>
 
-      {/* MOTTO (WHITE) */}
-      <section className="py-16 lg:py-20 bg-white">
+      {/* THIRD SECTION → WHITE */}
+      <section className="py-16 lg:py-20" style={{ backgroundColor: "white" }}>
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.div {...fadeInUp}>
             <h2
@@ -154,6 +154,32 @@ export default function About() {
                 style={{ color: "var(--epsy-slate-blue)" }}
               >
                 Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters — it's where everything begins.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FOURTH SECTION → BLUE */}
+      <section
+        className="py-16 lg:py-20"
+        style={{ backgroundColor: "#38B6FF" }}
+      >
+        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+          <motion.div {...fadeInUp}>
+            <h2
+              className="text-3xl lg:text-4xl font-bold mb-6"
+              style={{ color: "#FFFFFF" }}
+            >
+              Next Steps
+            </h2>
+
+            <div className="max-w-3xl mx-auto">
+              <p
+                className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
+                style={{ color: "rgba(255,255,255,0.9)" }}
+              >
+                Join us on our journey to foster psychological resilience and awareness in communities across the globe. Together, we can make a lasting impact.
               </p>
             </div>
           </motion.div>
