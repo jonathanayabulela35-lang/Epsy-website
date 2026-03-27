@@ -34,8 +34,11 @@ export default function About() {
             style={{ color: "var(--epsy-charcoal)" }}
           >
             Everyday Psychology NPO is a South African non-profit organisation focused on developing psychological awareness and resilience among young people and students. It exists to help individuals understand how their thinking shapes their behaviour, decisions, and overall life outcomes. 
-            The organisation aims to equip students with the ability to view both life and academics through a psychological perspective that encourages intentional thinking, self-awareness, and disciplined responses to everyday challenges. Rather than only addressing problems after they arise, Everyday Psychology NPO focuses on preparing individuals mentally before they encounter pressure, setbacks, or critical life decisions. 
-            Its work is primarily for students in schools and tertiary institutions, a stage where identity, habits, and mental patterns are being formed. Through structured psychological content published through its social media channels, and it’s official application “EpsyApp” the organisation helps them navigate challenges such as academic pressure, self-doubt, fear of failure, social dynamics, and personal growth. 
+            
+            The organisation aims to equip students with the ability to view both life and academics through a psychological perspective that encourages intentional thinking, self-awareness, and disciplined responses to everyday challenges. Rather than only addressing problems after they arise, Everyday Psychology NPO focuses on preparing individuals mentally before they encounter pressure, setbacks, or critical life decisions.
+            
+            Its work is primarily for students in schools and tertiary institutions, a stage where identity, habits, and mental patterns are being formed. Through structured psychological content published through its social media channels, and it’s official application “EpsyApp” the organisation helps them navigate challenges such as academic pressure, self-doubt, fear of failure, social dynamics, and personal growth.
+            
             The approach priorities practical application than theoretical. It breaks down psychological principles into clear, usable frameworks that students can apply daily. By doing so, Everyday Psychology NPO aims to build a generation that is not only academically capable, but mentally prepared, self-aware, and resilient in the face of real-life demands.
           </motion.p>
         </div>
