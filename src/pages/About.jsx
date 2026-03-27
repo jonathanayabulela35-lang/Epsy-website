@@ -31,15 +31,18 @@ export default function About() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-base sm:text-lg leading-8 sm:leading-9 text-left max-w-3xl mx-auto"
-            style={{ color: "rgba(255,255,255,0.9)" }}
+            style={{ color: "var(--epsy-charcoal)" }}
           >
             Epsy is a non-profit organisation focused on psychological awareness and resilience.
           </motion.p>
         </div>
       </section>
 
-      {/* FIRST SECTION → WHITE */}
-      <section className="py-16 lg:py-20" style={{ backgroundColor: "white" }}>
+      {/* VISION & MISSION (BLUE) */}
+      <section
+        className="py-16 lg:py-20"
+        style={{ backgroundColor: "#38B6FF" }}
+      >
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div
@@ -100,10 +103,10 @@ export default function About() {
         </div>
       </section>
 
-      {/* SECOND SECTION → BLUE (CARDS BACKGROUND COLOR REMAINS SAME) */}
+      {/* STORY (WHITE) */}
       <section
         className="py-16 lg:py-20"
-        style={{ backgroundColor: "#38B6FF" }}
+        style={{ backgroundColor: "white" }}
       >
         <div className="max-w-4xl mx-auto px-6 lg:px-12">
           <motion.div {...fadeInUp}>
@@ -116,14 +119,14 @@ export default function About() {
 
             <h2
               className="text-3xl lg:text-4xl font-bold mb-8 text-center"
-              style={{ color: "#FFFFFF" }}
+              style={{ color: "var(--epsy-charcoal)" }}
             >
               Our Story
             </h2>
 
             <div
               className="max-w-3xl mx-auto space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
-              style={{ color: "rgba(255,255,255,0.9)" }}
+              style={{ color: "rgba(0,0,0,0.8)" }}
             >
               <p>
                 Epsy was founded to help students develop a true and realistic understanding of life at its different stages. Many people are first defeated in their minds before they are defeated outwardly. Epsy exists to challenge that pattern.
@@ -137,30 +140,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* THIRD SECTION → WHITE */}
-      <section className="py-16 lg:py-20" style={{ backgroundColor: "white" }}>
-        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
-          <motion.div {...fadeInUp}>
-            <h2
-              className="text-3xl lg:text-4xl font-bold mb-6"
-              style={{ color: "var(--epsy-charcoal)" }}
-            >
-              "It's All About Mentality."
-            </h2>
-
-            <div className="max-w-3xl mx-auto">
-              <p
-                className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
-                style={{ color: "var(--epsy-slate-blue)" }}
-              >
-                Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters — it's where everything begins.
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* FOURTH SECTION → BLUE */}
+      {/* MOTTO (BLUE) */}
       <section
         className="py-16 lg:py-20"
         style={{ backgroundColor: "#38B6FF" }}
@@ -171,7 +151,7 @@ export default function About() {
               className="text-3xl lg:text-4xl font-bold mb-6"
               style={{ color: "#FFFFFF" }}
             >
-              Next Steps
+              "It's All About Mentality."
             </h2>
 
             <div className="max-w-3xl mx-auto">
@@ -179,7 +159,7 @@ export default function About() {
                 className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
                 style={{ color: "rgba(255,255,255,0.9)" }}
               >
-                Join us on our journey to foster psychological resilience and awareness in communities across the globe. Together, we can make a lasting impact.
+                Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters — it's where everything begins.
               </p>
             </div>
           </motion.div>
