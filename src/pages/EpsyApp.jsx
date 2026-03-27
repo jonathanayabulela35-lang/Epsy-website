@@ -114,7 +114,7 @@ export default function EpsyApp() {
           >
             <h2
               className="text-3xl lg:text-4xl font-bold mb-8"
-              style={{ color: "#FFFFFF" }}
+              style={{ color: "var(--epsy-charcoal)" }} // updated for visibility on blue
             >
               Download the EpsyApp
             </h2>
@@ -137,10 +137,10 @@ export default function EpsyApp() {
         </div>
       </section>
 
-      {/* FEATURES SECTION → WHITE */}
+      {/* FEATURES SECTION → BLUE */}
       <section
         className="py-16 lg:py-20 relative overflow-hidden"
-        style={{ backgroundColor: "white" }}
+        style={{ backgroundColor: "#38B6FF" }} // changed from white → blue
       >
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="space-y-8">
@@ -153,7 +153,7 @@ export default function EpsyApp() {
                   {...fadeInUp}
                   transition={{ delay: index * 0.1, duration: 0.6 }}
                   className="p-8 lg:p-10 rounded-2xl"
-                  style={{ backgroundColor: "var(--epsy-off-white)" }}
+                  style={{ backgroundColor: "var(--epsy-off-white)" }} // cards untouched
                 >
                   <div className="flex flex-col lg:flex-row gap-6">
                     <div
