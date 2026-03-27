@@ -68,14 +68,14 @@ export default function Contact() {
     {
       icon: Mail,
       title: "Email",
-      detail: "hello@epsy.org.za",
-      link: "mailto:hello@epsy.org.za",
+      detail: "everydaypsychologynpo@gmail.com",
+      link: "mailto:everydaypsychologynpo@gmail.com",
     },
     {
       icon: Phone,
       title: "Phone",
-      detail: "+27 00 000 0000",
-      link: "tel:+27000000000",
+      detail: "+27 65 064 7232",
+      link: "tel:+27650647232",
     },
     {
       icon: MapPin,
@@ -105,7 +105,7 @@ export default function Contact() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-base sm:text-lg leading-8 sm:leading-9 text-left max-w-3xl mx-auto"
+            className="text-base sm:text-lg leading-8 sm:leading-9 text-centre max-w-3xl mx-auto"
             style={{ color: "rgba(255,255,255,0.9)" }}
           >
             Send us a message and we’ll get back to you.
