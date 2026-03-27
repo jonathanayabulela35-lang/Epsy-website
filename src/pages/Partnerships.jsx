@@ -35,7 +35,7 @@ export default function Partnerships() {
         data: {
           header_title: "Partner With Epsy",
           header_subtitle:
-            "We partner with schools, organisations, and individuals who believe in the goal Epsy is working toward.",
+            "We partner with schools, organisations, and individuals who believe in the goal Everyday Psychology is working toward. As we aim to equip young people with the psychological tools needed to navigate life with awareness, and resilience. Whether through collaborations, programme support, or shared initiatives, we welcome those who are committed to shaping a generation that is mentally prepared and intentional in how they approach both life and learning.",
         },
       },
       {
