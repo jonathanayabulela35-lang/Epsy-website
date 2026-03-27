@@ -48,7 +48,6 @@ export default function About() {
             <p>
               The approach priorities practical application than theoretical. It breaks down psychological principles into clear, usable frameworks that students can apply daily. By doing so, Everyday Psychology NPO aims to build a generation that is not only academically capable, but mentally prepared, self-aware, and resilient in the face of real-life demands.
             </p>
-            </div>
           </motion.p>
         </div>
       </section>
