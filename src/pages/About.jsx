@@ -34,19 +34,19 @@ export default function About() {
             style={{ color: "var(--epsy-charcoal)" }}
           >
             <p>
-              Everyday Psychology NPO is a South African non-profit organisation focused on developing psychological awareness and resilience among young people and students. It exists to help individuals understand how their thinking shapes their behaviour, decisions, and overall life outcomes. 
+              Everyday Psychology NPO "Epsy" is a South African non-profit organisation focused on developing psychological awareness and resilience among young people and students. We exist to help young people understand how their thinking shapes their behaviour, decisions, and overall life outcomes. 
             </p>
 
             <p>
-              The organisation aims to equip students with the ability to view both life and academics through a psychological perspective that encourages intentional thinking, self-awareness, and disciplined responses to everyday challenges. Rather than only addressing problems after they arise, Everyday Psychology NPO focuses on preparing individuals mentally before they encounter pressure, setbacks, or critical life decisions.
+              Epsy aims to equip young people students with the ability to view both life and academics through a psychological perspective that encourages intentional thinking, self-awareness, and disciplined responses to everyday challenges. Rather than only addressing problems after they arise, Epsy focuses on preparing young people mentally before they encounter pressure, setbacks, or critical life decisions.
             </p>
             
             <p>
-              Its work is primarily for students in schools and tertiary institutions, a stage where identity, habits, and mental patterns are being formed. Through structured psychological content published through its social media channels, and it’s official application “EpsyApp” the organisation helps them navigate challenges such as academic pressure, self-doubt, fear of failure, social dynamics, and personal growth.
+              Our work is primarily for students in high school and tertiary institutions, a stage where identity, habits, and mental patterns are being formed. Through structured psychological content published through our social media channels, and official application “EpsyApp” Epsy aims to help them navigate challenges such as academic pressure, self-doubt, fear of rejection, fear of failure, social dynamics, personal growth and more.
             </p>
 
             <p>
-              The approach priorities practical application than theoretical. It breaks down psychological principles into clear, usable frameworks that students can apply daily. By doing so, Everyday Psychology NPO aims to build a generation that is not only academically capable, but mentally prepared, self-aware, and resilient in the face of real-life demands.
+              The approach priorities practical application than theoretical. It breaks down psychological principles into clear, usable frameworks that students can apply daily. By doing so, Everyday Psychology NPO aims to contribute in building a generation that is not only academically capable, but mostly mentally prepared, self-aware, and resilient in the face of real-life demands.
             </p>
           </motion.p>
         </div>
@@ -135,7 +135,7 @@ export default function About() {
               className="text-3xl lg:text-4xl font-bold mb-8 text-center"
               style={{ color: "var(--epsy-charcoal)" }}
             >
-              Understanding Behaviour, Shaping Minds
+              The Psychological Perspective
             </h2>
 
             <div
@@ -143,15 +143,15 @@ export default function About() {
               style={{ color: "rgba(0,0,0,0.8)" }}
             >
               <p>
-                Psychology, at its core, is the study of behaviour. It is a phenomenon seen in every living creature, from humans to animals, and even in how plants respond to their environment. No behaviour is truly new, patterns repeat across time and experience.
+                The Psychological Perspective is at the core of Epsy’s mission. It is the lens through which we encourage young people to observe and interpret life, enabling them to respond with greater clarity, intention, and understanding. Rather than reacting impulsively, this perspective promotes thoughtful and reasonable responses to everyday situations.
               </p>
 
               <p>
-                Everyday Psychology builds on this understanding. We believe that there are psychological reasons behind the journeys of those who end up where they had inteded to end up and those who ended up where they did not intend to. By studying the behaviours of each of these types of individuals and decoding the psychological reasons and principles used, we can uncover the type of mentality they possed infront of different kinds of challenges. These insights can then be used to guide today’s young generation, helping them navigate through challenges in the home, school and community environments. Its always a certain mentality that leads to a certain destination. Everyone can only live up to the level of their understanding.
+                It serves both as a filter and a framework that helps young people process their experiences while guiding how they respond to them. In the face of challenges, pressure, and uncertainty, The Psychological Perspective encourages responses that are not only rational, but ultimately beneficial to one’s growth and long-term outcomes.
               </p>
           
               <p>
-                Behaviour doesn’t just reflect the mind — it shapes it. Developing the right mindset equips young people to navigate the challenges of life, from academic pressures and personal growth to friendships, family relationships, and future workplaces. At Everyday Psychology, we focus on turning the study of behaviour into practical principles and guidance, empowering young people and students to cultivate the mentality they need to thrive in every sphere of life.
+                This perspective can be applied across every sphere of a young person’s life, from academics and personal development to relationships and future careers. By adopting it, young people can gain an advantage: the ability to approach life with awareness, discipline, and a mindset that supports better decisions and stronger results.
               </p>
             </div>
           </motion.div>
