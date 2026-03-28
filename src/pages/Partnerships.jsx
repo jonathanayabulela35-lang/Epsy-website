@@ -74,7 +74,7 @@ export default function Partnerships() {
               className="py-16 relative"
               style={{ backgroundColor: "var(--epsy-off-white)" }}
             >
-              <div className="max-w-4xl mx-auto text-center">
+              <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
                 <h1 className="text-4xl font-bold">
                   {section.data.header_title}
                 </h1>
@@ -93,7 +93,7 @@ export default function Partnerships() {
                 backgroundColor: isBlue ? "#38B6FF" : "white",
               }}
             >
-              <div className="max-w-6xl mx-auto">
+              <div className="max-w-6xl mx-auto px-6 lg:px-12">
                 <h2
                   className="text-3xl text-center font-bold mb-10"
                   style={{
