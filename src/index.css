@@ -8,6 +8,7 @@
   --epsy-off-white: #FAFBF9;
   --epsy-charcoal: #0F1E24;
   --epsy-slate-blue: #3B5563;
+  --epsy-royal-blue: #38B6FF;
 
   /* shadcn / tailwind CSS variable palette (light) */
   --background: 0 0% 100%;
@@ -73,4 +74,17 @@ a, button {
 
 a:hover button, button:hover {
   transform: translateY(-1px);
+}
+
+.epsy-page-gradient {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.58), transparent 26%),
+    radial-gradient(circle at 80% 0%, rgba(12, 192, 223, 0.28), transparent 32%),
+    linear-gradient(135deg, var(--epsy-royal-blue) 0%, var(--epsy-sky-blue) 48%, #EAFBFF 100%);
+}
+
+.epsy-blue-section {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,0.28), transparent 28%),
+    linear-gradient(180deg, var(--epsy-royal-blue) 0%, var(--epsy-sky-blue) 100%);
 }

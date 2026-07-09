@@ -29,11 +29,7 @@ export default function Gallery() {
 
   return (
     <div>
-      {/* HEADER (UNCHANGED STRUCTURE) */}
-      <section
-        className="py-20 lg:py-28"
-        style={{ backgroundColor: "var(--epsy-off-white)" }}
-      >
+      <section className="py-20 lg:py-28 epsy-page-gradient">
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -42,7 +38,7 @@ export default function Gallery() {
           >
             <h1
               className="text-4xl lg:text-5xl font-bold mb-4"
-              style={{ color: "var(--epsy-charcoal)" }}
+              style={{ color: "#FFFFFF" }}
             >
               {view.header_title}
             </h1>
@@ -54,8 +50,8 @@ export default function Gallery() {
             transition={{ duration: 0.6, delay: 0.1 }}
           >
             <p
-              className="text-lg leading-relaxed"
-              style={{ color: "var(--epsy-slate-blue)" }}
+              className="text-lg leading-relaxed max-w-3xl mx-auto"
+              style={{ color: "rgba(255,255,255,0.92)", textAlign: "center" }}
             >
               {view.header_subtitle}
             </p>
@@ -63,11 +59,7 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* GALLERY SECTION → BLUE */}
-      <section
-        className="py-12 lg:py-16"
-        style={{ backgroundColor: "#38B6FF" }}
-      >
+      <section className="py-12 lg:py-16 epsy-blue-section">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {isLoading ? (
             <div

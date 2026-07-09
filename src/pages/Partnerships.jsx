@@ -71,14 +71,13 @@ export default function Partnerships() {
           return (
             <section
               key={section.id}
-              className="py-16 relative section-soft"
-              style={{ backgroundColor: "var(--epsy-off-white)" }}
+              className="py-16 relative epsy-page-gradient"
             >
               <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
-                <h1 className="text-4xl lg:text-5xl font-bold">
+                <h1 className="text-4xl lg:text-5xl font-bold" style={{ color: "#FFFFFF" }}>
                   {section.data.header_title}
                 </h1>
-                <p className="mt-4 text-base sm:text-lg leading-8 text-left" style={{ color: "var(--epsy-slate-blue)" }}>{section.data.header_subtitle}</p>
+                <p className="mt-4 text-base sm:text-lg leading-8 text-left" style={{ color: "rgba(255,255,255,0.92)" }}>{section.data.header_subtitle}</p>
               </div>
             </section>
           );
@@ -88,10 +87,7 @@ export default function Partnerships() {
           return (
             <section
               key={section.id}
-              className="py-16"
-              style={{
-                backgroundColor: isBlue ? "#38B6FF" : "white",
-              }}
+              className="py-16 epsy-blue-section"
             >
               <div className="max-w-6xl mx-auto px-6 lg:px-12">
                 <h2

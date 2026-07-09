@@ -12,17 +12,13 @@ export default function About() {
 
   return (
     <div>
-      {/* HEADER SECTION (BLUE) */}
-      <section
-        className="py-16 lg:py-20 section-soft"
-        style={{ backgroundColor: "white" }}
-      >
+      <section className="py-16 lg:py-20 epsy-page-gradient">
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl lg:text-5xl font-bold mb-6 text-left"
-            style={{ color: "var(--epsy-charcoal)" }}
+            style={{ color: "#FFFFFF" }}
           >
             Who We Are
           </motion.h1>
@@ -31,7 +27,7 @@ export default function About() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="max-w-3xl space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
-            style={{ color: "var(--epsy-slate-blue)" }}
+            style={{ color: "rgba(255,255,255,0.92)" }}
           >
             <p>
               Everyday Psychology NPO "Epsy" is a South African non-profit organisation focused on developing psychological awareness and resilience among young people and students. We exist to help young people understand how their thinking shapes their behaviour, decisions, and overall life outcomes. 
@@ -52,11 +48,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* VISION & MISSION (BLUE) */}
-      <section
-        className="py-16 lg:py-20"
-        style={{ backgroundColor: "white" }}
-      >
+      <section className="py-16 lg:py-20 epsy-blue-section">
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div

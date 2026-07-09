@@ -87,11 +87,7 @@ export default function Contact() {
 
   return (
     <div>
-      {/* HEADER (BLUE) */}
-      <section
-        className="py-14 lg:py-16"
-        style={{ backgroundColor: "#38B6FF" }}
-      >
+      <section className="py-14 lg:py-16 epsy-page-gradient">
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -105,22 +101,21 @@ export default function Contact() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-base sm:text-lg leading-8 sm:leading-9 text-centre max-w-3xl mx-auto"
-            style={{ color: "rgba(255,255,255,0.9)" }}
+            className="text-base sm:text-lg leading-8 sm:leading-9 max-w-3xl mx-auto"
+            style={{ color: "rgba(255,255,255,0.92)", textAlign: "center" }}
           >
             Send us a message and we’ll get back to you.
           </motion.p>
         </div>
       </section>
 
-      {/* CONTACT SECTION (WHITE) */}
-      <section className="py-10 lg:py-14 bg-white">
+      <section className="py-10 lg:py-14 epsy-blue-section">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
           
           {/* FORM */}
           <motion.div {...fadeInUp}>
             <Card
-              className="p-8 rounded-2xl border-0 shadow-sm"
+              className="p-8 rounded-[2rem] border-0 shadow-sm"
               style={{ backgroundColor: "var(--epsy-off-white)" }}
             >
               <h2
@@ -217,7 +212,7 @@ export default function Contact() {
           {/* CONTACT DETAILS */}
           <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
             <Card
-              className="p-8 rounded-2xl border-0 shadow-sm"
+              className="p-8 rounded-[2rem] border-0 shadow-sm"
               style={{ backgroundColor: "var(--epsy-off-white)" }}
             >
               <h2

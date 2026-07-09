@@ -10,7 +10,7 @@ export default function Home() {
 
   const view = {
     hero_title: "Its All about Mentality.",
-    hero_subtitle: "Building psychological awareness and resilience for young people, students, and communities.",
+    hero_subtitle: "",
     hero_cta_primary_text: "Learn more",
     hero_cta_secondary_text: "Contact us",
 
@@ -67,24 +67,14 @@ export default function Home() {
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "linear-gradient(135deg, rgba(15,30,36,0.84), rgba(15,30,36,0.56))",
+            backgroundColor: "black",
+            opacity: 0.6,
           }}
         />
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 lg:py-32 relative z-10">
-          <div className="max-w-4xl text-left">
+          <div className="max-w-4xl mx-auto text-center">
             <motion.div {...fadeInUp}>
-              <span
-                className="inline-flex rounded-full px-4 py-2 text-sm font-semibold mb-5 border"
-                style={{
-                  color: "white",
-                  borderColor: "rgba(255,255,255,0.28)",
-                  backgroundColor: "rgba(255,255,255,0.08)",
-                }}
-              >
-                Everyday Psychology NPO
-              </span>
               <h1
                 className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight"
                 style={{ color: "white" }}
@@ -99,7 +89,7 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <p
-                className="text-lg lg:text-xl mb-10 leading-relaxed max-w-2xl text-left"
+                className="text-lg lg:text-xl mb-10 leading-relaxed"
                 style={{ color: "rgba(255,255,255,0.9)" }}
               >
                 {view.hero_subtitle}
@@ -110,7 +100,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link to="/about">
                 <Button
@@ -130,9 +120,9 @@ export default function Home() {
                   variant="outline"
                   className="px-8 py-6 text-base rounded-2xl font-semibold"
                   style={{
-                    borderColor: "rgba(255,255,255,0.72)",
+                    borderColor: "white",
                     color: "white",
-                    backgroundColor: "rgba(255,255,255,0.06)",
+                    backgroundColor: "transparent",
                   }}
                 >
                   {view.hero_cta_secondary_text}
