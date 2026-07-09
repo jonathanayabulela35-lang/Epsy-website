@@ -1,66 +1,24 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, Users, Smartphone } from "lucide-react";
+import { ArrowRight, Globe, Users, HeartHandshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-
-import { siteSettings } from "@/lib/siteSettings";
-import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
-
-import AdminBar from "@/components/admin/AdminBar";
-import InlineText from "@/components/admin/InlineText";
-import { supabase } from "@/lib/supabaseClient";
 
 export default function Home() {
-  const settings = siteSettings;
-  const queryClient = useQueryClient();
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
-  // admin mode only with ?admin=1
-  const showAdmin = useMemo(() => {
-    return new URLSearchParams(window.location.search).get("admin") === "1";
-  }, []);
-
-  const ADMIN_EMAIL =
-    import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
-
-  // Load home content from Supabase
-  const { data: homeContent = {} } = useQuery({
-    queryKey: ["siteContent", "home"],
-    queryFn: async () => await getSiteContent("home"),
-  });
-
-  // Determine if current session is admin (for enabling inline edits)
-  const { data: sessionData } = useQuery({
-    queryKey: ["authSession"],
-    queryFn: async () => {
-      const { data } = await supabase.auth.getSession();
-      return data.session;
-    },
-    staleTime: 1000 * 10,
-  });
-
-  const isAdmin =
-    showAdmin &&
-    sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-
-  // Defaults
   const view = {
-    hero_title:
-      homeContent.hero_title ?? "Building resilience through everyday psychology.",
-    hero_subtitle:
-      homeContent.hero_subtitle ??
-      "Epsy helps students and communities understand the mind, strengthen coping skills, and grow practical emotional resilience.",
-    hero_cta_primary_text: homeContent.hero_cta_primary_text ?? "Learn more",
-    hero_cta_secondary_text: homeContent.hero_cta_secondary_text ?? "Contact us",
+    hero_title: "Its All about Mentality.",
+    hero_subtitle: "Building psychological awareness and resilience for young people, students, and communities.",
+    hero_cta_primary_text: "Learn more",
+    hero_cta_secondary_text: "Contact us",
 
-    what_title: homeContent.what_title ?? "What we do",
+    what_title: "What we do",
     what_subtitle:
-      homeContent.what_subtitle ??
       "We combine accessible psychology education with practical tools designed for real life.",
 
-    cards: homeContent.cards ?? [
+    cards: [
       {
         key: "online",
         title: "Psychological Awareness Online",
@@ -74,29 +32,14 @@ export default function Home() {
           "Speaking engagements and student-focused sessions that bring psychological awareness directly into the classroom.",
       },
       {
-        key: "epsyapp",
-        title: "EpsyApp",
+        key: "community",
+        title: "Community Development",
         description:
-          "Our structured student cognitive literacy and resilience platform designed to build mental strength day by day.",
+          "Practical support and awareness initiatives that help young people think clearly, respond wisely, and grow with resilience.",
       },
     ],
 
-    partner_button_text: homeContent.partner_button_text ?? "Partner with us",
-  };
-
-  const saveField = async (field, value) => {
-    const next = { ...homeContent, [field]: value };
-    await updateSiteContent("home", next);
-    queryClient.invalidateQueries({ queryKey: ["siteContent", "home"] });
-  };
-
-  const saveCardField = async (index, field, value) => {
-    const cards = Array.isArray(view.cards) ? [...view.cards] : [];
-    const card = cards[index] || {};
-    cards[index] = { ...card, [field]: value };
-    const next = { ...homeContent, cards };
-    await updateSiteContent("home", next);
-    queryClient.invalidateQueries({ queryKey: ["siteContent", "home"] });
+    partner_button_text: "Partner with us",
   };
 
   const fadeInUp = {
@@ -105,53 +48,49 @@ export default function Home() {
     transition: { duration: 0.6 },
   };
 
-  const iconForIndex = (i) => [Globe, Users, Smartphone][i] || Globe;
+  const iconForIndex = (i) => [Globe, Users, HeartHandshake][i] || Globe;
 
   return (
     <div>
-      {/* Admin login bar (only when ?admin=1) */}
-      <AdminBar
-        show={showAdmin}
-        redirectPathWithAdmin="/?admin=1"
-        adminEmail={ADMIN_EMAIL}
-      />
-
-      {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {settings?.hero_background_url ? (
-          <>
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${settings.hero_background_url})` }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundColor: "var(--epsy-charcoal)",
-                opacity: settings?.hero_overlay_opacity ?? 0.3,
-              }}
-            />
-          </>
-        ) : (
-          <div
-            className="absolute inset-0"
-            style={{ backgroundColor: "var(--epsy-off-white)" }}
-          />
-        )}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "url('/assets/hero-bg.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: isMobile ? "scroll" : "fixed",
+          }}
+        />
+
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(15,30,36,0.84), rgba(15,30,36,0.56))",
+          }}
+        />
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 lg:py-32 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-4xl text-left">
             <motion.div {...fadeInUp}>
-              <InlineText
-                enabled={isAdmin}
-                as="h1"
-                value={view.hero_title}
-                onSave={(v) => saveField("hero_title", v)}
-                className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight"
+              <span
+                className="inline-flex rounded-full px-4 py-2 text-sm font-semibold mb-5 border"
                 style={{
-                  color: settings?.hero_background_url ? "white" : "var(--epsy-charcoal)",
+                  color: "white",
+                  borderColor: "rgba(255,255,255,0.28)",
+                  backgroundColor: "rgba(255,255,255,0.08)",
                 }}
-              />
+              >
+                Everyday Psychology NPO
+              </span>
+              <h1
+                className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight"
+                style={{ color: "white" }}
+              >
+                {view.hero_title}
+              </h1>
             </motion.div>
 
             <motion.div
@@ -159,41 +98,29 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              <InlineText
-                enabled={isAdmin}
-                as="p"
-                value={view.hero_subtitle}
-                onSave={(v) => saveField("hero_subtitle", v)}
-                className="text-lg lg:text-xl mb-10 leading-relaxed"
-                style={{
-                  color: settings?.hero_background_url
-                    ? "rgba(255,255,255,0.9)"
-                    : "var(--epsy-slate-blue)",
-                }}
-              />
+              <p
+                className="text-lg lg:text-xl mb-10 leading-relaxed max-w-2xl text-left"
+                style={{ color: "rgba(255,255,255,0.9)" }}
+              >
+                {view.hero_subtitle}
+              </p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
+              className="flex flex-col sm:flex-row gap-4"
             >
               <Link to="/about">
                 <Button
-                  className="px-8 py-6 text-base rounded-2xl font-semibold"
+                  className="px-8 py-6 text-base rounded-2xl font-semibold shadow-lg shadow-black/10"
                   style={{
                     backgroundColor: "var(--epsy-sky-blue)",
                     color: "var(--epsy-charcoal)",
                   }}
                 >
-                  <InlineText
-                    enabled={isAdmin}
-                    as="span"
-                    value={view.hero_cta_primary_text}
-                    onSave={(v) => saveField("hero_cta_primary_text", v)}
-                    style={{ display: "inline-block" }}
-                  />
+                  {view.hero_cta_primary_text}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -203,17 +130,12 @@ export default function Home() {
                   variant="outline"
                   className="px-8 py-6 text-base rounded-2xl font-semibold"
                   style={{
-                    borderColor: "var(--epsy-sky-blue)",
-                    color: "var(--epsy-sky-blue)",
+                    borderColor: "rgba(255,255,255,0.72)",
+                    color: "white",
+                    backgroundColor: "rgba(255,255,255,0.06)",
                   }}
                 >
-                  <InlineText
-                    enabled={isAdmin}
-                    as="span"
-                    value={view.hero_cta_secondary_text}
-                    onSave={(v) => saveField("hero_cta_secondary_text", v)}
-                    style={{ display: "inline-block" }}
-                  />
+                  {view.hero_cta_secondary_text}
                 </Button>
               </Link>
             </motion.div>
@@ -221,26 +143,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* What We Do */}
-      <section className="py-24 lg:py-32" style={{ backgroundColor: "white" }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <InlineText
-              enabled={isAdmin}
-              as="h2"
-              value={view.what_title}
-              onSave={(v) => saveField("what_title", v)}
-              className="text-3xl lg:text-4xl font-bold mb-4"
+      <section className="py-16 lg:py-20 relative overflow-hidden section-soft">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+          <div className="max-w-3xl mb-14 text-left">
+            <p
+              className="text-sm font-bold uppercase tracking-[0.24em] mb-3"
+              style={{ color: "var(--epsy-sky-blue)" }}
+            >
+              Everyday Psychology
+            </p>
+            <h2
+              className="text-3xl lg:text-5xl font-bold mb-4"
               style={{ color: "var(--epsy-charcoal)" }}
-            />
-            <InlineText
-              enabled={isAdmin}
-              as="p"
-              value={view.what_subtitle}
-              onSave={(v) => saveField("what_subtitle", v)}
-              className="text-lg leading-relaxed"
+            >
+              {view.what_title}
+            </h2>
+            <p
+              className="text-lg leading-relaxed text-left"
               style={{ color: "var(--epsy-slate-blue)" }}
-            />
+            >
+              {view.what_subtitle}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -254,55 +177,34 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.05 }}
-                  className="p-8 rounded-3xl border shadow-sm"
-                  style={{
-                    backgroundColor: "var(--epsy-off-white)",
-                    borderColor: "rgba(15,30,36,0.08)",
-                  }}
+                  className="modern-card p-8 rounded-[2rem] border"
                 >
                   <div
                     className="h-12 w-12 rounded-2xl flex items-center justify-center mb-5"
-                    style={{ backgroundColor: "rgba(12,192,223,0.20)" }}
+                    style={{ backgroundColor: "rgba(12,192,223,0.16)" }}
                   >
                     <Icon className="h-6 w-6" style={{ color: "var(--epsy-sky-blue)" }} />
                   </div>
 
-                  <InlineText
-                    enabled={isAdmin}
-                    as="h3"
-                    value={item.title}
-                    onSave={(v) => saveCardField(idx, "title", v)}
+                  <h3
                     className="text-xl font-semibold mb-3"
                     style={{ color: "var(--epsy-charcoal)" }}
-                  />
+                  >
+                    {item.title}
+                  </h3>
 
-                  <InlineText
-                    enabled={isAdmin}
-                    as="p"
-                    value={item.description}
-                    onSave={(v) => saveCardField(idx, "description", v)}
-                    className="leading-relaxed"
+                  <p
+                    className="leading-relaxed text-left"
                     style={{ color: "var(--epsy-slate-blue)" }}
-                  />
-
-                  {/* Keep the Explore link only for the 3rd card (EpsyApp) */}
-                  {idx === 2 && (
-                    <div className="pt-5">
-                      <Link
-                        to="/epsyapp"
-                        className="inline-flex items-center text-sm font-semibold"
-                        style={{ color: "var(--epsy-sky-blue)" }}
-                      >
-                        Explore EpsyApp <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </div>
-                  )}
+                  >
+                    {item.description}
+                  </p>
                 </motion.div>
               );
             })}
           </div>
 
-          <div className="text-center pt-14">
+          <div className="pt-14">
             <Link to={createPageUrl("Partnerships")}>
               <Button
                 className="px-8 py-6 text-base rounded-2xl font-semibold"
@@ -311,13 +213,7 @@ export default function Home() {
                   color: "white",
                 }}
               >
-                <InlineText
-                  enabled={isAdmin}
-                  as="span"
-                  value={view.partner_button_text}
-                  onSave={(v) => saveField("partner_button_text", v)}
-                  style={{ display: "inline-block" }}
-                />
+                {view.partner_button_text}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>

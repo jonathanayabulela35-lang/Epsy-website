@@ -1,92 +1,301 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, NavLink } from "react-router-dom";
+import {
+  Facebook,
+  Instagram,
+  Music2,
+  Menu,
+  X,
+} from "lucide-react";
 
 import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
-import EpsyApp from "./pages/EpsyApp.jsx";
 import Gallery from "./pages/Gallery.jsx";
 import Partnerships from "./pages/Partnerships.jsx";
 import PageNotFound from "./lib/PageNotFound.jsx";
 
 function Header() {
-  const linkBase = "text-sm font-medium px-3 py-2 rounded-xl transition-colors";
-  const active = "bg-white/70 shadow-sm";
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  const linkBase =
+    "text-sm font-medium px-3 py-2 rounded-xl transition-colors";
+  const active =
+    "shadow-sm";
   const inactive = "hover:bg-white/50";
 
   const items = [
     { to: "/", label: "Home", end: true },
     { to: "/about", label: "About" },
-    { to: "/epsyapp", label: "EpsyApp" },
     { to: "/gallery", label: "Gallery" },
     { to: "/partnerships", label: "Partnerships" },
-    { to: "/contact", label: "Contact" },
+    { to: "/contact", label: "Get In Touch" },
   ];
 
   return (
-    <header
-      className="sticky top-0 z-50 backdrop-blur"
-      style={{ backgroundColor: "rgba(250,251,249,0.85)" }}
-    >
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4 flex items-center justify-between">
-        {/* Brand */}
-        <NavLink to="/" className="flex items-center gap-3">
-          <img
-            src="/assets/logo.jpg"
-            alt="Everyday Psychology NPO logo"
-            className="h-9 w-9 rounded-2xl object-contain"
-          />
-          <span
-            className="font-semibold tracking-tight"
-            style={{ color: "var(--epsy-charcoal)" }}
+    <>
+      <header
+        className="sticky top-0 z-50 backdrop-blur-xl border-b"
+        style={{ backgroundColor: "rgba(250,251,249,0.86)", borderColor: "rgba(15,30,36,0.08)" }}
+      >
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 h-[92px] flex items-center justify-between">
+          <NavLink
+            to="/"
+            className="flex items-center gap-3 min-w-0"
+            onClick={() => setMobileOpen(false)}
           >
-            Everyday Psychology NPO
-          </span>
-        </NavLink>
-
-        {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-1">
-          {items.map((it) => (
-            <NavLink
-              key={it.to}
-              to={it.to}
-              end={it.end}
-              className={({ isActive }) =>
-                `${linkBase} ${isActive ? active : inactive}`
-              }
+            <img
+              src="/assets/logo.jpg"
+              alt="Everyday Psychology NPO logo"
+              className="h-12 w-12 rounded-2xl object-contain bg-white p-1 shadow-sm ring-1 ring-black/5"
+            />
+            <span
+              className="font-semibold tracking-tight text-sm sm:text-base lg:text-lg leading-tight"
               style={{ color: "var(--epsy-charcoal)" }}
             >
-              {it.label}
-            </NavLink>
-          ))}
-        </nav>
+              Everyday Psychology NPO
+            </span>
+          </NavLink>
+
+          <nav className="hidden lg:flex items-center gap-2">
+            {items.map((it) => (
+              <NavLink
+                key={it.to}
+                to={it.to}
+                end={it.end}
+                className={({ isActive }) =>
+                  `${linkBase} ${isActive ? active : inactive}`
+                }
+                style={({ isActive }) => ({
+                  color: isActive ? "white" : "var(--epsy-charcoal)",
+                  backgroundColor: isActive ? "var(--epsy-charcoal)" : "transparent",
+                })}
+              >
+                {it.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <button
+            type="button"
+            className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-2xl border shadow-sm transition-transform active:scale-95"
+            style={{
+              borderColor: "rgba(15,30,36,0.12)",
+              color: "var(--epsy-charcoal)",
+              backgroundColor: "rgba(255,255,255,0.72)",
+            }}
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </header>
+
+      <div
+        className={`lg:hidden fixed inset-0 z-40 transition-opacity duration-300 ${
+          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <button
+          type="button"
+          aria-label="Close menu overlay"
+          className="absolute inset-0"
+          onClick={() => setMobileOpen(false)}
+          style={{ backgroundColor: "rgba(15,30,36,0.35)" }}
+        />
+
+        <div
+          className={`absolute top-[92px] left-0 right-0 border-t shadow-lg transition-all duration-300 ${
+            mobileOpen
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-4 opacity-0"
+          }`}
+          style={{
+            borderColor: "rgba(15,30,36,0.08)",
+            backgroundColor: "rgba(250,251,249,0.98)",
+          }}
+        >
+          <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-2">
+            {items.map((it) => (
+              <NavLink
+                key={it.to}
+                to={it.to}
+                end={it.end}
+                onClick={() => setMobileOpen(false)}
+                className="px-4 py-3 rounded-2xl text-sm font-medium transition-colors"
+                style={({ isActive }) => ({
+                  color: isActive ? "white" : "var(--epsy-charcoal)",
+                  backgroundColor: isActive ? "var(--epsy-charcoal)" : "transparent",
+                })}
+              >
+                {it.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
       </div>
-    </header>
+    </>
   );
 }
 
 function Footer() {
+  const socials = [
+    {
+      key: "facebook",
+      label: "Facebook",
+      href: "https://www.facebook.com/share/1AbrmXahaN/?mibextid=wwXIfr",
+      icon: Facebook,
+    },
+    {
+      key: "instagram",
+      label: "Instagram",
+      href: "https://www.instagram.com/everydaypsychology_npo?igsh=MTR0cXZoampwOTl6cQ%3D%3D&utm_source=qr",
+      icon: Instagram,
+    },
+    {
+      key: "tiktok",
+      label: "TikTok",
+      href: "http://www.tiktok.com/@epsy_npo",
+      icon: Music2,
+    },
+  ];
+
+  const contactEmail = "everydaypsychologynpo@gmail.com";
+  const contactPhone = "+27 065 064 7232";
+
   return (
     <footer
-      className="border-t"
-      style={{
-        borderColor: "rgba(15,30,36,0.08)",
-        backgroundColor: "rgba(250,251,249,0.85)",
-      }}
+      style={{ backgroundColor: "var(--epsy-charcoal)" }}
+      className="mt-0"
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-        <div className="text-sm" style={{ color: "var(--epsy-slate-blue)" }}>
-          © {new Date().getFullYear()} Everyday Psychology NPO. All rights reserved.
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div>
+          <h3 className="text-xl font-bold mb-5" style={{ color: "white" }}>
+            Site Map
+          </h3>
+          <div className="space-y-3 text-sm">
+            <NavLink
+              to="/"
+              style={{ color: "rgba(255,255,255,0.88)" }}
+              className="block hover:underline"
+            >
+              Home
+            </NavLink>
+            <NavLink
+              to="/about"
+              style={{ color: "rgba(255,255,255,0.88)" }}
+              className="block hover:underline"
+            >
+              About
+            </NavLink>
+            <NavLink
+              to="/gallery"
+              style={{ color: "rgba(255,255,255,0.88)" }}
+              className="block hover:underline"
+            >
+              Gallery
+            </NavLink>
+            <NavLink
+              to="/partnerships"
+              style={{ color: "rgba(255,255,255,0.88)" }}
+              className="block hover:underline"
+            >
+              Partnerships
+            </NavLink>
+            <NavLink
+              to="/contact"
+              style={{ color: "rgba(255,255,255,0.88)" }}
+              className="block hover:underline"
+            >
+              Contact
+            </NavLink>
+            <NavLink
+              to="/privacy"
+              style={{ color: "rgba(255,255,255,0.88)" }}
+              className="block hover:underline"
+            >
+              Privacy
+            </NavLink>
+          </div>
         </div>
-        <div className="text-sm flex gap-4">
-          <NavLink
-            to="/privacy"
-            className="hover:underline"
-            style={{ color: "var(--epsy-slate-blue)" }}
+
+        <div>
+          <h3 className="text-xl font-bold mb-5" style={{ color: "white" }}>
+            Follow Us
+          </h3>
+          <div className="space-y-3 text-sm">
+            {socials.map((social) => {
+              const Icon = social.icon;
+              return (
+                <a
+                  key={social.key}
+                  href={social.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 hover:underline"
+                  style={{ color: "rgba(255,255,255,0.88)" }}
+                >
+                  <span
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-xl"
+                    style={{ backgroundColor: "rgba(12,192,223,0.18)" }}
+                  >
+                    <Icon
+                      className="h-5 w-5"
+                      style={{ color: "var(--epsy-sky-blue)" }}
+                    />
+                  </span>
+                  <span>{social.label}</span>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-bold mb-5" style={{ color: "white" }}>
+            Contact
+          </h3>
+          <div
+            className="space-y-3 text-sm"
+            style={{ color: "rgba(255,255,255,0.88)" }}
           >
-            Privacy
-          </NavLink>
+            <div>Email: {contactEmail}</div>
+            <div>Phone: {contactPhone}</div>
+          </div>
         </div>
+      </div>
+
+      <div
+        className="max-w-7xl mx-auto px-6 lg:px-12 py-5 border-t text-sm"
+        style={{
+          borderColor: "rgba(255,255,255,0.12)",
+          color: "rgba(255,255,255,0.68)",
+        }}
+      >
+        © {new Date().getFullYear()} Everyday Psychology NPO. All rights reserved.
       </div>
     </footer>
   );
@@ -101,9 +310,13 @@ function Privacy() {
       >
         Privacy
       </h1>
-      <p className="leading-relaxed" style={{ color: "var(--epsy-slate-blue)" }}>
-        This website does not require you to log in. If you submit a form (e.g., Contact or
-        Partnerships), your details are used only to respond to your request.
+      <p
+        className="leading-relaxed"
+        style={{ color: "var(--epsy-slate-blue)" }}
+      >
+        This website does not require you to log in. If you submit a form (e.g.,
+        Contact or Partnerships), your details are used only to respond to your
+        request.
       </p>
     </div>
   );
@@ -118,7 +331,6 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/epsyapp" element={<EpsyApp />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/partnerships" element={<Partnerships />} />
           <Route path="/privacy" element={<Privacy />} />

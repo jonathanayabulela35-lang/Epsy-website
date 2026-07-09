@@ -1,78 +1,8 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Target, Eye, BookOpen } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-
-import { supabase } from "@/lib/supabaseClient";
-import { getSiteContent, updateSiteContent } from "@/lib/siteContentApi";
-
-import AdminBar from "@/components/admin/AdminBar";
-import InlineText from "@/components/admin/InlineText";
 
 export default function About() {
-  const queryClient = useQueryClient();
-
-  // admin mode only with ?admin=1
-  const showAdmin = useMemo(() => {
-    return new URLSearchParams(window.location.search).get("admin") === "1";
-  }, []);
-
-  const ADMIN_EMAIL =
-    import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
-
-  // Load about content from Supabase
-  const { data: aboutContent = {} } = useQuery({
-    queryKey: ["siteContent", "about"],
-    queryFn: async () => await getSiteContent("about"),
-  });
-
-  // session for enabling inline editing
-  const { data: sessionData } = useQuery({
-    queryKey: ["authSession"],
-    queryFn: async () => {
-      const { data } = await supabase.auth.getSession();
-      return data.session;
-    },
-    staleTime: 1000 * 10,
-  });
-
-  const isAdmin =
-    showAdmin &&
-    sessionData?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-
-  // Defaults (fallbacks)
-  const view = {
-    header_title: aboutContent.header_title ?? "Who We Are",
-    header_subtitle:
-      aboutContent.header_subtitle ??
-      "Epsy is a non-profit organisation focused on psychological awareness and resilience.",
-
-    vision_title: aboutContent.vision_title ?? "Vision",
-    vision_text: aboutContent.vision_text ?? "To instill psychological resilience.",
-
-    mission_title: aboutContent.mission_title ?? "Mission",
-    mission_text: aboutContent.mission_text ?? "To raise psychological awareness.",
-
-    story_title: aboutContent.story_title ?? "Our Story",
-    story_p1:
-      aboutContent.story_p1 ??
-      "Epsy was founded to help students develop a true and realistic understanding of life at its different stages. Many people are first defeated in their minds before they are defeated outwardly. Epsy exists to challenge that pattern.",
-    story_p2:
-      aboutContent.story_p2 ??
-      "We guide students to mentally prepare for the realities of growth, responsibility, pressure, success, and failure — so they are strengthened inwardly before life tests them outwardly.",
-
-    motto_title: aboutContent.motto_title ?? `"It's All About Mentality."`,
-    motto_text:
-      aboutContent.motto_text ??
-      "Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters — it's where everything begins.",
-  };
-
-  const saveField = async (field, value) => {
-    const next = { ...aboutContent, [field]: value };
-    await updateSiteContent("about", next);
-    queryClient.invalidateQueries({ queryKey: ["siteContent", "about"] });
-  };
-
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
     whileInView: { opacity: 1, y: 0 },
@@ -82,51 +12,56 @@ export default function About() {
 
   return (
     <div>
-      {/* Admin login bar (only when ?admin=1) */}
-      <AdminBar
-        show={showAdmin}
-        redirectPathWithAdmin="/about?admin=1"
-        adminEmail={ADMIN_EMAIL}
-      />
-
-      {/* Header */}
+      {/* HEADER SECTION (BLUE) */}
       <section
-        className="py-20 lg:py-28"
-        style={{ backgroundColor: "var(--epsy-off-white)" }}
+        className="py-16 lg:py-20 section-soft"
+        style={{ backgroundColor: "white" }}
       >
-        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <InlineText
-              enabled={isAdmin}
-              as="h1"
-              value={view.header_title}
-              onSave={(v) => saveField("header_title", v)}
-              className="text-4xl lg:text-5xl font-bold mb-6"
-              style={{ color: "var(--epsy-charcoal)" }}
-            />
-          </motion.div>
+        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl lg:text-5xl font-bold mb-6 text-left"
+            style={{ color: "var(--epsy-charcoal)" }}
+          >
+            Who We Are
+          </motion.h1>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.6 }}>
-            <InlineText
-              enabled={isAdmin}
-              as="p"
-              value={view.header_subtitle}
-              onSave={(v) => saveField("header_subtitle", v)}
-              className="text-lg leading-relaxed"
-              style={{ color: "var(--epsy-slate-blue)" }}
-            />
-          </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
+            style={{ color: "var(--epsy-slate-blue)" }}
+          >
+            <p>
+              Everyday Psychology NPO "Epsy" is a South African non-profit organisation focused on developing psychological awareness and resilience among young people and students. We exist to help young people understand how their thinking shapes their behaviour, decisions, and overall life outcomes. 
+            </p>
+
+            <p>
+              Epsy aims to equip young people students with the ability to view both life and academics through a psychological perspective that encourages intentional thinking, self-awareness, and disciplined responses to everyday challenges. Rather than only addressing problems after they arise, Epsy focuses on preparing young people mentally before they encounter pressure, setbacks, or critical life decisions.
+            </p>
+            
+            <p>
+              Our work is primarily for students in high school and tertiary institutions, a stage where identity, habits, and mental patterns are being formed. Through structured psychological content published through our social media channels and community engagements, Epsy aims to help them navigate challenges such as academic pressure, self-doubt, fear of rejection, fear of failure, social dynamics, personal growth and more.
+            </p>
+
+            <p>
+              The approach priorities practical application than theoretical. It breaks down psychological principles into clear, usable frameworks that students can apply daily. By doing so, Everyday Psychology NPO aims to contribute in building a generation that is not only academically capable, but mostly mentally prepared, self-aware, and resilient in the face of real-life demands.
+            </p>
+          </motion.p>
         </div>
       </section>
 
-      {/* Vision & Mission */}
-      <section className="py-16 lg:py-24">
+      {/* VISION & MISSION (BLUE) */}
+      <section
+        className="py-16 lg:py-20"
+        style={{ backgroundColor: "white" }}
+      >
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Vision */}
             <motion.div
               {...fadeInUp}
-              className="p-10 rounded-2xl"
+              className="modern-card p-8 lg:p-10 rounded-[2rem] border"
               style={{ backgroundColor: "var(--epsy-off-white)" }}
             >
               <div
@@ -136,30 +71,25 @@ export default function About() {
                 <Eye className="w-7 h-7 text-white" />
               </div>
 
-              <InlineText
-                enabled={isAdmin}
-                as="h2"
-                value={view.vision_title}
-                onSave={(v) => saveField("vision_title", v)}
+              <h2
                 className="text-2xl font-bold mb-4"
                 style={{ color: "var(--epsy-charcoal)" }}
-              />
+              >
+                Vision
+              </h2>
 
-              <InlineText
-                enabled={isAdmin}
-                as="p"
-                value={view.vision_text}
-                onSave={(v) => saveField("vision_text", v)}
-                className="text-lg leading-relaxed"
+              <p
+                className="text-base sm:text-lg leading-8 text-left"
                 style={{ color: "var(--epsy-slate-blue)" }}
-              />
+              >
+                To instill psychological resilience.
+              </p>
             </motion.div>
 
-            {/* Mission */}
             <motion.div
               {...fadeInUp}
               transition={{ delay: 0.1, duration: 0.6 }}
-              className="p-10 rounded-2xl"
+              className="modern-card p-8 lg:p-10 rounded-[2rem] border"
               style={{ backgroundColor: "var(--epsy-off-white)" }}
             >
               <div
@@ -169,96 +99,87 @@ export default function About() {
                 <Target className="w-7 h-7 text-white" />
               </div>
 
-              <InlineText
-                enabled={isAdmin}
-                as="h2"
-                value={view.mission_title}
-                onSave={(v) => saveField("mission_title", v)}
+              <h2
                 className="text-2xl font-bold mb-4"
                 style={{ color: "var(--epsy-charcoal)" }}
-              />
+              >
+                Mission
+              </h2>
 
-              <InlineText
-                enabled={isAdmin}
-                as="p"
-                value={view.mission_text}
-                onSave={(v) => saveField("mission_text", v)}
-                className="text-lg leading-relaxed"
+              <p
+                className="text-base sm:text-lg leading-8 text-left"
                 style={{ color: "var(--epsy-slate-blue)" }}
-              />
+              >
+                To raise psychological awareness.
+              </p>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Our Story */}
+      {/* STORY (WHITE) */}
       <section
-        className="py-16 lg:py-24"
-        style={{ backgroundColor: "var(--epsy-off-white)" }}
+        className="py-16 lg:py-20"
+        style={{ backgroundColor: "white" }}
       >
         <div className="max-w-4xl mx-auto px-6 lg:px-12">
           <motion.div {...fadeInUp}>
             <div
-              className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 mx-auto"
+              className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
               style={{ backgroundColor: "var(--epsy-sky-blue)" }}
             >
               <BookOpen className="w-7 h-7 text-white" />
             </div>
 
-            <InlineText
-              enabled={isAdmin}
-              as="h2"
-              value={view.story_title}
-              onSave={(v) => saveField("story_title", v)}
-              className="text-3xl lg:text-4xl font-bold mb-8 text-center"
+            <h2
+              className="text-3xl lg:text-4xl font-bold mb-8 text-left"
               style={{ color: "var(--epsy-charcoal)" }}
-            />
+            >
+              The Psychological Perspective
+            </h2>
 
             <div
-              className="space-y-6 text-lg leading-relaxed"
-              style={{ color: "var(--epsy-slate-blue)" }}
+              className="max-w-3xl space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
+              style={{ color: "rgba(0,0,0,0.8)" }}
             >
-              <InlineText
-                enabled={isAdmin}
-                as="p"
-                value={view.story_p1}
-                onSave={(v) => saveField("story_p1", v)}
-                style={{ color: "var(--epsy-slate-blue)" }}
-              />
+              <p>
+                The Psychological Perspective is at the core of Epsy’s mission. It is the lens through which we encourage young people to observe and interpret life, enabling them to respond with greater clarity, intention, and understanding. Rather than reacting impulsively, this perspective promotes thoughtful and reasonable responses to everyday situations.
+              </p>
 
-              <InlineText
-                enabled={isAdmin}
-                as="p"
-                value={view.story_p2}
-                onSave={(v) => saveField("story_p2", v)}
-                style={{ color: "var(--epsy-slate-blue)" }}
-              />
+              <p>
+                It serves both as a filter and a framework that helps young people process their experiences while guiding how they respond to them. In the face of challenges, pressure, and uncertainty, The Psychological Perspective encourages responses that are not only rational, but ultimately beneficial to one’s growth and long-term outcomes.
+              </p>
+          
+              <p>
+                This perspective can be applied across every sphere of a young person’s life, from academics and personal development to relationships and future careers. By adopting it, young people can gain an advantage: the ability to approach life with awareness, discipline, and a mindset that supports better decisions and stronger results.
+              </p>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Motto Explanation */}
-      <section className="py-16 lg:py-24">
-        <div className="max-w-4xl mx-auto px-6 lg:px-12">
-          <motion.div {...fadeInUp} className="text-center">
-            <InlineText
-              enabled={isAdmin}
-              as="h2"
-              value={view.motto_title}
-              onSave={(v) => saveField("motto_title", v)}
+      {/* MOTTO (BLUE) */}
+      <section
+        className="py-16 lg:py-20"
+        style={{ backgroundColor: "var(--epsy-charcoal)" }}
+      >
+        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
+          <motion.div {...fadeInUp}>
+            <h2
               className="text-3xl lg:text-4xl font-bold mb-6"
-              style={{ color: "var(--epsy-charcoal)" }}
-            />
+              style={{ color: "#FFFFFF" }}
+            >
+              "It's All About Mentality."
+            </h2>
 
-            <InlineText
-              enabled={isAdmin}
-              as="p"
-              value={view.motto_text}
-              onSave={(v) => saveField("motto_text", v)}
-              className="text-lg leading-relaxed"
-              style={{ color: "var(--epsy-slate-blue)" }}
-            />
+            <div className="max-w-3xl mx-auto">
+              <p
+                className="text-base sm:text-lg leading-8 sm:leading-9 text-left"
+                style={{ color: "rgba(255,255,255,0.9)" }}
+              >
+                Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters, it's where everything begins.
+              </p>
+            </div>
           </motion.div>
         </div>
       </section>
