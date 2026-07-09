@@ -2,17 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, Users, Smartphone, Download } from "lucide-react";
+import { ArrowRight, Globe, Users, HeartHandshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const APK_URL = "/downloads/epsyapp.apk";
 
 export default function Home() {
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
   const view = {
     hero_title: "Its All about Mentality.",
-    hero_subtitle: "",
+    hero_subtitle: "Building psychological awareness and resilience for young people, students, and communities.",
     hero_cta_primary_text: "Learn more",
     hero_cta_secondary_text: "Contact us",
 
@@ -54,9 +52,7 @@ export default function Home() {
 
   return (
     <div>
-      {/* HERO SECTION (IMAGE + PARALLAX DESKTOP ONLY) */}
       <section className="relative overflow-hidden">
-        {/* Background Image */}
         <div
           className="absolute inset-0"
           style={{
@@ -68,18 +64,27 @@ export default function Home() {
           }}
         />
 
-        {/* Black Overlay (60%) */}
         <div
           className="absolute inset-0"
           style={{
-            backgroundColor: "black",
-            opacity: 0.6,
+            background:
+              "linear-gradient(135deg, rgba(15,30,36,0.84), rgba(15,30,36,0.56))",
           }}
         />
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 lg:py-32 relative z-10">
           <div className="max-w-4xl text-left">
             <motion.div {...fadeInUp}>
+              <span
+                className="inline-flex rounded-full px-4 py-2 text-sm font-semibold mb-5 border"
+                style={{
+                  color: "white",
+                  borderColor: "rgba(255,255,255,0.28)",
+                  backgroundColor: "rgba(255,255,255,0.08)",
+                }}
+              >
+                Everyday Psychology NPO
+              </span>
               <h1
                 className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight"
                 style={{ color: "white" }}
@@ -94,7 +99,7 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <p
-                className="text-lg lg:text-xl mb-10 leading-relaxed"
+                className="text-lg lg:text-xl mb-10 leading-relaxed max-w-2xl text-left"
                 style={{ color: "rgba(255,255,255,0.9)" }}
               >
                 {view.hero_subtitle}
@@ -125,9 +130,9 @@ export default function Home() {
                   variant="outline"
                   className="px-8 py-6 text-base rounded-2xl font-semibold"
                   style={{
-                    borderColor: "white",
+                    borderColor: "rgba(255,255,255,0.72)",
                     color: "white",
-                    backgroundColor: "transparent",
+                    backgroundColor: "rgba(255,255,255,0.06)",
                   }}
                 >
                   {view.hero_cta_secondary_text}
@@ -138,64 +143,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* DOWNLOAD SECTION (UNCHANGED - WHITE) */}
-      <section
-        className="py-10 lg:py-12 relative overflow-hidden"
-        style={{ backgroundColor: "white" }}
-      >
-        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="rounded-3xl p-8 lg:p-10 border shadow-sm"
-            style={{
-              backgroundColor: "var(--epsy-off-white)",
-              borderColor: "rgba(15,30,36,0.08)",
-            }}
-          >
-            <h2
-              className="text-3xl lg:text-4xl font-bold mb-8"
-              style={{ color: "var(--epsy-charcoal)" }}
-            >
-              Download the EpsyApp
-            </h2>
-
-            <div className="flex justify-center">
-              <a href={APK_URL}>
-                <Button
-                  className="px-8 py-6 text-base rounded-2xl font-semibold"
-                  style={{
-                    backgroundColor: "var(--epsy-charcoal)",
-                    color: "white",
-                  }}
-                >
-                  <Download className="mr-2 h-5 w-5" />
-                  Download EpsyApp APK
-                </Button>
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* WHAT WE DO SECTION (BLUE) */}
-      <section
-        className="py-16 lg:py-20 relative overflow-hidden"
-        style={{ backgroundColor: "#38B6FF" }}
-      >
+      <section className="py-16 lg:py-20 relative overflow-hidden section-soft">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-16">
+          <div className="max-w-3xl mb-14 text-left">
+            <p
+              className="text-sm font-bold uppercase tracking-[0.24em] mb-3"
+              style={{ color: "var(--epsy-sky-blue)" }}
+            >
+              Everyday Psychology
+            </p>
             <h2
-              className="text-3xl lg:text-4xl font-bold mb-4"
-              style={{ color: "white" }}
+              className="text-3xl lg:text-5xl font-bold mb-4"
+              style={{ color: "var(--epsy-charcoal)" }}
             >
               {view.what_title}
             </h2>
             <p
-              className="text-lg leading-relaxed"
-              style={{ color: "rgba(255,255,255,0.9)" }}
+              className="text-lg leading-relaxed text-left"
+              style={{ color: "var(--epsy-slate-blue)" }}
             >
               {view.what_subtitle}
             </p>
@@ -212,11 +177,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.05 }}
-                  className="p-8 rounded-3xl border shadow-sm"
-                  style={{
-                    backgroundColor: "rgba(255,255,255,0.95)",
-                    borderColor: "rgba(15,30,36,0.08)",
-                  }}
+                  className="modern-card p-8 rounded-[2rem] border"
                 >
                   <div
                     className="h-12 w-12 rounded-2xl flex items-center justify-center mb-5"
@@ -233,23 +194,11 @@ export default function Home() {
                   </h3>
 
                   <p
-                    className="leading-relaxed"
+                    className="leading-relaxed text-left"
                     style={{ color: "var(--epsy-slate-blue)" }}
                   >
                     {item.description}
                   </p>
-
-                  {idx === 2 && (
-                    <div className="pt-5">
-                      <Link
-                        to="/epsyapp"
-                        className="inline-flex items-center text-sm font-semibold"
-                        style={{ color: "var(--epsy-sky-blue)" }}
-                      >
-                        Explore EpsyApp <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </div>
-                  )}
                 </motion.div>
               );
             })}
