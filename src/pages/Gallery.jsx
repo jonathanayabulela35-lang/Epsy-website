@@ -1,233 +1,91 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Upload, Trash2, ChevronUp, ChevronDown } from "lucide-react";
-import { toast } from "sonner";
-
-import {
-  fetchGalleryImages,
-  uploadGalleryImage,
-  deleteGalleryImage,
-  updateGalleryOrder,
-  updateGalleryCaption,
-} from "@/lib/galleryApi";
-
-import AdminBar from "@/components/admin/AdminBar";
-import InlineText from "@/components/admin/InlineText";
-import { supabase } from "@/lib/supabaseClient";
 
 export default function Gallery() {
-  const queryClient = useQueryClient();
-  const [uploading, setUploading] = useState(false);
-
-  // Admin UI only with ?admin=1
-  const showAdmin = useMemo(() => {
-    return new URLSearchParams(window.location.search).get("admin") === "1";
-  }, []);
-
-  const ADMIN_EMAIL =
-    import.meta.env.VITE_ADMIN_EMAIL || "ayabulelaplatana126@gmail.com";
-
-  // Session (so we know if it's you)
-  const { data: session } = useQuery({
-    queryKey: ["authSession"],
-    queryFn: async () => {
-      const { data } = await supabase.auth.getSession();
-      return data.session;
-    },
-    staleTime: 1000 * 10,
-  });
-
-  const isAdmin =
-    showAdmin &&
-    session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-
-  const { data: images = [], isLoading } = useQuery({
-    queryKey: ["galleryImages"],
-    queryFn: async () => {
-      const list = await fetchGalleryImages();
-      return list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    },
-  });
-
-  const uploadMutation = useMutation({
-    mutationFn: async (file) => {
-      setUploading(true);
-      await uploadGalleryImage(file);
-      return true;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
-      toast.success("Image uploaded.");
-      setUploading(false);
-    },
-    onError: (err) => {
-      console.error(err);
-      setUploading(false);
-      toast.error("Upload failed.");
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id) => {
-      const img = images.find((i) => i.id === id);
-      if (!img) return false;
-      await deleteGalleryImage(img.id, img.image_path);
-      return true;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
-      toast.success("Image deleted.");
-    },
-    onError: (err) => {
-      console.error(err);
-      toast.error("Delete failed.");
-    },
-  });
-
-  const updateOrderMutation = useMutation({
-    mutationFn: async ({ id, newOrder }) => {
-      const next = [...images];
-      const idx = next.findIndex((i) => i.id === id);
-      if (idx === -1) return false;
-
-      next[idx] = { ...next[idx], order: newOrder };
-
-      const normalized = next
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .map((img, i) => ({ ...img, order: i }));
-
-      await updateGalleryOrder(normalized);
-      return true;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
-    },
-    onError: (err) => {
-      console.error(err);
-      toast.error("Reorder failed.");
-    },
-  });
-
-  const captionMutation = useMutation({
-    mutationFn: async ({ id, caption }) => {
-      await updateGalleryCaption(id, caption);
-      return true;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["galleryImages"] });
-      toast.success("Caption saved.");
-    },
-    onError: (err) => {
-      console.error(err);
-      toast.error("Caption save failed.");
-    },
-  });
-
-  const handleFileUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) uploadMutation.mutate(file);
+  const view = {
+    header_title: "Gallery",
+    header_subtitle: "A look into our moments and work.",
   };
+
+  const isLoading = false;
+
+  const images = [
+    { id: 1, image_url: "/assets/gallery/img1.jpg", order: 1 },
+    { id: 2, image_url: "/assets/gallery/img2.jpg", order: 2 },
+    { id: 3, image_url: "/assets/gallery/img3.jpg", order: 3 },
+    { id: 4, image_url: "/assets/gallery/img4.jpg", order: 4 },
+    { id: 5, image_url: "/assets/gallery/img5.jpg", order: 5 },
+    { id: 6, image_url: "/assets/gallery/img6.jpg", order: 6 },
+    { id: 7, image_url: "/assets/gallery/img7.jpg", order: 7 },
+    { id: 8, image_url: "/assets/gallery/img8.jpeg", order: 8 },
+    { id: 9, image_url: "/assets/gallery/img9.jpg", order: 9 },
+    { id: 10, image_url: "/assets/gallery/img10.jpg", order: 10 },
+  ];
 
   const sorted = useMemo(
     () => [...images].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-    [images]
+    []
   );
-
-  const moveImage = (index, direction) => {
-    const newIndex = direction === "up" ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= sorted.length) return;
-
-    const img1 = sorted[index];
-    const img2 = sorted[newIndex];
-
-    updateOrderMutation.mutate({ id: img1.id, newOrder: newIndex });
-    updateOrderMutation.mutate({ id: img2.id, newOrder: index });
-  };
 
   return (
     <div>
-      {/* Top login/logout bar (only appears on ?admin=1 pages) */}
-      <AdminBar
-        show={showAdmin}
-        redirectPathWithAdmin="/gallery?admin=1"
-        adminEmail={ADMIN_EMAIL}
-      />
-
-      {/* Admin-only uploader (small, not a big panel) */}
-      {isAdmin && (
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-4">
-          <div className="flex items-center gap-3">
-            <Label
-              htmlFor="galleryUpload"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl cursor-pointer"
-              style={{
-                backgroundColor: "var(--epsy-sky-blue)",
-                color: "var(--epsy-charcoal)",
-              }}
-            >
-              <Upload className="h-4 w-4" />
-              {uploading ? "Uploading..." : "Add image"}
-            </Label>
-            <Input
-              id="galleryUpload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-          </div>
-        </div>
-      )}
-
+      {/* HEADER (UNCHANGED STRUCTURE) */}
       <section
         className="py-20 lg:py-28"
         style={{ backgroundColor: "var(--epsy-off-white)" }}
       >
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
-          <motion.h1
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl lg:text-5xl font-bold mb-4"
-            style={{ color: "var(--epsy-charcoal)" }}
           >
-            Gallery
-          </motion.h1>
-          <motion.p
+            <h1
+              className="text-4xl lg:text-5xl font-bold mb-4"
+              style={{ color: "var(--epsy-charcoal)" }}
+            >
+              {view.header_title}
+            </h1>
+          </motion.div>
+
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg leading-relaxed"
-            style={{ color: "var(--epsy-slate-blue)" }}
           >
-            A look into our moments and work.
-          </motion.p>
+            <p
+              className="text-lg leading-relaxed"
+              style={{ color: "var(--epsy-slate-blue)" }}
+            >
+              {view.header_subtitle}
+            </p>
+          </motion.div>
         </div>
       </section>
 
-      <section className="py-12 lg:py-16" style={{ backgroundColor: "white" }}>
+      {/* GALLERY SECTION → BLUE */}
+      <section
+        className="py-12 lg:py-16"
+        style={{ backgroundColor: "#38B6FF" }}
+      >
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {isLoading ? (
             <div
               className="text-center py-12"
-              style={{ color: "var(--epsy-slate-blue)" }}
+              style={{ color: "rgba(255,255,255,0.9)" }}
             >
               Loading...
             </div>
           ) : sorted.length === 0 ? (
             <div
               className="text-center py-12"
-              style={{ color: "var(--epsy-slate-blue)" }}
+              style={{ color: "rgba(255,255,255,0.9)" }}
             >
               No images yet.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sorted.map((img, index) => (
+              {sorted.map((img) => (
                 <div
                   key={img.id}
                   className="rounded-3xl overflow-hidden border shadow-sm"
@@ -236,61 +94,9 @@ export default function Gallery() {
                   <div className="aspect-[4/3] bg-slate-100">
                     <img
                       src={img.image_url}
-                      alt={img.caption || "Gallery image"}
+                      alt="Gallery image"
                       className="w-full h-full object-cover"
                     />
-                  </div>
-
-                  <div className="p-4">
-                    {/* Notion-style caption editing */}
-                    <InlineText
-                      enabled={isAdmin}
-                      as="div"
-                      value={img.caption || ""}
-                      placeholder="Click to add a caption…"
-                      onSave={(v) =>
-                        captionMutation.mutate({
-                          id: img.id,
-                          caption: (v ?? "").trim(),
-                        })
-                      }
-                      className="font-medium"
-                      style={{ color: "var(--epsy-charcoal)" }}
-                    />
-
-                    {isAdmin && (
-                      <div className="flex items-center justify-between pt-4">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="rounded-2xl"
-                            onClick={() => moveImage(index, "up")}
-                            disabled={index === 0}
-                          >
-                            <ChevronUp className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="rounded-2xl"
-                            onClick={() => moveImage(index, "down")}
-                            disabled={index === sorted.length - 1}
-                          >
-                            <ChevronDown className="h-4 w-4" />
-                          </Button>
-                        </div>
-
-                        <Button
-                          size="icon"
-                          variant="destructive"
-                          className="rounded-2xl"
-                          onClick={() => deleteMutation.mutate(img.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}

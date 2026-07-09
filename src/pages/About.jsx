@@ -14,15 +14,15 @@ export default function About() {
     <div>
       {/* HEADER SECTION (BLUE) */}
       <section
-        className="py-16 lg:py-20 section-soft"
-        style={{ backgroundColor: "white" }}
+        className="py-16 lg:py-20"
+        style={{ backgroundColor: "#38B6FF" }}
       >
-        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
+        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl lg:text-5xl font-bold mb-6 text-left"
-            style={{ color: "var(--epsy-charcoal)" }}
+            className="text-4xl lg:text-5xl font-bold mb-6"
+            style={{ color: "#FFFFFF" }}
           >
             Who We Are
           </motion.h1>
@@ -30,8 +30,8 @@ export default function About() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
-            style={{ color: "var(--epsy-slate-blue)" }}
+            className="max-w-3xl mx-auto space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
+            style={{ color: "var(--epsy-charcoal)" }}
           >
             <p>
               Everyday Psychology NPO "Epsy" is a South African non-profit organisation focused on developing psychological awareness and resilience among young people and students. We exist to help young people understand how their thinking shapes their behaviour, decisions, and overall life outcomes. 
@@ -42,7 +42,7 @@ export default function About() {
             </p>
             
             <p>
-              Our work is primarily for students in high school and tertiary institutions, a stage where identity, habits, and mental patterns are being formed. Through structured psychological content published through our social media channels and community engagements, Epsy aims to help them navigate challenges such as academic pressure, self-doubt, fear of rejection, fear of failure, social dynamics, personal growth and more.
+              Our work is primarily for students in high school and tertiary institutions, a stage where identity, habits, and mental patterns are being formed. Through structured psychological content published through our social media channels, and official application “EpsyApp” Epsy aims to help them navigate challenges such as academic pressure, self-doubt, fear of rejection, fear of failure, social dynamics, personal growth and more.
             </p>
 
             <p>
@@ -55,13 +55,13 @@ export default function About() {
       {/* VISION & MISSION (BLUE) */}
       <section
         className="py-16 lg:py-20"
-        style={{ backgroundColor: "white" }}
+        style={{ backgroundColor: "#38B6FF" }}
       >
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div
               {...fadeInUp}
-              className="modern-card p-8 lg:p-10 rounded-[2rem] border"
+              className="p-8 lg:p-10 rounded-2xl"
               style={{ backgroundColor: "var(--epsy-off-white)" }}
             >
               <div
@@ -89,7 +89,7 @@ export default function About() {
             <motion.div
               {...fadeInUp}
               transition={{ delay: 0.1, duration: 0.6 }}
-              className="modern-card p-8 lg:p-10 rounded-[2rem] border"
+              className="p-8 lg:p-10 rounded-2xl"
               style={{ backgroundColor: "var(--epsy-off-white)" }}
             >
               <div
@@ -132,14 +132,14 @@ export default function About() {
             </div>
 
             <h2
-              className="text-3xl lg:text-4xl font-bold mb-8 text-left"
+              className="text-3xl lg:text-4xl font-bold mb-8 text-center"
               style={{ color: "var(--epsy-charcoal)" }}
             >
               The Psychological Perspective
             </h2>
 
             <div
-              className="max-w-3xl space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
+              className="max-w-3xl mx-auto space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left"
               style={{ color: "rgba(0,0,0,0.8)" }}
             >
               <p>
@@ -161,9 +161,9 @@ export default function About() {
       {/* MOTTO (BLUE) */}
       <section
         className="py-16 lg:py-20"
-        style={{ backgroundColor: "var(--epsy-charcoal)" }}
+        style={{ backgroundColor: "#38B6FF" }}
       >
-        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
+        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.div {...fadeInUp}>
             <h2
               className="text-3xl lg:text-4xl font-bold mb-6"

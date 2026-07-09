@@ -56,8 +56,8 @@ function Header() {
   return (
     <>
       <header
-        className="sticky top-0 z-50 backdrop-blur-xl border-b"
-        style={{ backgroundColor: "rgba(250,251,249,0.86)", borderColor: "rgba(15,30,36,0.08)" }}
+        className="sticky top-0 z-50 backdrop-blur-md shadow-sm"
+        style={{ backgroundColor: "rgba(250,251,249,0.82)" }}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-12 h-[92px] flex items-center justify-between">
           <NavLink
@@ -68,7 +68,7 @@ function Header() {
             <img
               src="/assets/logo.jpg"
               alt="Everyday Psychology NPO logo"
-              className="h-12 w-12 rounded-2xl object-contain bg-white p-1 shadow-sm ring-1 ring-black/5"
+              className="h-12 w-12 rounded-2xl object-contain bg-white/80 p-1"
             />
             <span
               className="font-semibold tracking-tight text-sm sm:text-base lg:text-lg leading-tight"
@@ -99,7 +99,7 @@ function Header() {
 
           <button
             type="button"
-            className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-2xl border shadow-sm transition-transform active:scale-95"
+            className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-2xl border"
             style={{
               borderColor: "rgba(15,30,36,0.12)",
               color: "var(--epsy-charcoal)",
@@ -210,6 +210,13 @@ function Footer() {
               className="block hover:underline"
             >
               About
+            </NavLink>
+            <NavLink
+              to="/epsyapp"
+              style={{ color: "rgba(255,255,255,0.88)" }}
+              className="block hover:underline"
+            >
+              EpsyApp
             </NavLink>
             <NavLink
               to="/gallery"

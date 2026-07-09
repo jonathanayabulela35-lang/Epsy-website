@@ -71,6 +71,7 @@ export default function Partnerships() {
           return (
             <section
               key={section.id}
+<<<<<<< HEAD
               className="py-16 relative section-soft"
               style={{ backgroundColor: "var(--epsy-off-white)" }}
             >
@@ -79,6 +80,16 @@ export default function Partnerships() {
                   {section.data.header_title}
                 </h1>
                 <p className="mt-4 text-base sm:text-lg leading-8 text-left" style={{ color: "var(--epsy-slate-blue)" }}>{section.data.header_subtitle}</p>
+=======
+              className="py-16 relative"
+              style={{ backgroundColor: "var(--epsy-off-white)" }}
+            >
+              <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
+                <h1 className="text-4xl font-bold">
+                  {section.data.header_title}
+                </h1>
+                <p className="mt-4">{section.data.header_subtitle}</p>
+>>>>>>> 0d812f264b166d67343cbc43e06a7bcffa68231e
               </div>
             </section>
           );
@@ -95,7 +106,11 @@ export default function Partnerships() {
             >
               <div className="max-w-6xl mx-auto px-6 lg:px-12">
                 <h2
+<<<<<<< HEAD
                   className="text-3xl text-left font-bold mb-10"
+=======
+                  className="text-3xl text-center font-bold mb-10"
+>>>>>>> 0d812f264b166d67343cbc43e06a7bcffa68231e
                   style={{
                     color: isBlue ? "#FFFFFF" : undefined,
                   }}
@@ -112,7 +127,11 @@ export default function Partnerships() {
                         key={card.id}
                         {...fadeInUp}
                         transition={{ delay: idx * 0.1, duration: 0.6 }}
+<<<<<<< HEAD
                         className="modern-card p-8 rounded-[2rem] border"
+=======
+                        className="p-8 rounded-3xl border shadow-sm"
+>>>>>>> 0d812f264b166d67343cbc43e06a7bcffa68231e
                         style={{
                           backgroundColor: "rgba(255,255,255,0.95)",
                           borderColor: "rgba(15,30,36,0.08)",
@@ -132,7 +151,7 @@ export default function Partnerships() {
                           {card.title}
                         </h3>
 
-                        <p className="leading-relaxed text-left" style={{ color: "var(--epsy-slate-blue)" }}>
+                        <p style={{ color: "var(--epsy-slate-blue)" }}>
                           {card.description}
                         </p>
                       </motion.div>
