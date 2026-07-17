@@ -109,7 +109,7 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="py-10 lg:py-14 epsy-blue-section">
+      <section className="py-10 lg:py-14 epsy-page-gradient">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
           
           {/* FORM */}

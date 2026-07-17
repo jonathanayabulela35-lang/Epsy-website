@@ -59,7 +59,7 @@ export default function Gallery() {
         </div>
       </section>
 
-      <section className="py-12 lg:py-16 epsy-blue-section">
+      <section className="py-12 lg:py-16 epsy-page-gradient">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {isLoading ? (
             <div

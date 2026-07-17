@@ -48,7 +48,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 epsy-blue-section">
+      <section className="py-16 lg:py-20 epsy-page-gradient">
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div

@@ -6,8 +6,6 @@ import { ArrowRight, Globe, Users, HeartHandshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-
   const view = {
     hero_title: "Its All about Mentality.",
     hero_subtitle: "",
@@ -52,15 +50,15 @@ export default function Home() {
 
   return (
     <div>
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden min-h-[70vh] lg:min-h-[calc(100vh-96px)] flex items-center">
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 w-full h-full"
           style={{
             backgroundImage: "url('/assets/hero-bg.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
-            backgroundAttachment: isMobile ? "scroll" : "fixed",
+            backgroundAttachment: "scroll",
           }}
         />
 
@@ -72,7 +70,7 @@ export default function Home() {
           }}
         />
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-24 lg:py-32 relative z-10">
+        <div className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-24 lg:py-32 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div {...fadeInUp}>
               <h1

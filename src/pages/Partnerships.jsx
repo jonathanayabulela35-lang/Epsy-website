@@ -87,7 +87,7 @@ export default function Partnerships() {
           return (
             <section
               key={section.id}
-              className="py-16 epsy-blue-section"
+              className="py-16 epsy-page-gradient"
             >
               <div className="max-w-6xl mx-auto px-6 lg:px-12">
                 <h2
