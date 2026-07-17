@@ -87,7 +87,8 @@ export default function Contact() {
 
   return (
     <div>
-      <section className="py-14 lg:py-16 epsy-page-gradient">
+      <div className="epsy-page-gradient">
+      <section className="py-14 lg:py-16">
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -109,7 +110,7 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="py-10 lg:py-14 epsy-page-gradient">
+      <section className="py-10 lg:py-14">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
           
           {/* FORM */}
@@ -273,6 +274,7 @@ export default function Contact() {
           </motion.div>
         </div>
       </section>
+      </div>
     </div>
   );
 }

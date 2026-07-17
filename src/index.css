@@ -88,3 +88,17 @@ a:hover button, button:hover {
     radial-gradient(circle at 12% 0%, rgba(255,255,255,0.28), transparent 28%),
     linear-gradient(180deg, var(--epsy-royal-blue) 0%, var(--epsy-sky-blue) 100%);
 }
+
+
+/* Keep the home hero image full-cover while restoring the desktop scroll/parallax effect. */
+.home-hero-background {
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+@media (max-width: 767px), (hover: none) {
+  .home-hero-background {
+    background-attachment: scroll !important;
+  }
+}

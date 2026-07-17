@@ -52,13 +52,13 @@ export default function Home() {
     <div>
       <section className="relative overflow-hidden min-h-[70vh] lg:min-h-[calc(100vh-96px)] flex items-center">
         <div
-          className="absolute inset-0 w-full h-full"
+          className="home-hero-background absolute inset-0 w-full h-full"
           style={{
             backgroundImage: "url('/assets/hero-bg.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
-            backgroundAttachment: "scroll",
+            backgroundAttachment: "fixed",
           }}
         />
 

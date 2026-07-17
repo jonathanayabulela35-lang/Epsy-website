@@ -12,7 +12,8 @@ export default function About() {
 
   return (
     <div>
-      <section className="py-16 lg:py-20 epsy-page-gradient">
+      <div className="epsy-page-gradient">
+      <section className="py-16 lg:py-20">
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -48,7 +49,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 epsy-page-gradient">
+      <section className="py-16 lg:py-20">
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div
@@ -108,6 +109,7 @@ export default function About() {
           </div>
         </div>
       </section>
+      </div>
 
       {/* STORY (WHITE) */}
       <section

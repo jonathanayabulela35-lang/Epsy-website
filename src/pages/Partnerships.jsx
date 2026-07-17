@@ -63,7 +63,7 @@ export default function Partnerships() {
   };
 
   return (
-    <div>
+    <div className="epsy-page-gradient">
       {sections.map((section, index) => {
         const isBlue = index === 1;
 
@@ -71,7 +71,7 @@ export default function Partnerships() {
           return (
             <section
               key={section.id}
-              className="py-16 relative epsy-page-gradient"
+              className="py-16 relative"
             >
               <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
                 <h1 className="text-4xl lg:text-5xl font-bold" style={{ color: "#FFFFFF" }}>
@@ -87,7 +87,7 @@ export default function Partnerships() {
           return (
             <section
               key={section.id}
-              className="py-16 epsy-page-gradient"
+              className="py-16"
             >
               <div className="max-w-6xl mx-auto px-6 lg:px-12">
                 <h2
