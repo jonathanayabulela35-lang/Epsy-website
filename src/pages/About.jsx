@@ -95,7 +95,7 @@ export default function About() {
                   transition={{ delay: i * 0.1, duration: 0.6 }}
                   className="p-8 lg:p-10 rounded-[2rem] border"
                   style={{
-                    backgroundColor: "var(--epsy-off-white)",
+                    backgroundColor: "#E6F8FC",
                     borderColor: "rgba(15,30,36,0.08)",
                     boxShadow: "0 18px 50px rgba(15,30,36,0.06)",
                   }}
