@@ -119,9 +119,9 @@ export default function Home() {
                   variant="outline"
                   className="px-8 py-6 text-base rounded-2xl font-semibold"
                   style={{
-                    borderColor: "white",
-                    color: "white",
-                    backgroundColor: "transparent",
+                    borderColor: "#E6F8FC",
+                    color: "var(--epsy-charcoal)",
+                    backgroundColor: "#E6F8FC",
                   }}
                 >
                   {view.hero_cta_secondary_text}
@@ -132,7 +132,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24 bg-white" aria-labelledby="what-title">
+      <section className="epsy-tint-section py-16 lg:py-24" aria-labelledby="what-title">
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <div className="max-w-3xl mb-10 text-left">
             <h2

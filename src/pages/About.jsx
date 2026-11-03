@@ -41,7 +41,7 @@ export default function About() {
             className="text-4xl lg:text-5xl font-bold mb-8 text-center"
             style={{ color: "#FFFFFF" }}
           >
-            Who We Are: Everyday Psychology NPO
+            Who We Are: Epsy NPO
           </motion.h1>
 
           <motion.div
@@ -69,10 +69,10 @@ export default function About() {
         </div>
       </section>
 
-      {/* 2. VISION, MISSION & MOTTO (white) */}
+      {/* 2. VISION, MISSION & MOTTO (light sky tint, white cards) */}
       <section
         id="vision-and-mission"
-        className="py-16 lg:py-24 bg-white"
+        className="epsy-tint-section py-16 lg:py-24"
         aria-labelledby="vision-mission-title"
       >
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
@@ -95,7 +95,7 @@ export default function About() {
                   transition={{ delay: i * 0.1, duration: 0.6 }}
                   className="p-8 lg:p-10 rounded-[2rem] border"
                   style={{
-                    backgroundColor: "#E6F8FC",
+                    backgroundColor: "#FFFFFF",
                     borderColor: "rgba(15,30,36,0.08)",
                     boxShadow: "0 18px 50px rgba(15,30,36,0.06)",
                   }}
@@ -126,20 +126,24 @@ export default function About() {
 
             <motion.div
               {...fadeInUp}
-              className="md:col-span-2 epsy-page-gradient p-8 lg:p-10 rounded-[2rem] text-left"
-              aria-labelledby="motto-title"
+              className="md:col-span-2 p-8 lg:p-10 rounded-[2rem] border text-left"
+              style={{
+                backgroundColor: "#FFFFFF",
+                borderColor: "rgba(15,30,36,0.08)",
+                boxShadow: "0 18px 50px rgba(15,30,36,0.06)",
+              }}
             >
               <h3
                 id="motto-title"
                 className="text-2xl lg:text-3xl font-bold mb-4"
-                style={{ color: "#FFFFFF" }}
+                style={{ color: "var(--epsy-charcoal)" }}
               >
                 "It's All About Mentality."
               </h3>
 
               <p
                 className="max-w-3xl text-base sm:text-lg leading-8 sm:leading-9 text-left"
-                style={{ color: "rgba(255,255,255,0.92)" }}
+                style={{ color: "var(--epsy-slate-blue)" }}
               >
                 Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters, it's where everything begins.
               </p>
@@ -148,10 +152,10 @@ export default function About() {
         </div>
       </section>
 
-      {/* 3. THE PSYCHOLOGICAL PERSPECTIVE (light sky tint) */}
+      {/* 3. THE PSYCHOLOGICAL PERSPECTIVE (blue gradient, same as Who We Are) */}
       <section
         id="psychological-perspective"
-        className="epsy-tint-section py-16 lg:py-24"
+        className="epsy-page-gradient py-16 lg:py-24"
         aria-labelledby="perspective-title"
       >
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
@@ -161,16 +165,15 @@ export default function About() {
           >
             <div>
               <div
-                className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-                style={{ backgroundColor: "var(--epsy-sky-blue)" }}
+                className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 bg-white"
               >
-                <BookOpen className="w-7 h-7 text-white" />
+                <BookOpen className="w-7 h-7" style={{ color: "var(--epsy-royal-blue)" }} />
               </div>
 
               <h2
                 id="perspective-title"
                 className="text-3xl lg:text-4xl font-bold text-left"
-                style={{ color: "var(--epsy-charcoal)" }}
+                style={{ color: "#FFFFFF" }}
               >
                 The Psychological Perspective
               </h2>
@@ -179,8 +182,8 @@ export default function About() {
             <div
               className="space-y-6 text-base sm:text-lg leading-8 sm:leading-9 text-left lg:border-l lg:pl-12"
               style={{
-                color: "rgba(0,0,0,0.8)",
-                borderColor: "var(--epsy-sky-blue)",
+                color: "rgba(255,255,255,0.92)",
+                borderColor: "rgba(255,255,255,0.6)",
               }}
             >
               <p>
