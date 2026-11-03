@@ -43,7 +43,7 @@ function Header() {
     "text-sm font-medium px-3 py-2 rounded-xl transition-colors";
   const active =
     "shadow-sm";
-  const inactive = "hover:bg-white/50";
+  const inactive = "hover:bg-black/5";
 
   const items = [
     { to: "/", label: "Home", end: true },
@@ -88,8 +88,8 @@ function Header() {
                   `${linkBase} ${isActive ? active : inactive}`
                 }
                 style={({ isActive }) => ({
-                  color: isActive ? "white" : "var(--epsy-charcoal)",
-                  backgroundColor: isActive ? "var(--epsy-charcoal)" : "transparent",
+                  color: "var(--epsy-charcoal)",
+                  backgroundColor: isActive ? "var(--epsy-sky-blue)" : "transparent",
                 })}
               >
                 {it.label}
@@ -147,8 +147,8 @@ function Header() {
                 onClick={() => setMobileOpen(false)}
                 className="px-4 py-3 rounded-2xl text-sm font-medium transition-colors"
                 style={({ isActive }) => ({
-                  color: isActive ? "white" : "var(--epsy-charcoal)",
-                  backgroundColor: isActive ? "var(--epsy-charcoal)" : "transparent",
+                  color: "var(--epsy-charcoal)",
+                  backgroundColor: isActive ? "var(--epsy-sky-blue)" : "transparent",
                 })}
               >
                 {it.label}
