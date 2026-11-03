@@ -38,7 +38,7 @@ export default function About() {
             id="who-we-are-title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl lg:text-5xl font-bold mb-8 text-left"
+            className="text-4xl lg:text-5xl font-bold mb-8 text-center"
             style={{ color: "#FFFFFF" }}
           >
             Who We Are: Everyday Psychology NPO (Epsy)
@@ -69,7 +69,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* 2. VISION & MISSION (white) */}
+      {/* 2. VISION, MISSION & MOTTO (white) */}
       <section
         id="vision-and-mission"
         className="py-16 lg:py-24 bg-white"
@@ -123,6 +123,27 @@ export default function About() {
                 </motion.div>
               );
             })}
+
+            <motion.div
+              {...fadeInUp}
+              className="md:col-span-2 epsy-page-gradient p-8 lg:p-10 rounded-[2rem] text-left"
+              aria-labelledby="motto-title"
+            >
+              <h3
+                id="motto-title"
+                className="text-2xl lg:text-3xl font-bold mb-4"
+                style={{ color: "#FFFFFF" }}
+              >
+                "It's All About Mentality."
+              </h3>
+
+              <p
+                className="max-w-3xl text-base sm:text-lg leading-8 sm:leading-9 text-left"
+                style={{ color: "rgba(255,255,255,0.92)" }}
+              >
+                Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters, it's where everything begins.
+              </p>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -174,32 +195,6 @@ export default function About() {
                 This perspective can be applied across every sphere of a young person’s life, from academics and personal development to relationships and future careers. By adopting it, young people can gain an advantage: the ability to approach life with awareness, discipline, and a mindset that supports better decisions and stronger results.
               </p>
             </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 4. MOTTO (blue gradient; footer below is charcoal) */}
-      <section
-        id="motto"
-        className="epsy-page-gradient py-16 lg:py-24"
-        aria-labelledby="motto-title"
-      >
-        <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
-          <motion.div {...fadeInUp}>
-            <h2
-              id="motto-title"
-              className="text-3xl lg:text-4xl font-bold mb-6"
-              style={{ color: "#FFFFFF" }}
-            >
-              "It's All About Mentality."
-            </h2>
-
-            <p
-              className="max-w-3xl text-base sm:text-lg leading-8 sm:leading-9 text-left"
-              style={{ color: "rgba(255,255,255,0.9)" }}
-            >
-              Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters, it's where everything begins.
-            </p>
           </motion.div>
         </div>
       </section>

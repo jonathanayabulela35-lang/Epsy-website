@@ -88,8 +88,8 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <p
-                className="text-lg lg:text-xl mb-10 leading-relaxed"
-                style={{ color: "rgba(255,255,255,0.9)" }}
+                className="text-lg lg:text-xl mb-10 leading-relaxed text-center max-w-3xl mx-auto"
+                style={{ color: "rgba(255,255,255,0.9)", textAlign: "center" }}
               >
                 {view.hero_subtitle}
               </p>

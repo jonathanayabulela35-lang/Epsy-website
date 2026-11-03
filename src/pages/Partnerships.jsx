@@ -42,7 +42,7 @@ export default function Partnerships() {
       <section className="epsy-page-gradient pt-16 pb-32 lg:pt-24 lg:pb-40">
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
           <h1
-            className="text-4xl lg:text-5xl font-bold"
+            className="text-4xl lg:text-5xl font-bold text-center"
             style={{ color: "#FFFFFF" }}
           >
             Partner With Everyday Psychology NPO (Epsy NPO)
