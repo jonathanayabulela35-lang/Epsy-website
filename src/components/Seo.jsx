@@ -8,39 +8,39 @@ const OG_IMAGE = `${SITE}/assets/logo.jpg`;
 /** Title and description for every route. Keep titles under ~60 characters. */
 const ROUTES = {
   "/": {
-    title: "Epsy NPO | Everyday Psychology NPO, South Africa",
+    title: "Home | Epsy NPO",
     description:
       "Everyday Psychology NPO (Epsy NPO) is a South African non-profit raising psychological awareness and building resilience in young people and students. It's all about mentality.",
   },
   "/about": {
-    title: "About Everyday Psychology NPO (Epsy) | Vision & Mission",
+    title: "About | Epsy NPO",
     description:
       "Learn about Everyday Psychology NPO (Epsy NPO): our vision to instil psychological resilience, our mission to raise psychological awareness, and the Psychological Perspective behind our work with South African students.",
   },
   "/partnerships": {
-    title: "Partner With Epsy NPO | Everyday Psychology NPO",
+    title: "Partner | Epsy NPO",
     description:
       "Partner with Everyday Psychology NPO (Epsy NPO). We work with schools, youth development organisations and individual supporters to build psychological resilience in young people.",
   },
   "/gallery": {
-    title: "Gallery | Everyday Psychology NPO (Epsy NPO)",
+    title: "Gallery | Epsy NPO",
     description:
       "Photos from the work and events of Everyday Psychology NPO (Epsy NPO), a South African non-profit focused on psychological awareness and youth resilience.",
   },
   "/contact": {
-    title: "Contact Epsy NPO | Everyday Psychology NPO",
+    title: "Contact | Epsy NPO",
     description:
       "Get in touch with Everyday Psychology NPO (Epsy NPO) about partnerships, volunteering or general enquiries.",
   },
   "/privacy": {
-    title: "Privacy Policy | Everyday Psychology NPO (Epsy NPO)",
+    title: "Privacy | Epsy NPO",
     description:
       "Privacy policy for the Everyday Psychology NPO (Epsy NPO) website.",
   },
 };
 
 const NOT_FOUND = {
-  title: "Page not found | Everyday Psychology NPO (Epsy NPO)",
+  title: "Page not found | Epsy NPO",
   description: "This page could not be found.",
 };
 

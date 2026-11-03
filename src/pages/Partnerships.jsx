@@ -38,14 +38,14 @@ export default function Partnerships() {
 
   return (
     <div>
-      {/* Header (gradient). Extra bottom padding lets the card panel overlap it. */}
-      <section className="epsy-page-gradient pt-16 pb-32 lg:pt-24 lg:pb-40">
+      {/* Header (gradient) */}
+      <section className="epsy-page-gradient pt-16 pb-16 lg:pt-24 lg:pb-20">
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">
           <h1
             className="text-4xl lg:text-5xl font-bold text-center"
             style={{ color: "#FFFFFF" }}
           >
-            Partner With Everyday Psychology NPO
+            Partner With Everyday Psychology NPO (Epsy NPO)
           </h1>
           <p
             className="mt-4 text-base sm:text-lg leading-8 text-left"
@@ -56,12 +56,12 @@ export default function Partnerships() {
         </div>
       </section>
 
-      {/* Opportunities: one connected panel, overlapping the header */}
+      {/* Opportunities: one connected panel, spaced clear of the header */}
       <section
-        className="epsy-tint-section relative pb-16 lg:pb-24"
+        className="epsy-tint-section relative pt-12 pb-16 lg:pt-16 lg:pb-24"
         aria-labelledby="opportunities-title"
       >
-        <div className="max-w-6xl mx-auto px-6 lg:px-12 -mt-20 lg:-mt-24">
+        <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <motion.div
             {...fadeInUp}
             className="rounded-[2rem] bg-white border overflow-hidden"
