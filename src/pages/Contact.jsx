@@ -101,7 +101,7 @@ export default function Contact() {
             className="text-4xl lg:text-5xl font-bold mb-4"
             style={{ color: "#FFFFFF" }}
           >
-            Contact Everyday Psychology NPO (Epsy NPO)
+            Contact Everyday Psychology NPO
           </motion.h1>
 
           <motion.p

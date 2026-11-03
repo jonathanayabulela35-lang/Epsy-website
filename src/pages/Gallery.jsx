@@ -66,7 +66,7 @@ function MarqueeRow({ images, direction, duration }) {
 export default function Gallery() {
   const view = {
     header_title: "Gallery",
-    header_subtitle: "A look into our moments and work.",
+    header_subtitle: "A look into some of our moments.",
   };
 
   const sorted = useMemo(

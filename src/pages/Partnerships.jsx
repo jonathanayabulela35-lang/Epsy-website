@@ -45,7 +45,7 @@ export default function Partnerships() {
             className="text-4xl lg:text-5xl font-bold text-center"
             style={{ color: "#FFFFFF" }}
           >
-            Partner With Everyday Psychology NPO (Epsy NPO)
+            Partner With Everyday Psychology NPO
           </h1>
           <p
             className="mt-4 text-base sm:text-lg leading-8 text-left"
