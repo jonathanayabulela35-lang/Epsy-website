@@ -14,6 +14,7 @@ import Contact from "./pages/Contact.jsx";
 import Gallery from "./pages/Gallery.jsx";
 import Partnerships from "./pages/Partnerships.jsx";
 import PageNotFound from "./lib/PageNotFound.jsx";
+import Seo from "./components/Seo.jsx";
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -329,6 +330,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
+        <Seo />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />

@@ -48,7 +48,7 @@ function MarqueeRow({ images, direction, duration }) {
               >
                 <img
                   src={img.image_url}
-                  alt={isClone ? "" : "Epsy gallery moment"}
+                  alt={isClone ? "" : "Everyday Psychology NPO (Epsy NPO) gallery photo"}
                   loading="lazy"
                   decoding="async"
                   draggable={false}

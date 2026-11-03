@@ -1,5 +1,5 @@
 {
-  "name": "Epsy",
+  "name": "Everyday Psychology NPO (Epsy NPO)",
   "short_name": "Epsy",
   "start_url": "/",
   "display": "standalone",
@@ -11,5 +11,6 @@
       "sizes": "any",
       "type": "image/svg+xml"
     }
-  ]
+  ],
+  "description": "Everyday Psychology NPO (Epsy NPO) raises psychological awareness and builds resilience in young people and students in South Africa."
 }

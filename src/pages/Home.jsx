@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const view = {
-    hero_title: "Its All about Mentality.",
-    hero_subtitle: "",
+    hero_title: "It's All About Mentality.",
+    hero_subtitle:
+      "Everyday Psychology NPO (Epsy NPO) is a South African non-profit raising psychological awareness and building resilience in young people and students.",
     hero_cta_primary_text: "Learn more",
     hero_cta_secondary_text: "Contact us",
 

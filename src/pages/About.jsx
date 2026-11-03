@@ -41,7 +41,7 @@ export default function About() {
             className="text-4xl lg:text-5xl font-bold mb-8 text-left"
             style={{ color: "#FFFFFF" }}
           >
-            Who We Are
+            Who We Are: Everyday Psychology NPO (Epsy)
           </motion.h1>
 
           <motion.div
