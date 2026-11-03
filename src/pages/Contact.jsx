@@ -84,7 +84,7 @@ export default function Contact() {
     },
     {
       icon: Phone,
-      title: "Phone",
+      title: "Phone & WhatsApp",
       detail: "+27 65 064 7232",
       link: "tel:+27650647232",
     },
