@@ -125,6 +125,7 @@ export default function Home() {
                   }}
                 >
                   {view.hero_cta_secondary_text}
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </motion.div>

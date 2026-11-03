@@ -15,6 +15,7 @@ import Gallery from "./pages/Gallery.jsx";
 import Partnerships from "./pages/Partnerships.jsx";
 import PageNotFound from "./lib/PageNotFound.jsx";
 import Seo from "./components/Seo.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -58,7 +59,7 @@ function Header() {
     <>
       <header
         className="sticky top-0 z-50 backdrop-blur-xl border-b"
-        style={{ backgroundColor: "rgba(250,251,249,0.86)", borderColor: "rgba(15,30,36,0.08)" }}
+        style={{ backgroundColor: "#E6F8FC", borderColor: "rgba(15,30,36,0.08)" }}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-12 h-[92px] flex items-center justify-between">
           <NavLink
@@ -136,7 +137,7 @@ function Header() {
           }`}
           style={{
             borderColor: "rgba(15,30,36,0.08)",
-            backgroundColor: "rgba(250,251,249,0.98)",
+            backgroundColor: "#E6F8FC",
           }}
         >
           <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-2">
@@ -331,6 +332,7 @@ export default function App() {
       <Header />
       <main className="flex-1">
         <Seo />
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />

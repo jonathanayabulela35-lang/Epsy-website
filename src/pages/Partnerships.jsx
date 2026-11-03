@@ -126,8 +126,11 @@ export default function Partnerships() {
         </div>
       </section>
 
-      {/* Closing call to action (white; footer below is charcoal) */}
-      <section className="py-14 lg:py-20 bg-white">
+      {/* Closing call to action (same tint as the section above; footer below is charcoal) */}
+      <section
+        className="epsy-tint-section py-14 lg:py-20 border-t"
+        style={{ borderColor: "rgba(15,30,36,0.08)" }}
+      >
         <div className="max-w-6xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="max-w-2xl">
             <h2

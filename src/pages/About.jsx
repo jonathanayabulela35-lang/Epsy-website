@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Target, Eye, BookOpen } from "lucide-react";
+import { Target, Eye, BookOpen, Quote } from "lucide-react";
 
 export default function About() {
   const fadeInUp = {
@@ -41,7 +41,7 @@ export default function About() {
             className="text-4xl lg:text-5xl font-bold mb-8 text-center"
             style={{ color: "#FFFFFF" }}
           >
-            Who We Are: Epsy NPO
+            Who We Are: Everyday Psychology NPO (Epsy)
           </motion.h1>
 
           <motion.div
@@ -93,60 +93,104 @@ export default function About() {
                   key={item.key}
                   {...fadeInUp}
                   transition={{ delay: i * 0.1, duration: 0.6 }}
-                  className="p-8 lg:p-10 rounded-[2rem] border"
+                  whileHover={{ y: -6 }}
+                  className="relative overflow-hidden rounded-[2rem] border bg-white p-8 lg:p-10 pt-10 lg:pt-12"
                   style={{
-                    backgroundColor: "#FFFFFF",
-                    borderColor: "rgba(15,30,36,0.08)",
-                    boxShadow: "0 18px 50px rgba(15,30,36,0.06)",
+                    borderColor: "rgba(12,192,223,0.28)",
+                    boxShadow: "0 24px 60px rgba(12,192,223,0.16)",
                   }}
                 >
+                  {/* colour bar across the top */}
+                  <div className="epsy-page-gradient absolute inset-x-0 top-0 h-2" />
+
+                  {/* soft glow and oversized icon watermark */}
                   <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-                    style={{ backgroundColor: "var(--epsy-sky-blue)" }}
-                  >
-                    <Icon className="w-7 h-7 text-white" />
+                    className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full"
+                    style={{
+                      background:
+                        "radial-gradient(circle, rgba(12,192,223,0.22), transparent 70%)",
+                    }}
+                  />
+                  <Icon
+                    className="pointer-events-none absolute -bottom-6 -right-4 h-40 w-40"
+                    style={{ color: "rgba(12,192,223,0.10)" }}
+                    strokeWidth={1.25}
+                  />
+
+                  <div className="relative">
+                    <div
+                      className="epsy-page-gradient w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
+                      style={{ boxShadow: "0 12px 28px rgba(12,192,223,0.35)" }}
+                    >
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+
+                    <h3
+                      className="text-2xl lg:text-3xl font-bold mb-3"
+                      style={{ color: "var(--epsy-charcoal)" }}
+                    >
+                      {item.title}
+                    </h3>
+
+                    <p
+                      className="text-lg sm:text-xl leading-8 text-left font-medium"
+                      style={{ color: "var(--epsy-slate-blue)" }}
+                    >
+                      {item.text}
+                    </p>
                   </div>
-
-                  <h3
-                    className="text-2xl font-bold mb-4"
-                    style={{ color: "var(--epsy-charcoal)" }}
-                  >
-                    {item.title}
-                  </h3>
-
-                  <p
-                    className="text-base sm:text-lg leading-8 text-left"
-                    style={{ color: "var(--epsy-slate-blue)" }}
-                  >
-                    {item.text}
-                  </p>
                 </motion.div>
               );
             })}
 
             <motion.div
               {...fadeInUp}
-              className="md:col-span-2 p-8 lg:p-10 rounded-[2rem] border text-left"
+              whileHover={{ y: -6 }}
+              className="md:col-span-2 relative overflow-hidden rounded-[2rem] border bg-white p-8 lg:p-12 text-left"
               style={{
-                backgroundColor: "#FFFFFF",
-                borderColor: "rgba(15,30,36,0.08)",
-                boxShadow: "0 18px 50px rgba(15,30,36,0.06)",
+                borderColor: "rgba(12,192,223,0.28)",
+                boxShadow: "0 24px 60px rgba(12,192,223,0.16)",
               }}
             >
-              <h3
-                id="motto-title"
-                className="text-2xl lg:text-3xl font-bold mb-4"
-                style={{ color: "var(--epsy-charcoal)" }}
-              >
-                "It's All About Mentality."
-              </h3>
+              {/* colour bar down the left edge */}
+              <div className="epsy-page-gradient absolute inset-y-0 left-0 w-2" />
 
-              <p
-                className="max-w-3xl text-base sm:text-lg leading-8 sm:leading-9 text-left"
-                style={{ color: "var(--epsy-slate-blue)" }}
-              >
-                Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters, it's where everything begins.
-              </p>
+              <div
+                className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(12,192,223,0.20), transparent 70%)",
+                }}
+              />
+              <Quote
+                className="pointer-events-none absolute right-6 top-6 h-24 w-24 lg:h-32 lg:w-32"
+                style={{ color: "rgba(12,192,223,0.14)" }}
+                strokeWidth={1.25}
+              />
+
+              <div className="relative lg:pl-4">
+                <div
+                  className="epsy-page-gradient w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
+                  style={{ boxShadow: "0 12px 28px rgba(12,192,223,0.35)" }}
+                >
+                  <Quote className="w-8 h-8 text-white" />
+                </div>
+
+                <h3
+                  id="motto-title"
+                  className="text-3xl lg:text-4xl font-bold mb-4"
+                  style={{ color: "var(--epsy-charcoal)" }}
+                >
+                  "It's All About Mentality."
+                </h3>
+
+                <p
+                  className="max-w-3xl text-base sm:text-lg leading-8 sm:leading-9 text-left"
+                  style={{ color: "var(--epsy-slate-blue)" }}
+                >
+                  Your thinking shapes your decisions. Your decisions shape your actions. Your actions shape your outcomes. When you strengthen your mentality, you strengthen your foundation for everything that follows. This is why mentality matters, it's where everything begins.
+                </p>
+              </div>
             </motion.div>
           </div>
         </div>
