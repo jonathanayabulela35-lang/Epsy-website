@@ -58,8 +58,7 @@ export default function Partnerships() {
 
       {/* Opportunities: one connected panel, overlapping the header */}
       <section
-        className="relative pb-16 lg:pb-24"
-        style={{ backgroundColor: "var(--epsy-off-white)" }}
+        className="epsy-tint-section relative pb-16 lg:pb-24"
         aria-labelledby="opportunities-title"
       >
         <div className="max-w-6xl mx-auto px-6 lg:px-12 -mt-20 lg:-mt-24">
@@ -127,22 +126,19 @@ export default function Partnerships() {
         </div>
       </section>
 
-      {/* Closing call to action */}
-      <section
-        className="py-14 lg:py-20"
-        style={{ backgroundColor: "var(--epsy-charcoal)" }}
-      >
+      {/* Closing call to action (white; footer below is charcoal) */}
+      <section className="py-14 lg:py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="max-w-2xl">
             <h2
               className="text-2xl lg:text-3xl font-bold mb-3 text-left"
-              style={{ color: "#FFFFFF" }}
+              style={{ color: "var(--epsy-charcoal)" }}
             >
               Ready to partner with us?
             </h2>
             <p
               className="text-base sm:text-lg leading-8 text-left"
-              style={{ color: "rgba(255,255,255,0.85)" }}
+              style={{ color: "var(--epsy-slate-blue)" }}
             >
               Tell us how you would like to be involved and we will get back to you.
             </p>

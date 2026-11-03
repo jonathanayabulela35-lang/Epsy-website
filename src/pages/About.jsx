@@ -69,14 +69,10 @@ export default function About() {
         </div>
       </section>
 
-      {/* 2. VISION & MISSION (off-white band) */}
+      {/* 2. VISION & MISSION (white) */}
       <section
         id="vision-and-mission"
-        className="py-16 lg:py-24 border-y"
-        style={{
-          backgroundColor: "var(--epsy-off-white)",
-          borderColor: "rgba(15,30,36,0.08)",
-        }}
+        className="py-16 lg:py-24 bg-white"
         aria-labelledby="vision-mission-title"
       >
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
@@ -97,8 +93,9 @@ export default function About() {
                   key={item.key}
                   {...fadeInUp}
                   transition={{ delay: i * 0.1, duration: 0.6 }}
-                  className="p-8 lg:p-10 rounded-[2rem] border bg-white"
+                  className="p-8 lg:p-10 rounded-[2rem] border"
                   style={{
+                    backgroundColor: "var(--epsy-off-white)",
                     borderColor: "rgba(15,30,36,0.08)",
                     boxShadow: "0 18px 50px rgba(15,30,36,0.06)",
                   }}
@@ -130,10 +127,10 @@ export default function About() {
         </div>
       </section>
 
-      {/* 3. THE PSYCHOLOGICAL PERSPECTIVE (white) */}
+      {/* 3. THE PSYCHOLOGICAL PERSPECTIVE (light sky tint) */}
       <section
         id="psychological-perspective"
-        className="py-16 lg:py-24 bg-white"
+        className="epsy-tint-section py-16 lg:py-24"
         aria-labelledby="perspective-title"
       >
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
@@ -181,11 +178,10 @@ export default function About() {
         </div>
       </section>
 
-      {/* 4. MOTTO (charcoal) */}
+      {/* 4. MOTTO (blue gradient; footer below is charcoal) */}
       <section
         id="motto"
-        className="py-16 lg:py-24"
-        style={{ backgroundColor: "var(--epsy-charcoal)" }}
+        className="epsy-page-gradient py-16 lg:py-24"
         aria-labelledby="motto-title"
       >
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-left">

@@ -131,51 +131,57 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 relative overflow-hidden section-soft">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-          <div className="max-w-3xl mb-14 text-left">
-            <p
-              className="text-sm font-bold uppercase tracking-[0.24em] mb-3"
-              style={{ color: "var(--epsy-sky-blue)" }}
-            >
-              Everyday Psychology
-            </p>
+      <section className="py-16 lg:py-24 bg-white" aria-labelledby="what-title">
+        <div className="max-w-6xl mx-auto px-6 lg:px-12">
+          <div className="max-w-3xl mb-10 text-left">
             <h2
-              className="text-3xl lg:text-5xl font-bold mb-4"
+              id="what-title"
+              className="text-3xl lg:text-4xl font-bold mb-4"
               style={{ color: "var(--epsy-charcoal)" }}
             >
               {view.what_title}
             </h2>
             <p
-              className="text-lg leading-relaxed text-left"
+              className="text-base sm:text-lg leading-8 text-left"
               style={{ color: "var(--epsy-slate-blue)" }}
             >
               {view.what_subtitle}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="rounded-[2rem] border overflow-hidden grid grid-cols-1 md:grid-cols-3 md:divide-x divide-y md:divide-y-0"
+            style={{
+              backgroundColor: "var(--epsy-off-white)",
+              borderColor: "rgba(15,30,36,0.08)",
+              boxShadow: "0 18px 50px rgba(15,30,36,0.06)",
+            }}
+          >
             {(view.cards || []).map((item, idx) => {
               const Icon = iconForIndex(idx);
 
               return (
-                <motion.div
+                <div
                   key={item.key || idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.05 }}
-                  className="modern-card p-8 rounded-[2rem] border"
+                  className="p-8 lg:p-10"
+                  style={{ borderColor: "rgba(15,30,36,0.08)" }}
                 >
                   <div
-                    className="h-12 w-12 rounded-2xl flex items-center justify-center mb-5"
-                    style={{ backgroundColor: "rgba(12,192,223,0.16)" }}
+                    className="h-14 w-14 rounded-2xl flex items-center justify-center mb-6"
+                    style={{ backgroundColor: "var(--epsy-sky-blue)" }}
                   >
-                    <Icon className="h-6 w-6" style={{ color: "var(--epsy-sky-blue)" }} />
+                    <Icon
+                      className="h-7 w-7"
+                      style={{ color: "var(--epsy-charcoal)" }}
+                    />
                   </div>
 
                   <h3
-                    className="text-xl font-semibold mb-3"
+                    className="text-xl font-semibold mb-3 text-left"
                     style={{ color: "var(--epsy-charcoal)" }}
                   >
                     {item.title}
@@ -187,18 +193,18 @@ export default function Home() {
                   >
                     {item.description}
                   </p>
-                </motion.div>
+                </div>
               );
             })}
-          </div>
+          </motion.div>
 
-          <div className="pt-14">
+          <div className="pt-10">
             <Link to={createPageUrl("Partnerships")}>
               <Button
                 className="px-8 py-6 text-base rounded-2xl font-semibold"
                 style={{
-                  backgroundColor: "var(--epsy-charcoal)",
-                  color: "white",
+                  backgroundColor: "var(--epsy-sky-blue)",
+                  color: "var(--epsy-charcoal)",
                 }}
               >
                 {view.partner_button_text}

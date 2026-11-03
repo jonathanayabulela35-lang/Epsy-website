@@ -107,6 +107,9 @@ a:hover button, button:hover {
 /* ---------- Gallery: bidirectional infinite marquee ---------- */
 .marquee {
   overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
   -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
   mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
 }
@@ -128,10 +131,6 @@ a:hover button, button:hover {
   animation-name: marquee-to-right;
 }
 
-.marquee:hover .marquee-track {
-  animation-play-state: paused;
-}
-
 @keyframes marquee-to-left {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
@@ -142,13 +141,8 @@ a:hover button, button:hover {
   to { transform: translateX(0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .marquee {
-    overflow-x: auto;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-  .marquee-track {
-    animation: none !important;
-  }
+
+/* Light sky tint used to separate neighbouring light sections */
+.epsy-tint-section {
+  background-color: #E6F8FC;
 }
