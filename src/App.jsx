@@ -183,7 +183,7 @@ function Footer() {
     },
   ];
 
-  const contactEmail = "everydaypsychologynpo@gmail.com";
+  const contactEmail = "hello@epsy.org.za";
   const contactPhone = "+27 065 064 7232";
 
   return (
@@ -282,7 +282,7 @@ function Footer() {
             className="space-y-3 text-sm"
             style={{ color: "rgba(255,255,255,0.88)" }}
           >
-            <div>Email: {contactEmail}</div>
+            <a href={`mailto:${contactEmail}`} className="hover:underline">Email: {contactEmail}</a>
             <div>Phone: {contactPhone}</div>
           </div>
         </div>

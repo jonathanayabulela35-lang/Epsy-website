@@ -67,9 +67,21 @@ export default function Contact() {
   const contactInfo = [
     {
       icon: Mail,
-      title: "Email",
-      detail: "everydaypsychologynpo@gmail.com",
-      link: "mailto:everydaypsychologynpo@gmail.com",
+      title: "General enquiries",
+      detail: "hello@epsy.org.za",
+      link: "mailto:hello@epsy.org.za",
+    },
+    {
+      icon: Mail,
+      title: "Partnerships",
+      detail: "partners@epsy.org.za",
+      link: "mailto:partners@epsy.org.za",
+    },
+    {
+      icon: Mail,
+      title: "Volunteering",
+      detail: "volunteers@epsy.org.za",
+      link: "mailto:volunteers@epsy.org.za",
     },
     {
       icon: Phone,
