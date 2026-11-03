@@ -16,6 +16,7 @@ import Partnerships from "./pages/Partnerships.jsx";
 import PageNotFound from "./lib/PageNotFound.jsx";
 import Seo from "./components/Seo.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import { GALLERY_IMAGES } from "@/lib/galleryImages";
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -327,6 +328,23 @@ function Privacy() {
 }
 
 export default function App() {
+  // Quietly warm the browser cache with the gallery images once the site has
+  // loaded, so the Gallery page shows them instantly when opened.
+  useEffect(() => {
+    const preload = () =>
+      GALLERY_IMAGES.forEach((img) => {
+        const el = new Image();
+        el.src = img.image_url;
+      });
+
+    if ("requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(preload, { timeout: 4000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const t = setTimeout(preload, 1500);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
