@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Mail,
-  MapPin,
   Phone,
   Send,
   CheckCircle,
@@ -88,12 +87,6 @@ export default function Contact() {
       title: "Phone",
       detail: "+27 65 064 7232",
       link: "tel:+27650647232",
-    },
-    {
-      icon: MapPin,
-      title: "Location",
-      detail: "South Africa",
-      link: "",
     },
   ];
 

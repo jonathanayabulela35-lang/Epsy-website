@@ -282,7 +282,9 @@ function Footer() {
             className="space-y-3 text-sm"
             style={{ color: "rgba(255,255,255,0.88)" }}
           >
-            <a href={`mailto:${contactEmail}`} className="hover:underline">Email: {contactEmail}</a>
+            <a href={`mailto:${contactEmail}`} className="block hover:underline">General enquiries: {contactEmail}</a>
+            <a href="mailto:partners@epsy.org.za" className="block hover:underline">Partnerships: partners@epsy.org.za</a>
+            <a href="mailto:volunteers@epsy.org.za" className="block hover:underline">Volunteering: volunteers@epsy.org.za</a>
             <div>Phone: {contactPhone}</div>
           </div>
         </div>
