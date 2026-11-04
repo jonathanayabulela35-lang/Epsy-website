@@ -7,9 +7,14 @@
   "theme_color": "#0CC0DF",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "/favicon-192x192.png?v=2",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512x512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ],
   "description": "Everyday Psychology NPO (Epsy NPO) raises psychological awareness and builds resilience in young people and students in South Africa."

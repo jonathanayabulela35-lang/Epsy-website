@@ -69,9 +69,9 @@ function Header() {
             onClick={() => setMobileOpen(false)}
           >
             <img
-              src="/assets/logo.jpg"
-              alt="Everyday Psychology NPO logo"
-              className="h-12 w-12 rounded-2xl object-contain bg-white p-1 shadow-sm ring-1 ring-black/5"
+              src="/assets/epsy-header-logo.png"
+              alt="Epsy NPO logo"
+              className="h-12 w-auto shrink-0 object-contain"
             />
             <span
               className="font-semibold tracking-tight text-sm sm:text-base lg:text-lg leading-tight"
