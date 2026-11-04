@@ -71,15 +71,9 @@ function Header() {
           >
             <img
               src={headerLogo}
-              alt="Epsy NPO logo"
-              className="h-12 w-auto shrink-0 object-contain"
+              alt="Everyday Psychology NPO (Epsy NPO) logo"
+              className="h-14 w-auto shrink-0 object-contain"
             />
-            <span
-              className="font-semibold tracking-tight text-sm sm:text-base lg:text-lg leading-tight"
-              style={{ color: "var(--epsy-charcoal)" }}
-            >
-              Everyday Psychology NPO
-            </span>
           </NavLink>
 
           <nav className="hidden lg:flex items-center gap-2">
