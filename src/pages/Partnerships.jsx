@@ -57,7 +57,7 @@ export default function Partnerships() {
             className="mt-4 text-base sm:text-lg leading-8 text-left"
             style={{ color: "rgba(255,255,255,0.92)" }}
           >
-            To start a conversation about partnering with us, email{" "}
+            To start a conversation about partnering with us, please email{" "}
             <a
               href="mailto:partners@epsy.org.za"
               className="font-semibold underline underline-offset-4"
