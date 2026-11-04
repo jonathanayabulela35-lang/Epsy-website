@@ -17,6 +17,7 @@ import PageNotFound from "./lib/PageNotFound.jsx";
 import Seo from "./components/Seo.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import { GALLERY_IMAGES } from "@/lib/galleryImages";
+import headerLogo from "@/lib/headerLogo";
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -69,7 +70,7 @@ function Header() {
             onClick={() => setMobileOpen(false)}
           >
             <img
-              src="/assets/epsy-header-logo.png"
+              src={headerLogo}
               alt="Epsy NPO logo"
               className="h-12 w-auto shrink-0 object-contain"
             />
