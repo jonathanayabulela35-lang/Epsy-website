@@ -72,7 +72,7 @@ function Header() {
             <img
               src={headerLogo}
               alt="Everyday Psychology NPO (Epsy NPO) logo"
-              className="h-14 w-auto shrink-0 object-contain"
+              className="h-9 sm:h-10 w-auto shrink-0 object-contain"
             />
           </NavLink>
 

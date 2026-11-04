@@ -53,6 +53,20 @@ export default function Partnerships() {
           >
             We partner with schools, organisations, and individuals who believe in the goal Everyday Psychology NPO is working toward as we aim to equip young people with the psychological tools needed to navigate life with awareness, and mental resilience. Whether through collaborations, programme support, or shared initiatives, we welcome those who are committed to shaping a generation that is mentally prepared and intentional in how they approach both life and learning.
           </p>
+          <p
+            className="mt-4 text-base sm:text-lg leading-8 text-left"
+            style={{ color: "rgba(255,255,255,0.92)" }}
+          >
+            To start a conversation about partnering with us, email{" "}
+            <a
+              href="mailto:partners@epsy.org.za"
+              className="font-semibold underline underline-offset-4"
+              style={{ color: "#FFFFFF" }}
+            >
+              partners@epsy.org.za
+            </a>
+            .
+          </p>
         </div>
       </section>
 
@@ -143,7 +157,15 @@ export default function Partnerships() {
               className="text-base sm:text-lg leading-8 text-left"
               style={{ color: "var(--epsy-slate-blue)" }}
             >
-              Tell us how you would like to be involved with Epsy NPO and we will get back to you.
+              Tell us how you would like to be involved with Epsy NPO and we will get back to you. Email us at{" "}
+              <a
+                href="mailto:partners@epsy.org.za"
+                className="font-semibold underline underline-offset-4"
+                style={{ color: "var(--epsy-charcoal)" }}
+              >
+                partners@epsy.org.za
+              </a>{" "}
+              or use the contact form.
             </p>
           </div>
 
