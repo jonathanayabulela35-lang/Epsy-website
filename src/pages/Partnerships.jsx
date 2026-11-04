@@ -45,13 +45,13 @@ export default function Partnerships() {
             className="text-4xl lg:text-5xl font-bold text-center"
             style={{ color: "#FFFFFF" }}
           >
-            Partner With Everyday Psychology NPO (Epsy NPO)
+            Partner With Everyday Psychology NPO
           </h1>
           <p
             className="mt-4 text-base sm:text-lg leading-8 text-left"
             style={{ color: "rgba(255,255,255,0.92)" }}
           >
-            We partner with schools, organisations, and individuals who believe in the goal Everyday Psychology NPO (Epsy NPO) is working toward. As we aim to equip young people with the psychological tools needed to navigate life with awareness, and resilience. Whether through collaborations, programme support, or shared initiatives, we welcome those who are committed to shaping a generation that is mentally prepared and intentional in how they approach both life and learning.
+            We partner with schools, organisations, and individuals who believe in the goal Everyday Psychology NPO is working toward as we aim to equip young people with the psychological tools needed to navigate life with awareness, and mental resilience. Whether through collaborations, programme support, or shared initiatives, we welcome those who are committed to shaping a generation that is mentally prepared and intentional in how they approach both life and learning.
           </p>
         </div>
       </section>
